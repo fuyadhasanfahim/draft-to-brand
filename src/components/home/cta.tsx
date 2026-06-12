@@ -19,7 +19,7 @@ export function HomeCta() {
       <Container>
         <motion.div
           style={{ y }}
-          className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#ff3131] via-[#e62828] to-[#a01818] p-8 text-white md:p-20"
+          className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#ff3131] via-[#e62828] to-[#a01818] p-7 text-white md:rounded-[40px] md:p-20"
         >
           <div
             aria-hidden
@@ -35,7 +35,7 @@ export function HomeCta() {
                 <span className="grid h-1.5 w-1.5 rounded-full bg-white" />
                 Let's begin
               </span>
-              <h2 className="text-display mt-6 text-5xl font-medium leading-[0.95] md:text-7xl">
+              <h2 className="text-display mt-6 text-4xl font-medium leading-[0.95] sm:text-5xl md:text-7xl">
                 Your brand,<br />
                 <span className="text-serif italic font-normal text-white/80">
                   on the cover.

@@ -94,14 +94,23 @@ export function ContactForm() {
       />
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs uppercase tracking-[0.16em] text-muted">
+        <span
+          id="budget-label"
+          className="text-xs uppercase tracking-[0.16em] text-muted"
+        >
           Monthly budget
-        </label>
-        <div className="flex flex-wrap gap-2">
+        </span>
+        <div
+          role="radiogroup"
+          aria-labelledby="budget-label"
+          className="flex flex-wrap gap-2"
+        >
           {budgets.map((b) => (
             <button
               type="button"
               key={b}
+              role="radio"
+              aria-checked={budget === b}
               onClick={() => setBudget(b)}
               className={`rounded-full border px-4 py-2 text-sm transition-all ${
                 budget === b
@@ -115,22 +124,36 @@ export function ContactForm() {
         </div>
         <input type="hidden" name="budget" value={budget} />
         {errors.budget && (
-          <span className="text-xs text-[#ff3131]">{errors.budget}</span>
+          <span role="alert" className="text-xs text-[#ff3131]">
+            {errors.budget}
+          </span>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs uppercase tracking-[0.16em] text-muted">
+        <label
+          htmlFor="contact-message"
+          className="text-xs uppercase tracking-[0.16em] text-muted"
+        >
           Tell us about your brand
         </label>
         <textarea
+          id="contact-message"
           name="message"
           rows={5}
+          aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? "contact-message-error" : undefined}
           placeholder="What's the moment you're in? What does success look like in 12 months?"
           className="rounded-2xl border border-[color:var(--color-border)] bg-white px-4 py-3.5 text-[15px] outline-none transition-colors focus:border-foreground/40"
         />
         {errors.message && (
-          <span className="text-xs text-[#ff3131]">{errors.message}</span>
+          <span
+            id="contact-message-error"
+            role="alert"
+            className="text-xs text-[#ff3131]"
+          >
+            {errors.message}
+          </span>
         )}
       </div>
 
@@ -155,18 +178,30 @@ function Field({
   placeholder?: string;
   error?: string;
 }) {
+  const id = `field-${name}`;
+  const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs uppercase tracking-[0.16em] text-muted">
+      <label
+        htmlFor={id}
+        className="text-xs uppercase tracking-[0.16em] text-muted"
+      >
         {label}
       </label>
       <input
+        id={id}
         name={name}
         type={type}
         placeholder={placeholder}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
         className="rounded-2xl border border-[color:var(--color-border)] bg-white px-4 py-3.5 text-[15px] outline-none transition-colors focus:border-foreground/40"
       />
-      {error && <span className="text-xs text-[#ff3131]">{error}</span>}
+      {error && (
+        <span id={errorId} role="alert" className="text-xs text-[#ff3131]">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

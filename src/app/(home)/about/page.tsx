@@ -21,7 +21,7 @@ export default function AboutPage() {
             <Badge>About the studio</Badge>
           </Reveal>
           <Reveal delay={0.05}>
-            <h1 className="text-display mt-6 max-w-5xl text-5xl font-medium leading-[0.95] md:text-7xl lg:text-[96px]">
+            <h1 className="text-display mt-6 max-w-5xl text-4xl font-medium leading-[0.95] sm:text-5xl md:text-7xl lg:text-[96px]">
               A studio that
               <br />
               <span className="text-serif italic font-normal text-muted">
@@ -64,7 +64,7 @@ export default function AboutPage() {
             ].map((b) => (
               <div
                 key={b.label}
-                className="flex flex-col gap-5 rounded-3xl border border-[color:var(--color-border)] bg-white p-8 md:p-10"
+                className="flex flex-col gap-5 rounded-3xl border border-[color:var(--color-border)] bg-white p-7 md:p-10"
               >
                 <span className="text-xs uppercase tracking-[0.18em] text-[#ff3131]">
                   {b.label}

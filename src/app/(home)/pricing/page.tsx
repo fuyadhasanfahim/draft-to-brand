@@ -28,7 +28,7 @@ export default function PricingPage() {
               <Badge>Pricing</Badge>
             </Reveal>
             <Reveal delay={0.05}>
-              <h1 className="text-display mt-6 max-w-4xl text-5xl font-medium leading-[0.95] md:text-7xl lg:text-[88px]">
+              <h1 className="text-display mt-6 max-w-4xl text-4xl font-medium leading-[0.95] sm:text-5xl md:text-7xl lg:text-[88px]">
                 Built for brands that
                 <br />
                 <span className="text-serif italic font-normal text-muted">

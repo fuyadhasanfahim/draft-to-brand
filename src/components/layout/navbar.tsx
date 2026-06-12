@@ -70,7 +70,7 @@ export function Navbar() {
                   {active && (
                     <motion.span
                       layoutId="nav-pill"
-                      className="absolute inset-0 -z-10 rounded-full bg-[#282a2a]/6"
+                      className="absolute inset-0 -z-10 rounded-full bg-[#282a2a]/[0.07]"
                       transition={{
                         type: "spring",
                         stiffness: 360,

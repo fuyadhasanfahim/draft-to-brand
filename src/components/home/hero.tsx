@@ -46,7 +46,7 @@ export function Hero() {
             </Badge>
           </motion.div>
 
-          <h1 className="text-display mt-8 max-w-5xl text-center text-[14vw] font-medium leading-[0.92] text-foreground sm:text-7xl md:text-[88px] lg:text-[112px]">
+          <h1 className="text-display mt-8 max-w-5xl text-center text-[15vw] font-medium leading-[0.92] text-foreground sm:text-[80px] md:text-[88px] lg:text-[112px]">
             <AnimatedLine delay={0.1}>From Draft</AnimatedLine>
             <AnimatedLine delay={0.18}>
               <span className="text-serif italic font-normal text-muted">
@@ -105,12 +105,12 @@ export function Hero() {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="glass-card flex flex-col gap-2 rounded-2xl p-5"
+              className="glass-card flex flex-col gap-1.5 rounded-2xl p-4 md:gap-2 md:p-5"
             >
-              <div className="text-display text-3xl font-medium text-foreground md:text-4xl">
+              <div className="text-display text-2xl font-medium text-foreground md:text-4xl">
                 {s.value}
               </div>
-              <div className="text-xs uppercase tracking-[0.16em] text-muted">
+              <div className="text-[10px] uppercase tracking-[0.14em] text-muted md:text-xs md:tracking-[0.16em]">
                 {s.label}
               </div>
             </div>
@@ -155,33 +155,32 @@ function HeroCanvas() {
       initial={{ opacity: 0, y: 60 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mt-24 grid grid-cols-12 gap-4"
+      className="relative mt-16 grid grid-cols-12 gap-3 md:mt-24 md:gap-4"
     >
       {/* Editorial card 1 */}
       <FloatingCard
-        className="col-span-12 md:col-span-5 row-span-2"
+        className="col-span-12 md:col-span-5 md:row-span-2"
         delay={0.1}
       >
-        <div className="relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#282a2a] to-[#3a3c3c] p-8 text-white">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/50">
+        <div className="relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#282a2a] to-[#3a3c3c] p-6 text-white md:p-8">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/50 md:text-xs">
             <IconSparkles size={14} /> Brand · Strategy
           </div>
-          <p className="text-display mt-12 text-4xl font-medium leading-[1] md:text-5xl">
-            We don't make
-            <br />
+          <p className="text-display mt-8 text-3xl font-medium leading-[1.02] sm:text-4xl md:mt-12 md:text-5xl md:leading-[1]">
+            We don't make{" "}
             <span className="text-serif italic font-normal text-white/60">
               ordinary
             </span>{" "}
             brands.
           </p>
-          <div className="mt-12 flex items-end justify-between">
+          <div className="mt-8 flex items-end justify-between md:mt-12">
             <div>
-              <div className="text-3xl font-medium">04</div>
-              <div className="text-xs uppercase tracking-[0.18em] text-white/40">
+              <div className="text-2xl font-medium md:text-3xl">04</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-white/40 md:text-xs">
                 Pillars
               </div>
             </div>
-            <div className="text-right text-xs text-white/40">
+            <div className="text-right text-[10px] text-white/40 md:text-xs">
               Studio · 2026
             </div>
           </div>
@@ -193,20 +192,20 @@ function HeroCanvas() {
       </FloatingCard>
 
       <FloatingCard
-        className="col-span-6 md:col-span-4"
+        className="col-span-12 sm:col-span-6 md:col-span-4"
         delay={0.2}
       >
-        <div className="glass-card flex h-full flex-col justify-between rounded-3xl p-6">
-          <div className="text-xs uppercase tracking-[0.18em] text-muted">
+        <div className="glass-card flex h-full min-h-[180px] flex-col justify-between gap-6 rounded-3xl p-5 md:p-6">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-muted md:text-xs">
             <span className="inline-flex items-center gap-1.5">
               <IconBolt size={13} className="text-[#ff3131]" /> Growth
             </span>
           </div>
           <div>
-            <div className="text-display text-5xl font-medium leading-none md:text-6xl">
+            <div className="text-display text-4xl font-medium leading-none md:text-6xl">
               +218%
             </div>
-            <div className="mt-2 text-sm text-muted">
+            <div className="mt-2 text-xs text-muted md:text-sm">
               Avg revenue lift in 6 months
             </div>
           </div>
@@ -214,16 +213,16 @@ function HeroCanvas() {
       </FloatingCard>
 
       <FloatingCard
-        className="col-span-6 md:col-span-3"
+        className="col-span-12 sm:col-span-6 md:col-span-3"
         delay={0.28}
       >
-        <div className="relative h-full overflow-hidden rounded-3xl bg-[#ff3131] p-6 text-white">
-          <div className="text-xs uppercase tracking-[0.18em] text-white/70">
+        <div className="relative h-full min-h-[180px] overflow-hidden rounded-3xl bg-[#ff3131] p-5 text-white md:p-6">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-white/70 md:text-xs">
             <span className="inline-flex items-center gap-1.5">
               <IconTarget size={13} /> Focus
             </span>
           </div>
-          <p className="text-display mt-8 text-2xl font-medium leading-tight">
+          <p className="text-display mt-6 text-xl font-medium leading-tight md:mt-8 md:text-2xl">
             Editorial brands.<br />
             <span className="text-serif italic font-normal text-white/80">
               Built to compound.
@@ -241,16 +240,16 @@ function HeroCanvas() {
         className="col-span-12 md:col-span-7"
         delay={0.36}
       >
-        <div className="glass-card flex h-full items-center justify-between rounded-3xl p-6">
+        <div className="glass-card flex h-full flex-col gap-4 rounded-3xl p-5 md:flex-row md:items-center md:justify-between md:p-6">
           <div className="flex flex-col gap-1">
-            <div className="text-xs uppercase tracking-[0.18em] text-muted">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted md:text-xs">
               Currently scaling
             </div>
-            <div className="text-display text-2xl font-medium md:text-3xl">
+            <div className="text-display text-xl font-medium md:text-3xl">
               12 brands in 4 categories.
             </div>
           </div>
-          <div className="hidden items-center -space-x-3 md:flex">
+          <div className="flex items-center -space-x-3">
             {[
               "#ff3131",
               "#282a2a",
@@ -261,7 +260,7 @@ function HeroCanvas() {
               <div
                 key={i}
                 style={{ background: c }}
-                className="grid h-12 w-12 place-items-center rounded-full border-2 border-white text-xs font-medium text-white"
+                className="grid h-10 w-10 place-items-center rounded-full border-2 border-white text-xs font-medium text-white md:h-12 md:w-12"
               >
                 {String.fromCharCode(65 + i)}
               </div>

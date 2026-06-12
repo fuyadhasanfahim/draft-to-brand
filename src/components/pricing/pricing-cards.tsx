@@ -33,7 +33,7 @@ export function PricingCards() {
             </span>
           </div>
           <div className="mt-6 flex items-baseline gap-2">
-            <span className="text-display text-5xl font-medium md:text-6xl">
+            <span className="text-display text-4xl font-medium md:text-6xl">
               {p.price}
             </span>
             <span

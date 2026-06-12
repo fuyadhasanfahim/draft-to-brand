@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Container } from "../shared/container";
 import { SectionHeader } from "../shared/section-header";
 import { testimonials } from "@/lib/data";
@@ -9,12 +9,26 @@ import { IconQuote } from "@tabler/icons-react";
 
 export function Testimonials() {
   const x = useMotionValue(0);
+  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
+  const [visible, setVisible] = useState(false);
   const items = [...testimonials, ...testimonials];
 
+  // Only run the animation while the section is on-screen.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   useAnimationFrame((_, delta) => {
-    if (paused) return;
+    if (paused || !visible) return;
     const track = trackRef.current;
     if (!track) return;
     const half = track.scrollWidth / 2;
@@ -28,7 +42,10 @@ export function Testimonials() {
   });
 
   return (
-    <section className="overflow-hidden bg-[#282a2a] py-28 text-white md:py-36">
+    <section
+      ref={sectionRef}
+      className="overflow-hidden bg-[#282a2a] py-28 text-white md:py-36"
+    >
       <Container>
         <SectionHeader
           eyebrow="What clients say"
@@ -48,6 +65,9 @@ export function Testimonials() {
         className="relative mt-20 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
       >
         <motion.div
           ref={trackRef}
@@ -60,14 +80,14 @@ export function Testimonials() {
           {items.map((t, i) => (
             <div
               key={i}
-              className="w-[88vw] shrink-0 rounded-3xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur md:w-[480px] md:p-10"
+              className="w-[85vw] shrink-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur sm:w-[420px] md:w-[480px] md:p-10"
             >
               <IconQuote
                 size={28}
                 className="text-[#ff3131]"
                 stroke={1.5}
               />
-              <p className="mt-6 text-xl leading-relaxed text-white/90 md:text-2xl">
+              <p className="mt-6 text-lg leading-relaxed text-white/90 md:text-2xl">
                 {t.quote}
               </p>
               <div className="mt-10 flex items-center gap-4 border-t border-white/10 pt-6">

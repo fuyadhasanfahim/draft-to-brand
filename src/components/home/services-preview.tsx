@@ -37,7 +37,7 @@ export function ServicesPreview() {
             <Link
               href={`/services#${service.slug}`}
               key={service.slug}
-              className="group relative flex flex-col gap-6 bg-background p-8 transition-colors hover:bg-surface md:p-10"
+              className="group relative flex flex-col gap-5 bg-background p-7 transition-colors hover:bg-surface md:gap-6 md:p-10"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-[0.18em] text-muted">

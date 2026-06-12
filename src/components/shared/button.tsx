@@ -47,7 +47,7 @@ export function ButtonLink({
       <a
         href={href}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         className={cn(variantClass[variant], className)}
       >
         {children}

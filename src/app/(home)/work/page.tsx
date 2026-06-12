@@ -20,7 +20,7 @@ export default function WorkPage() {
             <Badge>Selected Work</Badge>
           </Reveal>
           <Reveal delay={0.05}>
-            <h1 className="text-display mt-6 max-w-5xl text-5xl font-medium leading-[0.95] md:text-7xl lg:text-[88px]">
+            <h1 className="text-display mt-6 max-w-5xl text-4xl font-medium leading-[0.95] sm:text-5xl md:text-7xl lg:text-[88px]">
               Stories that
               <br />
               <span className="text-serif italic font-normal text-muted">
@@ -52,19 +52,19 @@ export default function WorkPage() {
                     <span>·</span>
                     <span>{c.year}</span>
                   </div>
-                  <h2 className="text-display text-4xl font-medium leading-[1] md:text-5xl">
+                  <h2 className="text-display text-3xl font-medium leading-[1] sm:text-4xl md:text-5xl">
                     {c.title}
                   </h2>
                   <p className="text-lg leading-relaxed text-muted">
                     {c.summary}
                   </p>
-                  <div className="mt-2 grid grid-cols-3 gap-4 border-t border-[color:var(--color-border)] pt-6">
+                  <div className="mt-2 grid grid-cols-3 gap-3 border-t border-[color:var(--color-border)] pt-6 md:gap-4">
                     {c.metrics.map((m) => (
                       <div key={m.label}>
-                        <div className="text-display text-3xl font-medium md:text-4xl">
+                        <div className="text-display text-2xl font-medium md:text-4xl">
                           {m.value}
                         </div>
-                        <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-muted">
+                        <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-muted md:text-[11px] md:tracking-[0.16em]">
                           {m.label}
                         </div>
                       </div>
@@ -96,7 +96,7 @@ export default function WorkPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="text-serif text-7xl italic leading-none text-white/80 md:text-[120px]">
+                        <div className="text-serif truncate text-5xl italic leading-none text-white/80 sm:text-7xl md:text-[120px]">
                           {c.client.split(" ")[0]}
                         </div>
                       </div>

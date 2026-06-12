@@ -31,7 +31,7 @@ export default function ContactPage() {
             <Badge>Let's talk</Badge>
           </Reveal>
           <Reveal delay={0.05}>
-            <h1 className="text-display mt-6 max-w-5xl text-5xl font-medium leading-[0.95] md:text-7xl lg:text-[88px]">
+            <h1 className="text-display mt-6 max-w-5xl text-4xl font-medium leading-[0.95] sm:text-5xl md:text-7xl lg:text-[88px]">
               Tell us about
               <br />
               <span className="text-serif italic font-normal text-muted">
@@ -171,7 +171,7 @@ function CtaCard({
 
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noreferrer">
+      <a href={href} target="_blank" rel="noopener noreferrer">
         {inner}
       </a>
     );

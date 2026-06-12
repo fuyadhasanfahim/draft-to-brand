@@ -30,16 +30,15 @@ export function Process() {
           }
         />
 
-        <div className="relative mt-20 grid grid-cols-1 gap-2 md:grid-cols-12">
-          <div className="relative md:col-span-1">
-            <div className="absolute left-4 top-0 h-full w-px bg-[color:var(--color-border)]" />
-            <motion.div
-              style={{ height: lineHeight }}
-              className="absolute left-4 top-0 w-px bg-[#ff3131]"
-            />
-          </div>
+        <div className="relative mt-16 md:mt-20">
+          {/* Vertical timeline line — only on md+ */}
+          <div className="absolute left-0 top-0 hidden h-full w-px bg-[color:var(--color-border)] md:block" />
+          <motion.div
+            style={{ height: lineHeight }}
+            className="absolute left-0 top-0 hidden w-px bg-[#ff3131] md:block"
+          />
 
-          <div className="flex flex-col gap-2 md:col-span-11">
+          <div className="flex flex-col md:pl-8">
             {processSteps.map((step, i) => (
               <motion.div
                 key={step.number}
@@ -51,19 +50,19 @@ export function Process() {
                   duration: 0.8,
                   ease: [0.16, 1, 0.3, 1],
                 }}
-                className="group relative grid grid-cols-1 items-start gap-4 border-b border-[color:var(--color-border)] py-8 transition-colors hover:bg-surface md:grid-cols-12 md:gap-8 md:py-10"
+                className="group relative grid grid-cols-1 items-start gap-3 border-b border-[color:var(--color-border)] py-8 transition-colors hover:bg-surface md:grid-cols-12 md:gap-8 md:py-10"
               >
                 <div className="md:col-span-2">
-                  <span className="text-display text-5xl font-medium text-muted/40 md:text-6xl">
+                  <span className="text-display text-4xl font-medium text-muted/40 md:text-6xl">
                     {step.number}
                   </span>
                 </div>
                 <div className="md:col-span-4">
-                  <h3 className="text-display text-3xl font-medium leading-tight md:text-4xl">
+                  <h3 className="text-display text-2xl font-medium leading-tight md:text-4xl">
                     {step.title}
                   </h3>
                 </div>
-                <p className="text-lg leading-relaxed text-muted md:col-span-6 md:text-xl">
+                <p className="text-base leading-relaxed text-muted md:col-span-6 md:text-xl">
                   {step.description}
                 </p>
               </motion.div>

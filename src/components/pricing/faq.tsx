@@ -11,9 +11,14 @@ export function Faq() {
     <div className="divide-y divide-[color:var(--color-border)] border-y border-[color:var(--color-border)]">
       {faqs.map((f, i) => {
         const active = open === i;
+        const panelId = `faq-panel-${i}`;
+        const buttonId = `faq-button-${i}`;
         return (
           <div key={f.q}>
             <button
+              id={buttonId}
+              aria-expanded={active}
+              aria-controls={panelId}
               onClick={() => setOpen(active ? null : i)}
               className="flex w-full items-center justify-between gap-6 py-7 text-left transition-colors hover:text-foreground"
             >
@@ -21,6 +26,7 @@ export function Faq() {
                 {f.q}
               </span>
               <span
+                aria-hidden
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors ${active ? "bg-[#ff3131] text-white" : "bg-surface text-foreground"}`}
               >
                 {active ? <IconMinus size={16} /> : <IconPlus size={16} />}
@@ -29,6 +35,9 @@ export function Faq() {
             <AnimatePresence initial={false}>
               {active && (
                 <motion.div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}

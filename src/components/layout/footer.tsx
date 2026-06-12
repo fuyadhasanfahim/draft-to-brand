@@ -12,13 +12,13 @@ import { services } from "@/lib/data";
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="relative mt-32 overflow-hidden bg-[#282a2a] text-white">
+    <footer className="relative mt-24 overflow-hidden bg-[#282a2a] text-white md:mt-32">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 left-1/2 h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-[#ff3131]/20 blur-[140px]"
       />
       <div className="mx-auto w-full max-w-[1280px] px-6 md:px-10">
-        <div className="grid grid-cols-1 gap-16 pt-24 pb-16 md:grid-cols-12">
+        <div className="grid grid-cols-1 gap-12 pt-20 pb-14 md:grid-cols-12 md:gap-16 md:pt-24 md:pb-16">
           <div className="md:col-span-5">
             <div className="inline-flex w-fit items-center rounded-2xl bg-white px-5 py-3">
               <Image
@@ -29,7 +29,7 @@ export function Footer() {
                 className="h-10 w-auto object-contain md:h-12"
               />
             </div>
-            <p className="mt-8 max-w-md text-3xl font-medium tracking-tight text-white/90 md:text-4xl">
+            <p className="mt-7 max-w-md text-2xl font-medium tracking-tight text-white/90 md:mt-8 md:text-4xl">
               We turn ideas into brands that people remember.
             </p>
             <div className="mt-10 flex gap-3">
@@ -131,7 +131,7 @@ function FooterLink({
         <a
           href={href}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="transition-colors hover:text-white"
         >
           {children}
@@ -161,7 +161,7 @@ function SocialLink({
     <a
       href={href}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       aria-label={label}
       className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-white/80 transition-colors hover:bg-white hover:text-[#282a2a]"
     >

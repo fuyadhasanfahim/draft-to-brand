@@ -21,10 +21,23 @@ export function MobileMenu({
     };
   }, [open]);
 
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Main navigation"
           className="fixed inset-0 z-[100] md:hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -74,19 +74,19 @@ export function WorkPreview() {
                       <div className="text-xs uppercase tracking-[0.18em] text-white/60">
                         {c.client}
                       </div>
-                      <h3 className="text-display max-w-md text-3xl font-medium leading-[1.05] md:text-4xl">
+                      <h3 className="text-display max-w-md text-2xl font-medium leading-[1.05] sm:text-3xl md:text-4xl">
                         {c.title}
                       </h3>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between border border-t-0 border-[color:var(--color-border)] bg-white px-8 py-5 md:px-10">
+                <div className="grid grid-cols-3 gap-3 border border-t-0 border-[color:var(--color-border)] bg-white px-5 py-5 md:px-10">
                   {c.metrics.map((m) => (
                     <div key={m.label} className="flex flex-col">
-                      <div className="text-display text-xl font-medium">
+                      <div className="text-display text-lg font-medium md:text-xl">
                         {m.value}
                       </div>
-                      <div className="text-[11px] uppercase tracking-[0.16em] text-muted">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-muted md:text-[11px] md:tracking-[0.16em]">
                         {m.label}
                       </div>
                     </div>
