@@ -90,7 +90,7 @@ export function TagSelector({
             {selectedTags.length === 0 ? "Add tag" : "Add"}
           </button>
         </DropdownTrigger>
-        <DropdownContent align="start" width="w-64" className="p-2">
+        <DropdownContent align="start" width="w-64" className="p-2" preferBottom>
           <Input
             autoFocus
             placeholder="Search or create…"

@@ -70,37 +70,63 @@ export function DropdownTrigger({
   } as Record<string, unknown>);
 }
 
-type Coords = { top: number; left: number | "auto"; right: number | "auto" };
+type Coords = {
+  top: number;
+  left: number | "auto";
+  right: number | "auto";
+  /** Pixel cap applied to the menu's max-height. Set when the menu would
+   *  otherwise overflow the viewport in the chosen placement. */
+  maxHeight?: number;
+};
 
 function measure(
   trigger: HTMLElement,
   menuHeight: number,
-  align: Align
+  align: Align,
+  preferBottom: boolean
 ): Coords & { placement: "top" | "bottom" } {
   const r = trigger.getBoundingClientRect();
   const gap = 6;
+  const edge = 8; // breathing room from the viewport edge
   const spaceBelow = window.innerHeight - r.bottom;
   const spaceAbove = r.top;
-  const placement: "top" | "bottom" =
-    spaceBelow < menuHeight + gap && spaceAbove > spaceBelow ? "top" : "bottom";
+
+  // Placement decision:
+  //   - default (auto-flip): flip up only if below is genuinely too small
+  //     AND above is meaningfully larger;
+  //   - preferBottom: stay below unless there's almost zero room (e.g.
+  //     trigger pinned to bottom). Even then, we cap the menu height so
+  //     the inner content scrolls instead of pushing the page.
+  let placement: "top" | "bottom";
+  if (preferBottom) {
+    // Hard preference for bottom. Only flip when bottom is literally
+    // unusable (< 40px) — anything else stays below with `maxHeight`
+    // shrinking the menu so the inner list scrolls instead of pushing
+    // the page or overlapping the form above the trigger.
+    placement = spaceBelow < 40 ? "top" : "bottom";
+  } else {
+    placement = spaceBelow < menuHeight + gap && spaceAbove > spaceBelow ? "top" : "bottom";
+  }
 
   const top =
     placement === "bottom" ? r.bottom + gap : r.top - menuHeight - gap;
 
-  if (align === "end") {
-    return {
-      top,
-      right: Math.max(8, window.innerWidth - r.right),
-      left: "auto",
-      placement,
-    };
-  }
-  return {
-    top,
-    left: Math.max(8, r.left),
-    right: "auto",
-    placement,
-  };
+  // Constrain the menu so it never causes the page to scroll. Inner
+  // scroll containers inside the menu (e.g. the tag list) will absorb
+  // the overflow.
+  const availableForBottom = Math.max(120, spaceBelow - gap - edge);
+  const availableForTop = Math.max(120, spaceAbove - gap - edge);
+  const maxHeight =
+    placement === "bottom"
+      ? menuHeight > availableForBottom ? availableForBottom : undefined
+      : menuHeight > availableForTop ? availableForTop : undefined;
+
+  const horizontal =
+    align === "end"
+      ? { right: Math.max(edge, window.innerWidth - r.right), left: "auto" as const }
+      : { left: Math.max(edge, r.left), right: "auto" as const };
+
+  return { top, ...horizontal, placement, maxHeight };
 }
 
 export function DropdownContent({
@@ -108,11 +134,21 @@ export function DropdownContent({
   align = "end",
   className,
   width = "w-56",
+  preferBottom = false,
 }: {
   children: React.ReactNode;
   align?: Align;
   className?: string;
   width?: string;
+  /**
+   * When true, the menu opens BELOW the trigger and will only flip up if
+   * the trigger is essentially pinned to the bottom edge. The menu's
+   * `max-height` is capped to the remaining viewport space so its inner
+   * scroll container absorbs overflow rather than the page. Use this for
+   * content-driven pickers (tags, filters) where flipping over the form
+   * fields the user is already looking at is jarring.
+   */
+  preferBottom?: boolean;
 }) {
   const { open, setOpen, triggerRef } = useCtx();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -132,7 +168,7 @@ export function DropdownContent({
       if (!trigger) return;
       // Use the rendered menu's height if it exists, otherwise a sane default.
       const h = node?.offsetHeight ?? 240;
-      setCoords(measure(trigger, h, align));
+      setCoords(measure(trigger, h, align, preferBottom));
     };
     update();
     // Capture-phase scroll catches scrolls inside any ancestor — including
@@ -143,7 +179,7 @@ export function DropdownContent({
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
     };
-  }, [open, align, triggerRef]);
+  }, [open, align, triggerRef, preferBottom]);
 
   // Outside click + ESC.
   React.useEffect(() => {
@@ -181,9 +217,12 @@ export function DropdownContent({
             left: coords.left === "auto" ? undefined : coords.left,
             right: coords.right === "auto" ? undefined : coords.right,
             zIndex: 80,
+            ...(coords.maxHeight
+              ? { maxHeight: coords.maxHeight, overflowY: "auto" as const }
+              : {}),
           }}
           className={cn(
-            "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)] p-1",
+            "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)] p-1 scrollbar-thin",
             width,
             className
           )}
