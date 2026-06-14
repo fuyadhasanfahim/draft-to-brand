@@ -32,7 +32,16 @@ export type PermissionKey =
   | "teams.view"
   | "teams.manage"
   // Audit
-  | "audit.view";
+  | "audit.view"
+  // Phase 2A — CRM foundation
+  | "companies.view"
+  | "companies.manage"
+  | "contacts.view"
+  | "contacts.manage"
+  | "tags.manage"
+  | "notes.create"
+  | "notes.edit"
+  | "notes.delete";
 
 export type PermissionDef = {
   key: PermissionKey;
@@ -66,6 +75,15 @@ export const PERMISSIONS: PermissionDef[] = [
   { key: "teams.manage",         resource: "teams",         action: "manage", description: "Create, edit, delete teams" },
 
   { key: "audit.view", resource: "audit", action: "view", description: "View audit log" },
+
+  { key: "companies.view",   resource: "companies", action: "view",   description: "View companies in the CRM" },
+  { key: "companies.manage", resource: "companies", action: "manage", description: "Create, edit, archive companies" },
+  { key: "contacts.view",    resource: "contacts",  action: "view",   description: "View contacts in the CRM" },
+  { key: "contacts.manage",  resource: "contacts",  action: "manage", description: "Create, edit, archive contacts" },
+  { key: "tags.manage",      resource: "tags",      action: "manage", description: "Create, edit, delete tags for CRM records" },
+  { key: "notes.create",     resource: "notes",     action: "create", description: "Add notes on companies and contacts" },
+  { key: "notes.edit",       resource: "notes",     action: "edit",   description: "Edit notes (your own; admins can edit any)" },
+  { key: "notes.delete",     resource: "notes",     action: "delete", description: "Delete notes" },
 ];
 
 export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -103,6 +121,10 @@ export const SYSTEM_ROLES: Array<{
       "departments.view", "departments.manage",
       "teams.view", "teams.manage",
       "audit.view",
+      "companies.view", "companies.manage",
+      "contacts.view", "contacts.manage",
+      "tags.manage",
+      "notes.create", "notes.edit", "notes.delete",
     ],
   },
   {
@@ -116,6 +138,10 @@ export const SYSTEM_ROLES: Array<{
       "departments.view",
       "branches.view",
       "roles.view",
+      "companies.view", "companies.manage",
+      "contacts.view", "contacts.manage",
+      "tags.manage",
+      "notes.create", "notes.edit",
     ],
   },
   {
@@ -128,6 +154,8 @@ export const SYSTEM_ROLES: Array<{
       "teams.view",
       "departments.view",
       "branches.view",
+      "companies.view", "contacts.view",
+      "notes.create",
     ],
   },
   {
@@ -139,6 +167,7 @@ export const SYSTEM_ROLES: Array<{
       "members.view", "members.invite", "members.edit", "members.remove",
       "users.view",
       "departments.view", "branches.view", "teams.view",
+      "contacts.view",
     ],
   },
   {
@@ -151,6 +180,8 @@ export const SYSTEM_ROLES: Array<{
       "teams.view",
       "departments.view",
       "branches.view",
+      "companies.view", "contacts.view",
+      "notes.create",
     ],
   },
 ];

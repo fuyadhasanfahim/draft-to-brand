@@ -27,10 +27,13 @@ model User {
   accounts Account[]
 
   // Bridge into agency identity (1 auth user → many memberships across orgs)
-  memberships       Member[]
-  userPermissions   UserPermission[]
-  auditLogs         AuditLog[]
+  memberships        Member[]
+  userPermissions    UserPermission[]
+  auditLogs          AuditLog[]
   createdInvitations Invitation[] @relation("InvitationCreatedBy")
+  createdCompanies   Company[]    @relation("CompanyCreatedBy")
+  createdContacts    Contact[]    @relation("ContactCreatedBy")
+  createdNotes       Note[]       @relation("NoteCreatedBy")
 
   @@map("user")
 }
@@ -103,6 +106,10 @@ model Organization {
   roles       Role[]
   invitations Invitation[]
   auditLogs   AuditLog[]
+  companies   Company[]
+  contacts    Contact[]
+  tags        Tag[]
+  notes       Note[]
 
   @@index([slug])
   @@map("organization")
@@ -407,4 +414,153 @@ model EmailDeliveryLog {
 
   @@index([identifier, scope, createdAt])
   @@map("email_delivery_log")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2A — Companies & Contacts foundation.
+// Every future module (Leads, Deals, Pipelines, Projects, Followups,
+// WhatsApp, Campaigns, AI) attaches to these two roots.
+// All records are organization-scoped; soft-delete via `archivedAt`.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CompanyStatus {
+  ACTIVE
+  PROSPECT
+  ARCHIVED
+}
+
+model Company {
+  id             String        @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  website        String?
+  industry       String?
+  description    String?
+  status         CompanyStatus @default(ACTIVE)
+  size           String?
+  country        String?
+  city           String?
+  address        String?
+  phone          String?
+  email          String?
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("CompanyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  contacts     Contact[]
+  notes        Note[]
+  tags         CompanyTag[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, archivedAt])
+  @@map("company")
+}
+
+enum ContactStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model Contact {
+  id             String        @id @default(cuid())
+  organizationId String
+  companyId      String?
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  jobTitle       String?
+  linkedinUrl    String?
+  // Free-form inline notes on the contact card (distinct from the Note model,
+  // which is a first-class timeline-style record). Use this for short personal
+  // context the user wants visible without opening the Notes section.
+  notes          String?
+  status         ContactStatus @default(ACTIVE)
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  createdBy    User?        @relation("ContactCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  noteEntries  Note[]
+  tags         ContactTag[]
+
+  @@index([organizationId])
+  @@index([organizationId, companyId])
+  @@index([organizationId, status])
+  @@index([organizationId, archivedAt])
+  @@map("contact")
+}
+
+model Tag {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  // Hex color; UI renders chip with this color tinted to fit the design system.
+  color          String   @default("#6b6e6e")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  companies    CompanyTag[]
+  contacts     ContactTag[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("tag")
+}
+
+model CompanyTag {
+  companyId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, tagId])
+  @@index([tagId])
+  @@map("company_tag")
+}
+
+model ContactTag {
+  contactId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@index([tagId])
+  @@map("contact_tag")
+}
+
+model Note {
+  id             String   @id @default(cuid())
+  organizationId String
+  companyId      String?
+  contactId      String?
+  content        String   @db.Text
+  createdById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contact      Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("NoteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([companyId])
+  @@index([contactId])
+  @@map("note")
 }

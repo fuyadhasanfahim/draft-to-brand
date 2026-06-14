@@ -9,6 +9,8 @@ import {
   IconUsersGroup,
   IconSettings,
   IconHistory,
+  IconBuilding,
+  IconAddressBook,
 } from "@tabler/icons-react";
 import type { NavSection } from "@/types/navigation";
 
@@ -21,6 +23,13 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     items: [
       { label: "Overview", href: "/dashboard", icon: IconLayoutDashboard },
+    ],
+  },
+  {
+    label: "CRM",
+    items: [
+      { label: "Companies", href: "/dashboard/companies", icon: IconBuilding,     permissions: ["companies.view"] },
+      { label: "Contacts",  href: "/dashboard/contacts",  icon: IconAddressBook, permissions: ["contacts.view"] },
     ],
   },
   {
