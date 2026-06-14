@@ -1,0 +1,319 @@
+// Draft To Brand — Agency OS
+// Phase 0 schema. Better Auth tables stay verbatim; agency identity is layered on top.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Better Auth — DO NOT rename, customize, or attach business logic.
+// Auth identity only. Agency-level data lives on Member and downstream models.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  // Bridge into agency identity (1 auth user → many memberships across orgs)
+  memberships     Member[]
+  userPermissions UserPermission[]
+  auditLogs       AuditLog[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Agency identity & org graph
+// Structure: Organization → Branch → Department → Team → Member
+// Designed so multi-org / multi-branch / multi-team can scale without redesign.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branches    Branch[]
+  departments Department[]
+  teams       Team[]
+  members     Member[]
+  roles       Role[]
+  auditLogs   AuditLog[]
+
+  @@index([slug])
+  @@map("organization")
+}
+
+model Branch {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  address        String?
+  city           String?
+  country        String?
+  isHeadquarter  Boolean  @default(false)
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departments  Department[]
+  teams        Team[]
+  members      Member[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("branch")
+}
+
+model Department {
+  id             String   @id @default(cuid())
+  organizationId String
+  branchId       String?
+  name           String
+  slug           String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  teams        Team[]
+  members      Member[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([branchId])
+  @@map("department")
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  organizationId String
+  branchId       String?
+  departmentId   String?
+  name           String
+  slug           String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  members      Member[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([departmentId])
+  @@map("team")
+}
+
+// Member = the agency employee profile bound to an auth User in a given Organization.
+// All HR-shaped business logic in future phases should hang off Member, never off User.
+enum MemberStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+  ARCHIVED
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  branchId       String?
+  departmentId   String?
+  teamId         String?
+  roleId         String
+  status         MemberStatus @default(ACTIVE)
+  jobTitle       String?
+  employeeCode   String?
+  joinedAt       DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  role         Role         @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([branchId])
+  @@index([departmentId])
+  @@index([teamId])
+  @@index([roleId])
+  @@map("member")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Roles & Permissions
+// Roles are database-driven and per-organization. System roles (Owner, Admin…)
+// are seeded but admins can create unlimited custom roles later.
+// Permissions are dotted keys (e.g. "users.view"). Effective permissions =
+// (role permissions ∪ user-granted) ∖ (user-denied overrides).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Role {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  description    String?
+  isSystem       Boolean  @default(false) // Owner/Admin/etc — not deletable
+  priority       Int      @default(0)     // for UI ordering & tie-breaks
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members         Member[]
+  rolePermissions RolePermission[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("role")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  // Global registry keyed by dotted slug, e.g. "users.view", "roles.manage"
+  key         String   @unique
+  resource    String   // "users", "roles", "teams", …
+  action      String   // "view", "create", "edit", "delete", "manage"
+  description String?
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+  userPermissions UserPermission[]
+
+  @@index([resource])
+  @@map("permission")
+}
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@map("role_permission")
+}
+
+// Direct user-level grant or deny. `effect = DENY` always wins over role grant.
+enum PermissionEffect {
+  ALLOW
+  DENY
+}
+
+model UserPermission {
+  id             String           @id @default(cuid())
+  userId         String
+  organizationId String
+  permissionId   String
+  effect         PermissionEffect @default(ALLOW)
+  reason         String?
+  createdAt      DateTime         @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId, permissionId])
+  @@index([userId, organizationId])
+  @@map("user_permission")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Audit log — append-only operational trail. Every mutation should write one.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  actorUserId    String?
+  action         String   // "member.invited", "role.updated", …
+  resource       String   // "member", "role", "branch", …
+  resourceId     String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  actor        User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([actorUserId])
+  @@index([resource, resourceId])
+  @@map("audit_log")
+}
