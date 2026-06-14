@@ -18,3 +18,4 @@ export * from "./state";
 export * from "./toast";
 export * from "./label";
 export * from "./data-table";
+export * from "./date-picker";

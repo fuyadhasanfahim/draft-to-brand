@@ -73,72 +73,80 @@ export default async function AuditPage({
           description="Adjust your search, expand the date range, or clear the filters to see every event."
         />
       ) : (
-        <div className="surface-card overflow-hidden">
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full text-sm">
-              <thead className="bg-[var(--color-background)] text-left text-[11px] uppercase tracking-wider text-[var(--color-muted)] border-b border-[var(--color-border)]">
-                <tr>
-                  <th className="px-4 py-2.5 font-medium">When</th>
-                  <th className="px-4 py-2.5 font-medium">Actor</th>
-                  <th className="px-4 py-2.5 font-medium">Action</th>
-                  <th className="px-4 py-2.5 font-medium">Resource</th>
-                  <th className="px-4 py-2.5 font-medium hidden md:table-cell">IP</th>
-                  <th className="px-4 py-2.5 font-medium hidden lg:table-cell">User Agent</th>
-                  <th className="px-4 py-2.5 font-medium">Metadata</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border)]">
-                {rows.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="transition-colors hover:bg-[var(--color-background)]"
-                  >
-                    <td className="px-4 py-3 align-top whitespace-nowrap">
-                      <div className="flex flex-col leading-tight">
-                        <span className="text-[13px] text-[var(--color-foreground)]">
-                          {format(r.createdAt, "MMM d, HH:mm:ss")}
-                        </span>
-                        <span className="text-[10px] text-[var(--color-muted)]">
-                          {format(r.createdAt, "yyyy")}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <ActorCell actor={r.actor} />
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <code className="text-[12px] font-mono text-[var(--color-foreground)]">
-                        {r.action}
-                      </code>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <div className="flex flex-col leading-tight">
-                        <Badge variant="neutral" className="w-fit">{r.resource}</Badge>
-                        {r.resourceId ? (
-                          <code className="mt-1 text-[10px] text-[var(--color-muted)] font-mono truncate max-w-[180px]">
-                            {r.resourceId}
-                          </code>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 align-top hidden md:table-cell">
-                      <code className="text-[11px] text-[var(--color-muted-foreground)] font-mono">
-                        {r.ipAddress ?? "—"}
-                      </code>
-                    </td>
-                    <td className="px-4 py-3 align-top hidden lg:table-cell max-w-[280px]">
-                      <span className="text-[11px] text-[var(--color-muted-foreground)] truncate block">
-                        {r.userAgent ?? "—"}
+        <div className="surface-card overflow-x-auto scrollbar-thin">
+          {/* Sticky header anchors to the nearest scrolling ancestor — for
+              wide-page scroll that's the document; for the narrow horizontal
+              scroll inside the card the header travels with the page anyway,
+              which is what we want. */}
+          <table className="w-full text-[13px]">
+            <thead className="sticky top-0 z-10 bg-[var(--color-surface)] text-left text-[11px] uppercase tracking-wider text-[var(--color-muted)] border-b border-[var(--color-border)]">
+              <tr>
+                <th className="px-4 py-3 font-medium">When</th>
+                <th className="px-4 py-3 font-medium">Actor</th>
+                <th className="px-4 py-3 font-medium">Action</th>
+                <th className="px-4 py-3 font-medium">Resource</th>
+                <th className="px-4 py-3 font-medium hidden md:table-cell">IP</th>
+                <th className="px-4 py-3 font-medium hidden lg:table-cell">User Agent</th>
+                <th className="px-4 py-3 font-medium">Metadata</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border)]">
+              {rows.map((r) => (
+                <tr
+                  key={r.id}
+                  className="transition-colors hover:bg-[var(--color-background)]"
+                >
+                  <td className="px-4 py-3.5 align-top whitespace-nowrap">
+                    <div className="flex flex-col leading-tight">
+                      <span className="text-[13px] font-medium text-[var(--color-foreground)] tracking-tight">
+                        {format(r.createdAt, "MMM d, yyyy")}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <MetadataCell value={r.metadata} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <span className="text-[11px] text-[var(--color-muted)] tabular-nums">
+                        {format(r.createdAt, "h:mm a")}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <ActorCell actor={r.actor} />
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <code className="inline-flex items-center rounded-[6px] bg-[var(--color-background)] border border-[var(--color-border)] px-1.5 py-0.5 text-[12px] font-mono text-[var(--color-foreground)]">
+                      {r.action}
+                    </code>
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <div className="flex flex-col leading-tight">
+                      <Badge variant="neutral" className="w-fit capitalize">{r.resource}</Badge>
+                      {r.resourceId ? (
+                        <code
+                          className="mt-1 text-[10px] text-[var(--color-muted)] font-mono truncate max-w-[180px]"
+                          title={r.resourceId}
+                        >
+                          {r.resourceId}
+                        </code>
+                      ) : null}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5 align-top hidden md:table-cell">
+                    <code className="text-[11px] text-[var(--color-muted-foreground)] font-mono tabular-nums">
+                      {r.ipAddress ?? "—"}
+                    </code>
+                  </td>
+                  <td className="px-4 py-3.5 align-top hidden lg:table-cell max-w-[280px]">
+                    <span
+                      className="text-[11px] text-[var(--color-muted-foreground)] truncate block"
+                      title={r.userAgent ?? undefined}
+                    >
+                      {r.userAgent ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <MetadataCell value={r.metadata} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
