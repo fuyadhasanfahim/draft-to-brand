@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 /**
  * Next.js 16 Proxy (formerly Middleware).
@@ -12,38 +12,36 @@ import type { NextRequest } from "next/server";
  * Per Next 16 docs: Proxy must not be used as a full auth solution.
  */
 
-const SESSION_COOKIE = "dtb.session_token";
-const PROTECTED_PREFIX = "/dashboard";
+const PROTECTED_PREFIX = '/dashboard';
 // Auth-facing routes. If the user has a session cookie, /sign-in and /sign-up
 // bounce to /dashboard — but /no-workspace MUST be reachable while signed in
 // (it's the destination for "authenticated but no membership"), so it's
 // excluded from the bounce list.
-const AUTH_ROUTES = ["/sign-in", "/sign-up"];
+const AUTH_ROUTES = ['/sign-in', '/sign-up'];
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const hasSession = Boolean(
-    request.cookies.get(SESSION_COOKIE)?.value ??
-      request.cookies.get(`${SESSION_COOKIE}.0`)?.value
-  );
+    const { pathname } = request.nextUrl;
+    const hasSession = request.cookies
+        .getAll()
+        .some((cookie) => cookie.name.includes('session_token'));
 
-  if (pathname.startsWith(PROTECTED_PREFIX) && !hasSession) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
-  }
+    if (pathname.startsWith(PROTECTED_PREFIX) && !hasSession) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/sign-in';
+        url.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(url);
+    }
 
-  if (AUTH_ROUTES.includes(pathname) && hasSession) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
+    if (AUTH_ROUTES.includes(pathname) && hasSession) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        url.search = '';
+        return NextResponse.redirect(url);
+    }
 
-  return NextResponse.next();
+    return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-up"],
+    matcher: ['/dashboard/:path*', '/sign-in', '/sign-up'],
 };

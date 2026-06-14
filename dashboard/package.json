@@ -16,7 +16,8 @@
     "db:reset": "prisma migrate reset",
     "email:dev": "email dev --dir src/emails/templates --port 3001",
     "email:export": "email export --dir src/emails/templates --out .email-out",
-    "email:test": "tsx scripts/send-test-email.ts"
+    "email:test": "tsx scripts/send-test-email.ts",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

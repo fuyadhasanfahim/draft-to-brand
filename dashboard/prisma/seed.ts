@@ -1,14 +1,4 @@
-/**
- * Phase 0 seed.
- *
- *  - Inserts the Permission registry (idempotent on `key`)
- *  - Creates the default Organization (if missing)
- *  - Creates all System roles for that org with their permission grants
- *  - Creates an Owner User via Better Auth and links them as the Owner Member
- *
- * Run with: `npm run db:seed`
- * Re-runnable safely.
- */
+
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
