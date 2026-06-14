@@ -59,3 +59,27 @@ export async function requireSession(): Promise<AgencySession> {
   if (!session) throw new Error("UNAUTHENTICATED");
   return session;
 }
+
+/**
+ * Stronger gate for mutations: requires a verified email on top of an
+ * active member. Every server action that creates, updates, or deletes
+ * data MUST go through this — never trust the client-side dialog alone.
+ */
+export async function requireVerifiedSession(): Promise<AgencySession> {
+  const session = await requireSession();
+  if (!session.user.emailVerified) {
+    throw new Error("EMAIL_VERIFICATION_REQUIRED");
+  }
+  return session;
+}
+
+/**
+ * Variant used during onboarding: workspace creation requires only a
+ * verified auth user (no Member yet — that's what they're creating).
+ */
+export async function requireVerifiedAuthUser(): Promise<AuthUser> {
+  const user = await getAuthUser();
+  if (!user) throw new Error("UNAUTHENTICATED");
+  if (!user.emailVerified) throw new Error("EMAIL_VERIFICATION_REQUIRED");
+  return user;
+}

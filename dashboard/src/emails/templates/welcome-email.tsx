@@ -16,26 +16,28 @@ export default function WelcomeEmail({
   workspaceName,
 }: WelcomeEmailProps) {
   const href = dashboardUrl ?? `${BRAND.url}/dashboard`;
+  const greeting = `Hi ${name ?? "there"},`;
+  const intro = workspaceName
+    ? `You're in — your workspace ${workspaceName} is ready.`
+    : "You're in — your workspace is ready.";
+  // Preview snippet shown in inbox lists. The header logo carries identity
+  // inside the email itself, so the title heading omits the brand name.
+  const preview = workspaceName
+    ? `Your workspace ${workspaceName} is ready`
+    : "Your workspace is ready";
 
   return (
-    <EmailLayout preview={`Welcome to ${BRAND.name}`}>
+    <EmailLayout preview={preview}>
       <Heading as="h1" style={heading}>
-        Welcome to {BRAND.name}.
+        Welcome aboard.
       </Heading>
 
-      <Text style={paragraph}>Hi {name ?? "there"},</Text>
+      <Text style={paragraph}>{greeting}</Text>
+
+      <Text style={paragraph}>{intro}</Text>
 
       <Text style={paragraph}>
-        You&rsquo;re in
-        {workspaceName ? (
-          <>
-            {" "}— your workspace{" "}
-            <strong style={{ color: BRAND.colors.dark }}>{workspaceName}</strong> is ready.
-          </>
-        ) : (
-          "."
-        )}{" "}
-        {BRAND.name} is the operating system we use to take a brand{" "}
+        This is the operating system we use to take a brand{" "}
         <em style={{ color: BRAND.colors.dark }}>{BRAND.tagline.toLowerCase()}</em> —
         organizations, branches, teams, and roles in one place.
       </Text>
@@ -72,8 +74,8 @@ export default function WelcomeEmail({
 
 WelcomeEmail.PreviewProps = {
   name: "Alex",
-  workspaceName: "Draft To Brand",
-  dashboardUrl: "https://drafttobrand.com/dashboard",
+  workspaceName: "Acme Studio",
+  dashboardUrl: "https://example.com/dashboard",
 } satisfies WelcomeEmailProps;
 
 const heading = {

@@ -1,6 +1,12 @@
 import { Img, Link, Section } from "@react-email/components";
 import { BRAND } from "@/lib/constants/brand";
 
+/**
+ * The logo image IS the brand identity. Do not render BRAND.name beside
+ * it — that would duplicate what the artwork already says. The `alt`
+ * attribute keeps the brand name available for screen readers and for
+ * clients that block remote images.
+ */
 export function EmailHeader() {
   return (
     <Section
@@ -11,35 +17,18 @@ export function EmailHeader() {
     >
       <Link
         href={BRAND.url}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          textDecoration: "none",
-          color: BRAND.colors.dark,
-        }}
+        style={{ display: "inline-block", textDecoration: "none" }}
       >
         <Img
           src={BRAND.logo}
           alt={BRAND.name}
-          width={36}
           height={36}
           style={{
             display: "block",
-            borderRadius: 8,
-            marginRight: 12,
+            width: "auto",
+            maxHeight: 36,
           }}
         />
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            letterSpacing: "-0.01em",
-            color: BRAND.colors.dark,
-            verticalAlign: "middle",
-          }}
-        >
-          {BRAND.name}
-        </span>
       </Link>
     </Section>
   );

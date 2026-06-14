@@ -18,7 +18,7 @@ export default function PasswordResetEmail({
   requestedFrom,
 }: PasswordResetEmailProps) {
   return (
-    <EmailLayout preview={`Reset your ${BRAND.name} password`}>
+    <EmailLayout preview="Reset your password">
       <Heading as="h1" style={heading}>
         Reset your password
       </Heading>
@@ -26,8 +26,7 @@ export default function PasswordResetEmail({
       <Text style={paragraph}>Hi {name ?? "there"},</Text>
 
       <Text style={paragraph}>
-        We received a request to reset the password for your{" "}
-        <strong style={{ color: BRAND.colors.dark }}>{BRAND.name}</strong> account.
+        We received a request to reset the password for your account.
         Use the button below to choose a new one.
       </Text>
 

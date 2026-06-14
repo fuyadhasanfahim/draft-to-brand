@@ -27,9 +27,10 @@ model User {
   accounts Account[]
 
   // Bridge into agency identity (1 auth user → many memberships across orgs)
-  memberships     Member[]
-  userPermissions UserPermission[]
-  auditLogs       AuditLog[]
+  memberships       Member[]
+  userPermissions   UserPermission[]
+  auditLogs         AuditLog[]
+  createdInvitations Invitation[] @relation("InvitationCreatedBy")
 
   @@map("user")
 }
@@ -100,6 +101,7 @@ model Organization {
   teams       Team[]
   members     Member[]
   roles       Role[]
+  invitations Invitation[]
   auditLogs   AuditLog[]
 
   @@index([slug])
@@ -107,22 +109,24 @@ model Organization {
 }
 
 model Branch {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   organizationId String
   name           String
   slug           String
   address        String?
   city           String?
   country        String?
-  isHeadquarter  Boolean  @default(false)
+  isHeadquarter  Boolean   @default(false)
+  archivedAt     DateTime?
   metadata       Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   departments  Department[]
   teams        Team[]
   members      Member[]
+  invitations  Invitation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -130,19 +134,21 @@ model Branch {
 }
 
 model Department {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   organizationId String
   branchId       String?
   name           String
   slug           String
   description    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
   teams        Team[]
   members      Member[]
+  invitations  Invitation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -151,20 +157,23 @@ model Department {
 }
 
 model Team {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   organizationId String
   branchId       String?
   departmentId   String?
   name           String
   slug           String
   description    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  teamLeadId     String?
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
   department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   members      Member[]
+  invitations  Invitation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -234,6 +243,7 @@ model Role {
   organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   members         Member[]
   rolePermissions RolePermission[]
+  invitations     Invitation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -316,4 +326,82 @@ model AuditLog {
   @@index([actorUserId])
   @@index([resource, resourceId])
   @@map("audit_log")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Invitations — invitation-only signup gate.
+// One pending invitation per (organization, email). Token is the secret used
+// in the invite link; signup is allowed only when a PENDING, non-expired
+// invitation exists for the email being registered.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+model Invitation {
+  id             String           @id @default(cuid())
+  email          String
+  token          String           @unique
+  organizationId String
+  roleId         String
+  branchId       String?
+  departmentId   String?
+  teamId         String?
+  // Optional direct-permission overrides applied on accept (array of PermissionKey).
+  permissions    Json?
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [roleId],         references: [id])
+  branch       Branch?      @relation(fields: [branchId],       references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId],   references: [id], onDelete: SetNull)
+  team         Team?        @relation(fields: [teamId],         references: [id], onDelete: SetNull)
+  createdBy    User?        @relation("InvitationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, email])
+  @@index([email])
+  @@index([organizationId])
+  @@index([status])
+  @@map("invitation")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Email delivery log — append-only ledger that powers every rate-limit,
+// cooldown, lockout, and one-shot check across the auth surface.
+// One row per "event"; policies compute by counting + ordering on the index.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum EmailDeliveryScope {
+  // Send attempts (count + last-row time → window cap + cooldown)
+  VERIFICATION_OTP_SENT
+  INVITATION_SENT
+  PASSWORD_RESET_SENT
+  WELCOME_SENT
+  // Verification *failures* (count in 15-min window → lockout)
+  VERIFICATION_OTP_FAILED
+}
+
+model EmailDeliveryLog {
+  id         String             @id @default(cuid())
+  // Identifier we throttle on. For per-user scopes this is the user's email,
+  // lowercased; for per-invitation scopes we use `invitation:<id>` so that
+  // resending the same invite doesn't collide with the recipient's other
+  // pending invites.
+  identifier String
+  scope      EmailDeliveryScope
+  // Optional metadata for forensics (request id, IP, user agent hash, etc).
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+
+  @@index([identifier, scope, createdAt])
+  @@map("email_delivery_log")
 }

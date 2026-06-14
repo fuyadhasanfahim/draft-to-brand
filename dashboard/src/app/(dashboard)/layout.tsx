@@ -2,19 +2,14 @@ import { redirect } from "next/navigation";
 import { getActiveMember, getAuthUser } from "@/lib/auth/session";
 import { resolveEffectivePermissions } from "@/lib/permissions";
 import { DashboardShell } from "@/components/layouts/dashboard-shell";
+import { EmailVerificationGate } from "@/features/auth/email-verification-gate";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getAuthUser();
-  // Not authenticated — send to sign-in. Proxy lets /sign-in render
-  // because the next request will be a fresh navigation, not a redirect
-  // chain from /dashboard.
   if (!user) redirect("/sign-in");
 
   const member = await getActiveMember();
-  // Authenticated, but no workspace — this is its own state, not an
-  // auth failure. Routing to /sign-in here is what caused the 307 loop
-  // (proxy sees the session cookie and bounces back to /dashboard).
-  if (!member) redirect("/no-workspace");
+  if (!member) redirect("/onboarding");
 
   const perms = await resolveEffectivePermissions(user.id, member.organizationId);
 
@@ -25,6 +20,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
       roleName={member.role.name}
       permissions={Array.from(perms)}
     >
+      {/* The shell renders; if the user hasn't verified email, the gate
+          covers everything with a non-dismissible modal. Server-side
+          mutations independently enforce verification via
+          `requireVerifiedSession`. */}
+      {!user.emailVerified && (
+        <EmailVerificationGate email={user.email} name={user.name} />
+      )}
       {children}
     </DashboardShell>
   );

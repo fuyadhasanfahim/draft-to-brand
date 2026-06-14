@@ -3,36 +3,32 @@ import { sendEmail } from "@/lib/email";
 import { EMAIL_SUBJECTS } from "@/lib/email/email-config";
 import {
   PasswordResetEmail,
-  VerificationEmail,
+  VerificationCodeEmail,
   WelcomeEmail,
 } from "@/emails";
 
 /**
  * Auth-side email orchestration.
  *
- * These thin wrappers exist so Better Auth callbacks stay tiny and so any
- * future flow (e.g. invitations) can sit next to verification/reset without
+ * Thin wrappers so Better Auth callbacks stay tiny and any future flow
+ * (invitations, member onboarding) lives next to verification/reset without
  * leaking template details into auth/server.ts.
  *
- * All functions are best-effort: they swallow transport errors and only log
- * them. Authentication MUST NOT fail because Resend hiccuped.
+ * Best-effort — auth never fails because Resend hiccuped.
  */
 
-export async function sendVerificationEmail(args: {
+export async function sendVerificationCodeEmail(args: {
   to: string;
   name?: string;
-  verifyUrl: string;
+  code: string;
 }) {
   const result = await sendEmail({
     to: args.to,
     subject: EMAIL_SUBJECTS.verification,
-    react: VerificationEmail({
-      name: args.name,
-      verifyUrl: args.verifyUrl,
-    }),
-    tags: [{ name: "category", value: "auth.verification" }],
+    react: VerificationCodeEmail({ name: args.name, code: args.code }),
+    tags: [{ name: "category", value: "auth_verification_code" }],
   });
-  if (!result.ok) console.error("[auth] verification email failed", result.error);
+  if (!result.ok) console.error("[auth] verification-code email failed", result.error);
   return result;
 }
 
@@ -44,11 +40,8 @@ export async function sendPasswordResetEmail(args: {
   const result = await sendEmail({
     to: args.to,
     subject: EMAIL_SUBJECTS.passwordReset,
-    react: PasswordResetEmail({
-      name: args.name,
-      resetUrl: args.resetUrl,
-    }),
-    tags: [{ name: "category", value: "auth.password-reset" }],
+    react: PasswordResetEmail({ name: args.name, resetUrl: args.resetUrl }),
+    tags: [{ name: "category", value: "auth_password_reset" }],
   });
   if (!result.ok) console.error("[auth] reset email failed", result.error);
   return result;
@@ -66,7 +59,7 @@ export async function sendWelcomeEmail(args: {
       name: args.name,
       workspaceName: args.workspaceName,
     }),
-    tags: [{ name: "category", value: "auth.welcome" }],
+    tags: [{ name: "category", value: "auth_welcome" }],
   });
   if (!result.ok) console.error("[auth] welcome email failed", result.error);
   return result;

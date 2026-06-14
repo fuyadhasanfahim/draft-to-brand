@@ -22,6 +22,24 @@ export type SendEmailResult =
   | { ok: false; error: string };
 
 /**
+ * Resend's tag validator only accepts `[A-Za-z0-9_-]` for both name and
+ * value (max 256 chars each). We coerce anything else to underscores so a
+ * stray dot, space, or accented character in a future caller can't turn
+ * into a 422 at delivery time. Empty results are dropped.
+ */
+const TAG_ALLOWED = /[^A-Za-z0-9_-]/g;
+function sanitizeTags(
+  tags: { name: string; value: string }[]
+): { name: string; value: string }[] {
+  return tags
+    .map((t) => ({
+      name: t.name.replace(TAG_ALLOWED, "_").slice(0, 256),
+      value: t.value.replace(TAG_ALLOWED, "_").slice(0, 256),
+    }))
+    .filter((t) => t.name.length > 0 && t.value.length > 0);
+}
+
+/**
  * Production email send.
  *
  * - Renders the React Email template to HTML + plain-text in one pass.
@@ -56,7 +74,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
         html,
         text,
         replyTo: input.replyTo ?? EMAIL_CONFIG.replyTo,
-        tags: input.tags ?? EMAIL_CONFIG.tags.transactional(),
+        tags: sanitizeTags(input.tags ?? EMAIL_CONFIG.tags.transactional()),
       },
       input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined
     );

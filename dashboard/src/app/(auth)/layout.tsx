@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             {BRAND.mission}
           </p>
         </div>
-        <p className="relative z-10 text-xs text-white/40">© {new Date().getFullYear()} {BRAND.name}</p>
+        <p className="relative z-10 text-xs text-white/40">© {new Date().getFullYear()}. All rights reserved.</p>
       </aside>
 
       <main className="flex items-center justify-center p-6 lg:p-10">

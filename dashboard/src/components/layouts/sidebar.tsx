@@ -37,12 +37,8 @@ export function Sidebar({ permissions, organizationName, className }: SidebarPro
         <img
           src={BRAND.logo}
           alt={BRAND.name}
-          className="h-7 w-7 rounded-md object-contain"
+          className="h-10 w-auto rounded-md object-contain"
         />
-        <div className="flex flex-col leading-tight min-w-0">
-          <span className="text-sm font-semibold tracking-tight truncate">{BRAND.name}</span>
-          <span className="text-[11px] text-[var(--color-muted)] truncate">{organizationName}</span>
-        </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin">

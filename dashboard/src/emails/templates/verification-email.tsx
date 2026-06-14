@@ -17,7 +17,7 @@ export default function VerificationEmail({
   expiresInHours = 24,
 }: VerificationEmailProps) {
   return (
-    <EmailLayout preview={`Verify your email to activate your ${BRAND.name} workspace`}>
+    <EmailLayout preview="Verify your email to activate your workspace">
       <Heading
         as="h1"
         style={{
@@ -35,8 +35,7 @@ export default function VerificationEmail({
       <Text style={paragraph}>Hi {name ?? "there"},</Text>
 
       <Text style={paragraph}>
-        Welcome to <strong style={{ color: BRAND.colors.dark }}>{BRAND.name}</strong> — your
-        agency operating system. Confirm this email address to activate your workspace.
+        Welcome — confirm this email address to activate your workspace.
       </Text>
 
       <div style={{ margin: "28px 0 8px" }}>

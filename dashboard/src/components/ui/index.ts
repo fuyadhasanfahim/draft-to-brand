@@ -17,3 +17,4 @@ export * from "./skeleton";
 export * from "./state";
 export * from "./toast";
 export * from "./label";
+export * from "./data-table";

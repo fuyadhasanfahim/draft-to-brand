@@ -2,6 +2,7 @@ import {
   IconLayoutDashboard,
   IconUsers,
   IconUserShield,
+  IconKey,
   IconBuildingSkyscraper,
   IconBuildingStore,
   IconSitemap,
@@ -23,19 +24,20 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Organization",
+    label: "People",
     items: [
-      { label: "Organization", href: "/dashboard/organization", icon: IconBuildingSkyscraper, permissions: ["organizations.view"] },
-      { label: "Branches",     href: "/dashboard/branches",     icon: IconBuildingStore,     permissions: ["branches.view"] },
-      { label: "Departments",  href: "/dashboard/departments",  icon: IconSitemap,           permissions: ["departments.view"] },
-      { label: "Teams",        href: "/dashboard/teams",        icon: IconUsersGroup,        permissions: ["teams.view"] },
+      { label: "Members",     href: "/dashboard/members",     icon: IconUsers,      permissions: ["members.view"] },
+      { label: "Roles",       href: "/dashboard/roles",       icon: IconUserShield, permissions: ["roles.view"] },
+      { label: "Permissions", href: "/dashboard/permissions", icon: IconKey,        permissions: ["roles.view", "permissions.manage"] },
     ],
   },
   {
-    label: "People",
+    label: "Organization",
     items: [
-      { label: "Members", href: "/dashboard/members", icon: IconUsers,       permissions: ["members.view"] },
-      { label: "Roles",   href: "/dashboard/roles",   icon: IconUserShield,  permissions: ["roles.view"] },
+      { label: "Branches",    href: "/dashboard/branches",    icon: IconBuildingStore,     permissions: ["branches.view"] },
+      { label: "Departments", href: "/dashboard/departments", icon: IconSitemap,           permissions: ["departments.view"] },
+      { label: "Teams",       href: "/dashboard/teams",       icon: IconUsersGroup,        permissions: ["teams.view"] },
+      { label: "Workspace",   href: "/dashboard/organization", icon: IconBuildingSkyscraper, permissions: ["organizations.view"] },
     ],
   },
   {

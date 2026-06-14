@@ -1,22 +1,18 @@
 import { Hr, Link, Section, Text } from "@react-email/components";
 import { BRAND } from "@/lib/constants/brand";
 
+/**
+ * No bold brand-name title here — the header logo already establishes
+ * identity. The footer carries the descriptor, tagline, support link, and
+ * a year-only copyright line.
+ */
 export function EmailFooter() {
   return (
     <Section style={{ padding: "24px 32px 32px" }}>
       <Hr style={{ borderColor: BRAND.colors.border, margin: "0 0 20px" }} />
       <Text
-        style={{
-          margin: 0,
-          fontSize: 13,
-          fontWeight: 600,
-          color: BRAND.colors.dark,
-          letterSpacing: "-0.01em",
-        }}
+        style={{ margin: 0, fontSize: 12, color: BRAND.colors.mutedText }}
       >
-        {BRAND.name}
-      </Text>
-      <Text style={{ margin: "4px 0 0", fontSize: 12, color: BRAND.colors.mutedText }}>
         {BRAND.description}
       </Text>
       <Text
@@ -42,7 +38,7 @@ export function EmailFooter() {
         .
       </Text>
       <Text style={{ margin: "12px 0 0", fontSize: 11, color: BRAND.colors.mutedText }}>
-        © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+        © {new Date().getFullYear()}. All rights reserved.
       </Text>
     </Section>
   );
