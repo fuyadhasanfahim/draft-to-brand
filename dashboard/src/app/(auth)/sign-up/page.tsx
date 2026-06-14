@@ -56,6 +56,7 @@ export default async function SignUpPage({ searchParams }: Props) {
       </p>
       <div className="mt-7">
         <InvitedSignUpForm
+          token={invitation.token}
           email={invitation.email}
           organizationName={org?.name ?? "your workspace"}
           roleName={invitation.role.name}

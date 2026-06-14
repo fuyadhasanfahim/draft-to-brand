@@ -85,7 +85,13 @@ export function DataTable<T>({
                     const canSort = h.column.getCanSort();
                     const sortDir = h.column.getIsSorted();
                     return (
-                      <th key={h.id} className="px-4 py-2.5 font-medium align-middle">
+                      <th
+                        key={h.id}
+                        className={cn(
+                          "px-4 py-2.5 font-medium align-middle",
+                          (h.column.columnDef.meta as { className?: string } | undefined)?.className
+                        )}
+                      >
                         {h.isPlaceholder ? null : canSort ? (
                           <button
                             type="button"
@@ -127,7 +133,13 @@ export function DataTable<T>({
                     className={cn("transition-colors hover:bg-[var(--color-background)]")}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3 align-middle text-[var(--color-foreground)]">
+                      <td
+                        key={cell.id}
+                        className={cn(
+                          "px-4 py-3 align-middle text-[var(--color-foreground)]",
+                          (cell.column.columnDef.meta as { className?: string } | undefined)?.className
+                        )}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

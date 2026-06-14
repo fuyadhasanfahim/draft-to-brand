@@ -29,7 +29,9 @@ export default async function MembersPage() {
         orderBy: { joinedAt: "desc" },
       }),
       prisma.invitation.findMany({
-        where: { organizationId: orgId },
+        // Soft-deleted invitations stay in the DB for audit/compliance
+        // but are hidden from the operator UI.
+        where: { organizationId: orgId, status: { not: "DELETED" } },
         include: { role: { select: { id: true, name: true } } },
         orderBy: { createdAt: "desc" },
       }),
@@ -94,7 +96,14 @@ export default async function MembersPage() {
           />
         </TabsContent>
         <TabsContent value="invitations">
-          <InvitationsTable invitations={invitations} canManage={canInvite} />
+          <InvitationsTable
+            invitations={invitations}
+            canManage={canInvite}
+            roles={roles}
+            branches={branches}
+            departments={departments}
+            teams={teams}
+          />
         </TabsContent>
       </Tabs>
     </div>

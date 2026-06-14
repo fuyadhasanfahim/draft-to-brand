@@ -13,6 +13,7 @@ import {
   acceptInvitationForUser,
   getPendingInvitationByEmail,
 } from "./invitations";
+import { currentInvitationToken } from "./invitation-context";
 import {
   checkAndConsumeEmailQuota,
   isVerificationLocked,
@@ -70,26 +71,54 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        // GATE: signup requires a pending invitation for the email.
+        // GATE (Critical #4): signup requires the invitation token from the
+        // recipient's email link to be present in the request's ALS context.
+        // The only legitimate caller (acceptInvitationAction) wraps the
+        // BA call with `withInvitationToken(token, …)`. Direct hits to
+        // /api/auth/sign-up/email with no token are rejected — and the
+        // token must match a PENDING invitation FOR THIS EMAIL, so a
+        // collision between unrelated invitations is impossible.
         before: async (user) => {
-          const invitation = await getPendingInvitationByEmail(user.email);
-          if (!invitation) {
+          const token = currentInvitationToken();
+          if (!token) {
             throw new APIError("FORBIDDEN", {
               message:
-                "Sign-up is invitation-only. Ask your administrator for an invite.",
+                "Sign-up is invitation-only. Use the invitation link sent to your email.",
+            });
+          }
+          const inv = await prisma.invitation.findUnique({ where: { token } });
+          if (
+            !inv ||
+            inv.status !== "PENDING" ||
+            inv.expiresAt.getTime() < Date.now() ||
+            inv.email.toLowerCase() !== user.email.toLowerCase()
+          ) {
+            throw new APIError("FORBIDDEN", {
+              message: "This invitation link is invalid, expired, or does not match this email.",
             });
           }
           return { data: user };
         },
         after: async (user) => {
-          // Materialize the invitation into a Member.
+          // Materialize the SPECIFIC invitation identified by the token —
+          // not "any pending invite by email". This is the fix for the
+          // multi-invite tie-break bug.
           try {
-            const invitation = await getPendingInvitationByEmail(user.email);
-            if (invitation) {
-              await acceptInvitationForUser({
-                invitationId: invitation.id,
-                userId: user.id,
-              });
+            const token = currentInvitationToken();
+            const inv = token
+              ? await prisma.invitation.findUnique({ where: { token } })
+              : null;
+            if (inv && inv.email.toLowerCase() === user.email.toLowerCase()) {
+              await acceptInvitationForUser({ invitationId: inv.id, userId: user.id });
+            } else {
+              // Defensive fallback for any signup path that somehow bypasses
+              // the action (shouldn't be reachable post-fix, but absorbed
+              // here so audit can detect the anomaly).
+              const fallback = await getPendingInvitationByEmail(user.email);
+              if (fallback) {
+                console.warn(`[auth] accepting invitation by email fallback for ${user.email}`);
+                await acceptInvitationForUser({ invitationId: fallback.id, userId: user.id });
+              }
             }
           } catch (err) {
             console.error("[auth] invitation acceptance failed", err);

@@ -16,6 +16,15 @@ export async function upsertDepartmentAction(input: DepartmentInput): Promise<Re
   const parsed = departmentSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
+  // Critical #3: validate the referenced branch belongs to this org.
+  if (parsed.data.branchId) {
+    const b = await prisma.branch.findFirst({
+      where: { id: parsed.data.branchId, organizationId: session.member.organizationId },
+      select: { id: true },
+    });
+    if (!b) return { ok: false, error: "Branch not found in this workspace." };
+  }
+
   try {
     const data = {
       name: parsed.data.name,

@@ -340,11 +340,13 @@ enum InvitationStatus {
   ACCEPTED
   REVOKED
   EXPIRED
+  DELETED
 }
 
 model Invitation {
   id             String           @id @default(cuid())
   email          String
+  recipientName  String?
   token          String           @unique
   organizationId String
   roleId         String
@@ -356,6 +358,7 @@ model Invitation {
   status         InvitationStatus @default(PENDING)
   expiresAt      DateTime
   acceptedAt     DateTime?
+  deletedAt      DateTime?
   createdById    String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt

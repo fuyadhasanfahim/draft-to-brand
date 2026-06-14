@@ -20,6 +20,16 @@ const STATUS_LABEL: Record<MemberRow["status"], { label: string; variant: "succe
   ARCHIVED:  { label: "Removed",   variant: "neutral" },
 };
 
+/**
+ * Members table — designed for scanability.
+ *
+ *   - One "Member" column carries identity + email (+ jobTitle below name).
+ *     A separate Email column was redundant noise.
+ *   - Role / Team / Status / Joined stay visible at all widths.
+ *   - Department and Branch are deprioritized to `hidden md:table-cell`
+ *     so narrow viewports stay readable; they're visible on tablets/desktop.
+ *   - The actions column is fixed-width on the right.
+ */
 export function MembersTable({
   members,
   roles,
@@ -40,29 +50,26 @@ export function MembersTable({
   const columns = React.useMemo<ColumnDef<MemberRow, unknown>[]>(
     () => [
       {
-        id: "name",
-        accessorFn: (m) => m.user.name,
-        header: "Name",
+        id: "member",
+        accessorFn: (m) => `${m.user.name} ${m.user.email}`,
+        header: "Member",
         cell: ({ row }) => {
           const m = row.original;
           return (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-[220px]">
               <Avatar name={m.user.name} src={m.user.image ?? undefined} size="sm" />
-              <div className="flex flex-col leading-tight">
-                <span className="font-medium text-[var(--color-foreground)]">{m.user.name}</span>
-                {m.jobTitle ? <span className="text-[11px] text-[var(--color-muted)]">{m.jobTitle}</span> : null}
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="font-medium text-[var(--color-foreground)] truncate">
+                  {m.user.name}
+                </span>
+                <span className="text-[11px] text-[var(--color-muted)] truncate">
+                  {m.user.email}
+                  {m.jobTitle ? ` · ${m.jobTitle}` : ""}
+                </span>
               </div>
             </div>
           );
         },
-      },
-      {
-        id: "email",
-        accessorFn: (m) => m.user.email,
-        header: "Email",
-        cell: ({ row }) => (
-          <span className="text-[var(--color-muted-foreground)]">{row.original.user.email}</span>
-        ),
       },
       {
         id: "role",
@@ -79,11 +86,13 @@ export function MembersTable({
         id: "department",
         accessorFn: (m) => m.department?.name ?? "—",
         header: "Department",
+        meta: { className: "hidden md:table-cell" },
       },
       {
         id: "branch",
         accessorFn: (m) => m.branch?.name ?? "—",
         header: "Branch",
+        meta: { className: "hidden lg:table-cell" },
       },
       {
         id: "status",
@@ -99,25 +108,28 @@ export function MembersTable({
         accessorFn: (m) => m.joinedAt,
         header: "Joined",
         cell: ({ row }) => (
-          <span className="text-[var(--color-muted-foreground)] text-[12px]">
+          <span className="text-[var(--color-muted-foreground)] text-[12px] whitespace-nowrap">
             {format(row.original.joinedAt, "MMM d, yyyy")}
           </span>
         ),
+        meta: { className: "hidden sm:table-cell" },
       },
       {
         id: "actions",
         header: "",
         cell: ({ row }) =>
           canEdit || canRemove ? (
-            <MemberRowActions
-              member={row.original}
-              roles={roles}
-              branches={branches}
-              departments={departments}
-              teams={teams}
-              canEdit={canEdit}
-              canRemove={canRemove}
-            />
+            <div className="flex justify-end">
+              <MemberRowActions
+                member={row.original}
+                roles={roles}
+                branches={branches}
+                departments={departments}
+                teams={teams}
+                canEdit={canEdit}
+                canRemove={canRemove}
+              />
+            </div>
           ) : null,
         enableSorting: false,
       },

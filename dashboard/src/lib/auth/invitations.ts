@@ -90,8 +90,9 @@ export async function acceptInvitationForUser(args: {
       },
     });
 
+    let createdMemberId: string | null = null;
     if (!existing) {
-      await tx.member.create({
+      const created = await tx.member.create({
         data: {
           userId: args.userId,
           organizationId: invitation.organizationId,
@@ -102,6 +103,7 @@ export async function acceptInvitationForUser(args: {
           status: "ACTIVE",
         },
       });
+      createdMemberId = created.id;
     }
 
     // Optional per-invitation permission overrides — stored as ALLOW grants.
@@ -148,6 +150,21 @@ export async function acceptInvitationForUser(args: {
         metadata: { email: invitation.email },
       },
     });
+
+    // High #7: log the Member creation explicitly so the audit trail tells
+    // the full story (an account showed up in this workspace, here's how).
+    if (createdMemberId) {
+      await tx.auditLog.create({
+        data: {
+          organizationId: invitation.organizationId,
+          actorUserId: args.userId,
+          action: "member.created",
+          resource: "member",
+          resourceId: createdMemberId,
+          metadata: { via: "invitation", invitationId: invitation.id, email: invitation.email },
+        },
+      });
+    }
   });
 }
 

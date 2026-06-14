@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { authClient } from "@/lib/auth/client";
+import { acceptInvitationAction } from "@/actions/accept-invitation";
 import { Button, Field, Input, useToast } from "@/components/ui";
 
 const schema = z.object({
@@ -18,10 +18,13 @@ const schema = z.object({
 type FormInput = z.infer<typeof schema>;
 
 export function InvitedSignUpForm({
+  token,
   email,
   organizationName,
   roleName,
 }: {
+  /** Validated server-side before render — passed through to the action verbatim. */
+  token: string;
   email: string;
   organizationName: string;
   roleName: string;
@@ -36,20 +39,19 @@ export function InvitedSignUpForm({
   } = useForm<FormInput>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormInput) => {
-    // The email comes from the validated invitation (server-rendered, never
-    // editable client-side). The Better Auth `user.create.before` hook
-    // re-validates server-side that this email has a pending invitation.
-    const { error } = await authClient.signUp.email({
+    // Signup now goes through our server action so the token can be
+    // surfaced to Better Auth's hooks via AsyncLocalStorage.
+    // authClient.signUp.email is deliberately NOT called from here.
+    const result = await acceptInvitationAction({
+      token,
       name: values.name,
-      email,
       password: values.password,
-      callbackURL: "/dashboard",
     });
-    if (error) {
+    if (!result.ok) {
       toast({
         variant: "error",
         title: "Couldn't create account",
-        description: error.message,
+        description: result.error,
       });
       return;
     }

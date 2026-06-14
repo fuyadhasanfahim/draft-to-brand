@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireVerifiedSession } from "@/lib/auth/session";
 import { can } from "@/lib/permissions";
+import { canGrantPermissions, loadActorContext } from "@/lib/permissions/policy";
 import { logAudit } from "@/lib/audit";
 import {
   cloneRoleSchema,
@@ -39,6 +40,12 @@ export async function createRoleAction(input: CreateRoleInput): Promise<Result> 
   if (!(await can("roles.manage"))) return { ok: false, error: "No permission." };
   const parsed = createRoleSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+
+  // Critical #2: prevent privilege creation. A role can only grant a subset
+  // of permissions the actor already holds.
+  const actor = await loadActorContext(session.user.id, session.member.organizationId);
+  const grantCheck = canGrantPermissions(actor, parsed.data.permissionKeys);
+  if (!grantCheck.ok) return { ok: false, error: grantCheck.error };
 
   try {
     const role = await prisma.$transaction(async (tx) => {
@@ -90,6 +97,11 @@ export async function updateRoleAction(input: UpdateRoleInput): Promise<Result> 
   if (isOwner) {
     return { ok: false, error: "The Owner role cannot be edited." };
   }
+
+  // Critical #2: same subset rule on updates.
+  const actor = await loadActorContext(session.user.id, session.member.organizationId);
+  const grantCheck = canGrantPermissions(actor, parsed.data.permissionKeys);
+  if (!grantCheck.ok) return { ok: false, error: grantCheck.error };
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -168,6 +180,17 @@ export async function cloneRoleAction(input: CloneRoleInput): Promise<Result> {
   if (!source || source.organizationId !== session.member.organizationId) {
     return { ok: false, error: "Source role not found." };
   }
+
+  // Critical #2: cloning the Owner role would mint a non-system role with
+  // every permission. Only Owners may clone Owner; everyone else is bound
+  // by the same subset rule the cloned permission set must satisfy.
+  const actor = await loadActorContext(session.user.id, session.member.organizationId);
+  if (source.slug === "owner" && !actor.isOwner) {
+    return { ok: false, error: "Only an Owner can clone the Owner role." };
+  }
+  const sourceKeys = source.rolePermissions.map((rp) => rp.permission.key);
+  const grantCheck = canGrantPermissions(actor, sourceKeys);
+  if (!grantCheck.ok) return { ok: false, error: grantCheck.error };
 
   try {
     const cloned = await prisma.$transaction(async (tx) => {

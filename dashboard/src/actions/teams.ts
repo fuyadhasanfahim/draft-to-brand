@@ -16,6 +16,30 @@ export async function upsertTeamAction(input: TeamInput): Promise<Result> {
   const parsed = teamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
+  // Critical #3: validate every cross-referenced id belongs to this org.
+  const orgId = session.member.organizationId;
+  if (parsed.data.branchId) {
+    const b = await prisma.branch.findFirst({
+      where: { id: parsed.data.branchId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!b) return { ok: false, error: "Branch not found in this workspace." };
+  }
+  if (parsed.data.departmentId) {
+    const d = await prisma.department.findFirst({
+      where: { id: parsed.data.departmentId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!d) return { ok: false, error: "Department not found in this workspace." };
+  }
+  if (parsed.data.teamLeadId) {
+    const lead = await prisma.member.findFirst({
+      where: { id: parsed.data.teamLeadId, organizationId: orgId, status: "ACTIVE" },
+      select: { id: true },
+    });
+    if (!lead) return { ok: false, error: "Team lead must be an active member of this workspace." };
+  }
+
   try {
     const data = {
       name: parsed.data.name,
