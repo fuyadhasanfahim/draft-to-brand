@@ -67,6 +67,13 @@ export const auth = betterAuth({
         // Fire a welcome email once the user record actually lands in the DB.
         // Best-effort — never blocks account creation.
         after: async (user) => {
+          // Provision FIRST — the dashboard depends on Member existing.
+          // Errors here must not block account creation, but should surface.
+          try {
+            await provisionMemberForNewUser(user.id);
+          } catch (err) {
+            console.error("[auth] member provisioning failed", err);
+          }
           await sendWelcomeEmail({
             to: user.email,
             name: user.name ?? undefined,

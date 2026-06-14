@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
  *
  * Optimistic auth gate ONLY. We look at the Better Auth session cookie's
  * existence — NOT its validity. Real authorization happens in:
- *   - The (dashboard) layout (`getServerSession`)
+ *   - The (dashboard) layout (`getAuthUser` + `getActiveMember`)
  *   - Server Actions / Route Handlers (`requireSession`, `can()`)
  *
  * Per Next 16 docs: Proxy must not be used as a full auth solution.
@@ -14,6 +14,10 @@ import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "dtb.session_token";
 const PROTECTED_PREFIX = "/dashboard";
+// Auth-facing routes. If the user has a session cookie, /sign-in and /sign-up
+// bounce to /dashboard — but /no-workspace MUST be reachable while signed in
+// (it's the destination for "authenticated but no membership"), so it's
+// excluded from the bounce list.
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 export function proxy(request: NextRequest) {
