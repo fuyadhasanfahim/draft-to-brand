@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
@@ -77,6 +77,7 @@ export function LeadsPageClient({
   canEdit,
   canDelete,
   defaultPipelineId,
+  currentArchivedFilter,
 }: {
   leads: LeadRow[];
   choices: LeadFormChoices;
@@ -84,10 +85,22 @@ export function LeadsPageClient({
   canEdit: boolean;
   canDelete: boolean;
   defaultPipelineId?: string;
+  /** Server-driven archived filter: "active" | "archived" | "all". */
+  currentArchivedFilter: "active" | "archived" | "all";
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [editing, setEditing] = React.useState<LeadEditable | null>(null);
+
+  const setArchivedFilter = (next: "active" | "archived" | "all") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "active") params.delete("archived");
+    else params.set("archived", next);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
 
   // Filters
   const [statusFilter, setStatusFilter] = React.useState<"" | LeadRow["status"]>("");
@@ -143,18 +156,22 @@ export function LeadsPageClient({
       header: "Lead",
       cell: ({ row }) => {
         const l = row.original;
+        const archived = Boolean(l.archivedAt);
         return (
-          <div className="flex items-center gap-3 min-w-[220px]">
+          <div className={`flex items-center gap-3 min-w-[220px] ${archived ? "opacity-60" : ""}`}>
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--color-background)] text-[var(--color-muted-foreground)] border border-[var(--color-border)] shrink-0">
               <IconTargetArrow size={15} />
             </span>
             <div className="flex flex-col leading-tight min-w-0">
-              <Link
-                href={`/dashboard/leads/${l.id}`}
-                className="font-medium text-[var(--color-foreground)] truncate hover:text-[var(--color-primary)] transition-colors"
-              >
-                {l.title}
-              </Link>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Link
+                  href={`/dashboard/leads/${l.id}`}
+                  className="font-medium text-[var(--color-foreground)] truncate hover:text-[var(--color-primary)] transition-colors"
+                >
+                  {l.title}
+                </Link>
+                {archived ? <Badge variant="neutral">Archived</Badge> : null}
+              </span>
               {l.company?.name ? (
                 <span className="text-[11px] text-[var(--color-muted)] truncate">
                   {l.company.name}
@@ -315,6 +332,18 @@ export function LeadsPageClient({
     <>
       <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-2">
+          <Select
+            value={currentArchivedFilter}
+            onChange={(e) =>
+              setArchivedFilter(e.target.value as "active" | "archived" | "all")
+            }
+            className="h-9 text-xs"
+            aria-label="Archived filter"
+          >
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+            <option value="all">All</option>
+          </Select>
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}

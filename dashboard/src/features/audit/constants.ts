@@ -13,6 +13,19 @@ export const AUDIT_RESOURCES = [
   "branch",
   "department",
   "team",
+  // Phase 2A — CRM foundation
+  "company",
+  "contact",
+  "tag",
+  "note",
+  // Phase 2A.5 — reference data
+  "industry",
+  "company_size",
+  "lead_source",
+  // Phase 2B/2C — Lead management
+  "lead",
+  "pipeline",
+  "pipeline_stage",
 ] as const;
 
 export type AuditResource = (typeof AUDIT_RESOURCES)[number];

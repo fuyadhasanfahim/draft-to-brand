@@ -98,8 +98,14 @@ export default async function LeadDetailPage({
       orderBy: { createdAt: "desc" },
       take: 200,
     }),
+    // H2 — include the lead's CURRENT pipeline even if archived, so the
+    // edit modal can render it (labeled "[Archived]") and require an
+    // explicit reassignment instead of silently swapping it for another.
     prisma.pipeline.findMany({
-      where: { organizationId: orgId, archivedAt: null },
+      where: {
+        organizationId: orgId,
+        OR: [{ archivedAt: null }, { id: lead.pipelineId }],
+      },
       include: {
         stages: {
           select: { id: true, name: true, sortOrder: true },
@@ -159,7 +165,12 @@ export default async function LeadDetailPage({
   const priority = PRIORITY_META[lead.priority];
 
   const choices = {
-    pipelines: pipelines.map((p) => ({ id: p.id, name: p.name, stages: p.stages })),
+    pipelines: pipelines.map((p) => ({
+      id: p.id,
+      name: p.name,
+      isArchived: p.archivedAt !== null,
+      stages: p.stages,
+    })),
     companies,
     contacts: contacts.map((c) => ({
       id: c.id,

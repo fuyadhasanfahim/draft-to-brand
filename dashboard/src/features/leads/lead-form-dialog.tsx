@@ -48,6 +48,7 @@ export type LeadEditable = {
 export type PipelineWithStages = {
   id: string;
   name: string;
+  isArchived: boolean;
   stages: { id: string; name: string; sortOrder: number }[];
 };
 
@@ -117,20 +118,34 @@ export function LeadFormDialog({
   }, [lead.id]);
 
   const pipelineId = watch("pipelineId");
+  const stageId = watch("stageId");
   const companyId = watch("companyId");
   const currentPipeline = React.useMemo(
     () => choices.pipelines.find((p) => p.id === pipelineId) ?? null,
     [choices.pipelines, pipelineId]
   );
 
-  React.useEffect(() => {
-    if (!currentPipeline) return;
-    const stageId = watch("stageId");
-    if (!currentPipeline.stages.some((s) => s.id === stageId)) {
-      setValue("stageId", currentPipeline.stages[0]?.id ?? "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pipelineId]);
+  // H3 — Pipeline change requires explicit confirmation. We stash the
+  // user's desired next pipeline and only commit (clearing stage) when
+  // they click "Continue" in the confirm modal.
+  const [pendingPipelineId, setPendingPipelineId] = React.useState<string | null>(null);
+  const pendingPipeline = React.useMemo(
+    () => choices.pipelines.find((p) => p.id === pendingPipelineId) ?? null,
+    [choices.pipelines, pendingPipelineId]
+  );
+
+  const onPipelineSelect = (nextId: string) => {
+    if (!nextId || nextId === pipelineId) return;
+    setPendingPipelineId(nextId);
+  };
+  const confirmPipelineChange = () => {
+    if (!pendingPipelineId) return;
+    setValue("pipelineId", pendingPipelineId);
+    // No auto-select: user must explicitly pick a stage from the destination.
+    setValue("stageId", "");
+    setPendingPipelineId(null);
+  };
+  const cancelPipelineChange = () => setPendingPipelineId(null);
 
   const visibleContacts = React.useMemo(
     () =>
@@ -161,13 +176,28 @@ export function LeadFormDialog({
       footer={
         <>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleSubmit(onSubmit)} loading={isSubmitting}>
+          <Button
+            variant="primary"
+            onClick={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            disabled={!stageId}
+          >
             Save changes
           </Button>
         </>
       }
     >
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+        {currentPipeline?.isArchived ? (
+          <div
+            role="alert"
+            className="rounded-md border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 px-3 py-2 text-[12px] text-[var(--color-warning)]"
+          >
+            This Lead belongs to an archived pipeline. Move it to an active
+            pipeline before continuing.
+          </div>
+        ) : null}
+
         <Field label="Title" required error={errors.title?.message}>
           <Input autoFocus {...register("title")} />
         </Field>
@@ -175,19 +205,29 @@ export function LeadFormDialog({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Field label="Pipeline" required error={errors.pipelineId?.message}>
             <Select
-              value={watch("pipelineId")}
-              onChange={(e) => setValue("pipelineId", e.target.value)}
+              value={pipelineId}
+              onChange={(e) => onPipelineSelect(e.target.value)}
             >
               {choices.pipelines.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>
+                  {p.isArchived ? `[Archived] ${p.name}` : p.name}
+                </option>
               ))}
             </Select>
           </Field>
-          <Field label="Stage" required error={errors.stageId?.message}>
+          <Field
+            label="Stage"
+            required
+            error={
+              errors.stageId?.message ||
+              (stageId ? undefined : "Please select a stage.")
+            }
+          >
             <Select
-              value={watch("stageId")}
+              value={stageId}
               onChange={(e) => setValue("stageId", e.target.value)}
             >
+              <option value="">— Select a stage —</option>
               {(currentPipeline?.stages ?? []).map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -285,6 +325,32 @@ export function LeadFormDialog({
           <Textarea rows={3} {...register("description")} />
         </Field>
       </form>
+
+      {/* H3 — confirmation when the user changes pipeline. We render this as
+          a second Modal stacked above the form; the Modal primitive z-orders
+          correctly because each instance owns its own backdrop. */}
+      <Modal
+        open={pendingPipelineId !== null}
+        onOpenChange={(v) => (!v ? cancelPipelineChange() : null)}
+        title="Move Lead to another Pipeline?"
+        description="Changing the pipeline will require selecting a new stage from the destination pipeline."
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={cancelPipelineChange}>Cancel</Button>
+            <Button variant="primary" onClick={confirmPipelineChange}>
+              Continue
+            </Button>
+          </>
+        }
+      >
+        {pendingPipeline ? (
+          <p className="text-[13px] text-[var(--color-muted-foreground)]">
+            Destination: <span className="font-medium text-[var(--color-foreground)]">{pendingPipeline.name}</span>
+            {pendingPipeline.isArchived ? " (archived)" : ""}
+          </p>
+        ) : null}
+      </Modal>
     </Modal>
   );
 }

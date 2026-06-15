@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/auth/session";
 import { can } from "@/lib/permissions";
@@ -10,14 +11,37 @@ import {
 
 export const metadata = { title: "Leads" };
 
-export default async function LeadsPage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+// Default Lead views show ACTIVE only. `?archived=archived` shows just
+// archived; `?archived=all` shows both. Anything else falls back to active.
+type ArchivedFilter = "active" | "archived" | "all";
+
+function parseArchivedFilter(v: string | string[] | undefined): ArchivedFilter {
+  const s = Array.isArray(v) ? v[0] : v;
+  if (s === "archived" || s === "all") return s;
+  return "active";
+}
+
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const session = await requireSession();
   if (!(await can("leads.view"))) notFound();
   const orgId = session.member.organizationId;
 
+  const sp = await searchParams;
+  const archivedFilter = parseArchivedFilter(sp.archived);
+
+  const leadWhere: Prisma.LeadWhereInput = { organizationId: orgId };
+  if (archivedFilter === "active") leadWhere.archivedAt = null;
+  else if (archivedFilter === "archived") leadWhere.archivedAt = { not: null };
+
   const [
     leads,
-    pipelines,
+    activePipelines,
     companies,
     contacts,
     leadSources,
@@ -28,13 +52,13 @@ export default async function LeadsPage() {
     canManage,
   ] = await Promise.all([
     prisma.lead.findMany({
-      where: { organizationId: orgId },
+      where: leadWhere,
       include: {
         company:    { select: { id: true, name: true } },
         contact:    { select: { id: true, firstName: true, lastName: true } },
         leadSource: { select: { id: true, name: true, color: true } },
         owner:      { include: { user: { select: { name: true } } } },
-        pipeline:   { select: { id: true, name: true } },
+        pipeline:   { select: { id: true, name: true, archivedAt: true } },
         stage:      { select: { id: true, name: true, color: true } },
       },
       orderBy: [{ archivedAt: "asc" }, { updatedAt: "desc" }],
@@ -75,6 +99,33 @@ export default async function LeadsPage() {
     can("leads.manage"),
   ]);
 
+  // H2 — ensure any archived pipeline currently referenced by a loaded Lead
+  // is still present in the editor's options, so reassignment is explicit.
+  const activePipelineIds = new Set(activePipelines.map((p) => p.id));
+  const missingPipelineIds = Array.from(
+    new Set(
+      leads
+        .map((l) => l.pipelineId)
+        .filter((pid) => !activePipelineIds.has(pid))
+    )
+  );
+  const archivedReferencedPipelines = missingPipelineIds.length
+    ? await prisma.pipeline.findMany({
+        where: { organizationId: orgId, id: { in: missingPipelineIds } },
+        include: {
+          stages: {
+            select: { id: true, name: true, sortOrder: true },
+            orderBy: { sortOrder: "asc" },
+          },
+        },
+      })
+    : [];
+
+  const allEditorPipelines = [
+    ...activePipelines.map((p) => ({ ...p, isArchived: false })),
+    ...archivedReferencedPipelines.map((p) => ({ ...p, isArchived: true })),
+  ];
+
   const rows: LeadRow[] = leads.map((l) => ({
     id: l.id,
     title: l.title,
@@ -96,14 +147,15 @@ export default async function LeadsPage() {
     contact: l.contact,
     leadSource: l.leadSource,
     owner: l.owner ? { id: l.owner.id, user: { name: l.owner.user.name } } : null,
-    pipeline: l.pipeline,
+    pipeline: { id: l.pipeline.id, name: l.pipeline.name },
     stage: l.stage,
   }));
 
   const choices = {
-    pipelines: pipelines.map((p) => ({
+    pipelines: allEditorPipelines.map((p) => ({
       id: p.id,
       name: p.name,
+      isArchived: p.isArchived,
       stages: p.stages,
     })),
     companies,
@@ -117,7 +169,7 @@ export default async function LeadsPage() {
   };
 
   const defaultPipelineId =
-    pipelines.find((p) => p.isDefault)?.id ?? pipelines[0]?.id;
+    activePipelines.find((p) => p.isDefault)?.id ?? activePipelines[0]?.id;
 
   return (
     <div>
@@ -132,6 +184,7 @@ export default async function LeadsPage() {
         canEdit={canEdit || canManage}
         canDelete={canDelete || canManage}
         defaultPipelineId={defaultPipelineId}
+        currentArchivedFilter={archivedFilter}
       />
     </div>
   );

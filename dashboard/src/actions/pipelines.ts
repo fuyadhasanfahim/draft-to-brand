@@ -80,7 +80,7 @@ export async function upsertPipelineAction(input: PipelineInput): Promise<Result
         metadata: { name: created.name, slug: created.slug },
       });
     }
-    revalidatePath("/dashboard/pipelines");
+    revalidatePath("/dashboard/settings/pipelines");
     return { ok: true, id };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -111,7 +111,7 @@ export async function archivePipelineAction(id: string): Promise<Result> {
     resource: "pipeline",
     resourceId: id,
   });
-  revalidatePath("/dashboard/pipelines");
+  revalidatePath("/dashboard/settings/pipelines");
   return { ok: true };
 }
 
@@ -205,7 +205,7 @@ export async function upsertPipelineStageAction(input: PipelineStageInput): Prom
         metadata: { name: created.name, pipelineId: created.pipelineId },
       });
     }
-    revalidatePath("/dashboard/pipelines");
+    revalidatePath("/dashboard/settings/pipelines");
     return { ok: true, id };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -227,13 +227,28 @@ export async function reorderPipelineStagesAction(input: ReorderStagesInput): Pr
     return { ok: false, error: "Pipeline not found in this workspace." };
   }
 
-  // Ensure every stage in the payload belongs to the pipeline.
-  const stages = await prisma.pipelineStage.findMany({
-    where: { pipelineId: parsed.data.pipelineId, id: { in: parsed.data.stageIds } },
+  // Ensure the payload covers exactly the stages of this pipeline — no
+  // missing ids (would leave others at their old sortOrder and collide with
+  // the new sequence) and no foreign ids (would touch unrelated rows).
+  const allStages = await prisma.pipelineStage.findMany({
+    where: { pipelineId: parsed.data.pipelineId },
     select: { id: true },
   });
-  if (stages.length !== parsed.data.stageIds.length) {
-    return { ok: false, error: "One or more stages don't belong to this pipeline." };
+  if (allStages.length !== parsed.data.stageIds.length) {
+    return {
+      ok: false,
+      error: "Reorder must include every stage in this pipeline exactly once.",
+    };
+  }
+  const allIds = new Set(allStages.map((s) => s.id));
+  const payloadIds = new Set(parsed.data.stageIds);
+  if (payloadIds.size !== parsed.data.stageIds.length) {
+    return { ok: false, error: "Duplicate stage ids in reorder payload." };
+  }
+  for (const id of payloadIds) {
+    if (!allIds.has(id)) {
+      return { ok: false, error: "One or more stages don't belong to this pipeline." };
+    }
   }
 
   await prisma.$transaction(
@@ -253,7 +268,7 @@ export async function reorderPipelineStagesAction(input: ReorderStagesInput): Pr
     resourceId: parsed.data.pipelineId,
     metadata: { reorderedStageIds: parsed.data.stageIds },
   });
-  revalidatePath("/dashboard/pipelines");
+  revalidatePath("/dashboard/settings/pipelines");
   return { ok: true };
 }
 
@@ -275,11 +290,11 @@ export async function deletePipelineStageAction(id: string): Promise<Result> {
   await logAudit({
     organizationId: orgId,
     actorUserId: session.user.id,
-    action: "stage.updated",
+    action: "stage.deleted",
     resource: "pipeline_stage",
     resourceId: id,
-    metadata: { deleted: true, pipelineId: stage.pipelineId },
+    metadata: { pipelineId: stage.pipelineId },
   });
-  revalidatePath("/dashboard/pipelines");
+  revalidatePath("/dashboard/settings/pipelines");
   return { ok: true };
 }

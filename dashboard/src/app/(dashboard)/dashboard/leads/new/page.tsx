@@ -98,6 +98,8 @@ export default async function NewLeadPage() {
         organizationId: orgId,
         createdAt: { gte: startOfDay },
         createdById: session.user.id,
+        // H5 — never count archived leads in active workflows by default.
+        archivedAt: null,
       },
     }),
   ]);

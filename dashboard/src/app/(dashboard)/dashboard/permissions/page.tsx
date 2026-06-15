@@ -17,6 +17,19 @@ const RESOURCE_TITLES: Record<string, string> = {
   departments: "Departments",
   teams: "Teams",
   audit: "Audit Log",
+  // Phase 2A — CRM foundation
+  companies: "Companies",
+  contacts: "Contacts",
+  tags: "Tags",
+  notes: "Notes",
+  // Phase 2A.5 — reference data / settings
+  settings: "Settings",
+  industries: "Industries",
+  "company-sizes": "Company sizes",
+  "lead-sources": "Lead sources",
+  // Phase 2B/2C — Lead management
+  leads: "Leads",
+  pipelines: "Pipelines",
 };
 
 function groupByResource(defs: PermissionDef[]) {
