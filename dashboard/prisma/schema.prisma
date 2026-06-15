@@ -121,6 +121,7 @@ model Organization {
   pipelines      Pipeline[]
   leads          Lead[]
   leadActivities LeadActivity[]
+  clients        Client[]
 
   @@index([slug])
   @@map("organization")
@@ -231,6 +232,7 @@ model Member {
   role           Role         @relation(fields: [roleId], references: [id])
   ownedCompanies Company[]    @relation("CompanyOwner")
   ownedLeads     Lead[]       @relation("LeadOwner")
+  ownedClients   Client[]     @relation("ClientOwner")
 
   @@unique([userId, organizationId])
   @@index([organizationId])
@@ -482,6 +484,7 @@ model Company {
   notes          Note[]
   tags           CompanyTag[]
   leads          Lead[]
+  client         Client?
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -803,6 +806,7 @@ model Lead {
   stage        PipelineStage  @relation(fields: [stageId], references: [id])
   createdBy    User?          @relation("LeadCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   activities   LeadActivity[]
+  client       Client?
 
   @@index([organizationId])
   @@index([organizationId, status])
@@ -833,4 +837,52 @@ model LeadActivity {
   @@index([leadId, createdAt])
   @@index([organizationId, createdAt])
   @@map("lead_activity")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2E — Client foundation.
+// A Client is the post-sale relationship — the paying customer that future
+// modules (Projects, Invoices, Contracts, Portal access) will attach to.
+// Strict 1:1 with Company: a Company has at most one Client record. Created
+// either by converting a WON Lead or directly via /dashboard/clients.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Client {
+  id               String           @id @default(cuid())
+  organizationId   String
+  // 1:1 with Company. The unique constraint enforces "one Client per Company".
+  companyId        String           @unique
+  // Set only when this Client was converted from a Lead. Unique so a Lead
+  // can only ever produce one Client.
+  leadId           String?          @unique
+  ownerId          String?
+  status           ClientStatus     @default(ACTIVE)
+  onboardingStatus OnboardingStatus @default(NOT_STARTED)
+  startDate        DateTime?
+  notes            String?          @db.Text
+  archivedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company      @relation(fields: [companyId],      references: [id])
+  lead         Lead?        @relation(fields: [leadId],         references: [id], onDelete: SetNull)
+  owner        Member?      @relation("ClientOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, archivedAt])
+  @@index([ownerId])
+  @@map("client")
 }

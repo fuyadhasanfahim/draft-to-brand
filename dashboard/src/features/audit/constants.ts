@@ -26,6 +26,8 @@ export const AUDIT_RESOURCES = [
   "lead",
   "pipeline",
   "pipeline_stage",
+  // Phase 2E — Client management
+  "client",
 ] as const;
 
 export type AuditResource = (typeof AUDIT_RESOURCES)[number];

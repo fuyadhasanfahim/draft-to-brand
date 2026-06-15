@@ -56,7 +56,13 @@ export type PermissionKey =
   | "leads.edit"
   | "leads.delete"
   | "leads.manage"
-  | "pipelines.manage";
+  | "pipelines.manage"
+  // Phase 2E — Client management
+  | "clients.view"
+  | "clients.create"
+  | "clients.edit"
+  | "clients.delete"
+  | "clients.manage";
 
 export type PermissionDef = {
   key: PermissionKey;
@@ -114,6 +120,12 @@ export const PERMISSIONS: PermissionDef[] = [
   { key: "leads.delete",     resource: "leads",     action: "delete", description: "Archive or restore leads" },
   { key: "leads.manage",     resource: "leads",     action: "manage", description: "Full lead administration — create, edit, archive, reassign" },
   { key: "pipelines.manage", resource: "pipelines", action: "manage", description: "Create, edit, archive pipelines and stages" },
+
+  { key: "clients.view",     resource: "clients",   action: "view",   description: "View clients (post-sale customers)" },
+  { key: "clients.create",   resource: "clients",   action: "create", description: "Create clients directly or by converting a won lead" },
+  { key: "clients.edit",     resource: "clients",   action: "edit",   description: "Edit existing client records" },
+  { key: "clients.delete",   resource: "clients",   action: "delete", description: "Archive or restore clients" },
+  { key: "clients.manage",   resource: "clients",   action: "manage", description: "Full client administration — convert, edit, archive, reassign" },
 ];
 
 export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -161,6 +173,7 @@ export const SYSTEM_ROLES: Array<{
       "industries.manage", "company-sizes.manage", "lead-sources.manage",
       "leads.view", "leads.create", "leads.edit", "leads.delete", "leads.manage",
       "pipelines.manage",
+      "clients.view", "clients.create", "clients.edit", "clients.delete", "clients.manage",
     ],
   },
   {
@@ -183,6 +196,7 @@ export const SYSTEM_ROLES: Array<{
       "lead-sources.manage",
       "leads.view", "leads.create", "leads.edit", "leads.delete",
       "pipelines.manage",
+      "clients.view", "clients.create", "clients.edit", "clients.delete",
     ],
   },
   {
@@ -199,6 +213,7 @@ export const SYSTEM_ROLES: Array<{
       "notes.view", "notes.create",
       "notes.edit.any", "notes.delete.any",
       "leads.view", "leads.create", "leads.edit",
+      "clients.view", "clients.create", "clients.edit",
     ],
   },
   {
@@ -227,6 +242,7 @@ export const SYSTEM_ROLES: Array<{
       "notes.view", "notes.create",
       "notes.edit.own", "notes.delete.own",
       "leads.view",
+      "clients.view",
     ],
   },
 ];

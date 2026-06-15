@@ -30,6 +30,7 @@ const RESOURCE_TITLES: Record<string, string> = {
   // Phase 2B/2C — Lead management
   leads: "Leads",
   pipelines: "Pipelines",
+  clients: "Clients",
 };
 
 function groupByResource(defs: PermissionDef[]) {
