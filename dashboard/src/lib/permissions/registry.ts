@@ -49,7 +49,14 @@ export type PermissionKey =
   | "settings.view"
   | "industries.manage"
   | "company-sizes.manage"
-  | "lead-sources.manage";
+  | "lead-sources.manage"
+  // Phase 2B — Lead management
+  | "leads.view"
+  | "leads.create"
+  | "leads.edit"
+  | "leads.delete"
+  | "leads.manage"
+  | "pipelines.manage";
 
 export type PermissionDef = {
   key: PermissionKey;
@@ -100,6 +107,13 @@ export const PERMISSIONS: PermissionDef[] = [
   { key: "industries.manage",     resource: "industries",     action: "manage", description: "Create, edit, archive industry options" },
   { key: "company-sizes.manage",  resource: "company-sizes",  action: "manage", description: "Create, edit, archive company-size buckets" },
   { key: "lead-sources.manage",   resource: "lead-sources",   action: "manage", description: "Create, edit, archive lead-source taxonomy" },
+
+  { key: "leads.view",       resource: "leads",     action: "view",   description: "View leads in the CRM" },
+  { key: "leads.create",     resource: "leads",     action: "create", description: "Create new leads" },
+  { key: "leads.edit",       resource: "leads",     action: "edit",   description: "Edit existing leads" },
+  { key: "leads.delete",     resource: "leads",     action: "delete", description: "Archive or restore leads" },
+  { key: "leads.manage",     resource: "leads",     action: "manage", description: "Full lead administration — create, edit, archive, reassign" },
+  { key: "pipelines.manage", resource: "pipelines", action: "manage", description: "Create, edit, archive pipelines and stages" },
 ];
 
 export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -145,6 +159,8 @@ export const SYSTEM_ROLES: Array<{
       "notes.delete.own", "notes.delete.any",
       "settings.view",
       "industries.manage", "company-sizes.manage", "lead-sources.manage",
+      "leads.view", "leads.create", "leads.edit", "leads.delete", "leads.manage",
+      "pipelines.manage",
     ],
   },
   {
@@ -165,6 +181,8 @@ export const SYSTEM_ROLES: Array<{
       "notes.edit.any", "notes.delete.any",
       "settings.view",
       "lead-sources.manage",
+      "leads.view", "leads.create", "leads.edit", "leads.delete",
+      "pipelines.manage",
     ],
   },
   {
@@ -180,6 +198,7 @@ export const SYSTEM_ROLES: Array<{
       "companies.view", "contacts.view",
       "notes.view", "notes.create",
       "notes.edit.any", "notes.delete.any",
+      "leads.view", "leads.create", "leads.edit",
     ],
   },
   {
@@ -207,6 +226,7 @@ export const SYSTEM_ROLES: Array<{
       "companies.view", "contacts.view",
       "notes.view", "notes.create",
       "notes.edit.own", "notes.delete.own",
+      "leads.view",
     ],
   },
 ];

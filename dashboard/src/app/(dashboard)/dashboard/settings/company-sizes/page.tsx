@@ -13,7 +13,7 @@ export default async function CompanySizesPage() {
   if (!(await can("settings.view"))) notFound();
 
   const orgId = session.member.organizationId;
-  const [rows, canManage, canIndustries, canSources] = await Promise.all([
+  const [rows, canManage, canIndustries, canSources, canPipelines] = await Promise.all([
     prisma.companySize.findMany({
       where: { organizationId: orgId },
       orderBy: [{ archivedAt: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
@@ -21,6 +21,7 @@ export default async function CompanySizesPage() {
     can("company-sizes.manage"),
     can("industries.manage"),
     can("lead-sources.manage"),
+    can("pipelines.manage"),
   ]);
 
   return (
@@ -31,6 +32,7 @@ export default async function CompanySizesPage() {
       />
       <SettingsNav
         items={[
+          { href: "/dashboard/settings/pipelines",     label: "Pipelines",     visible: canPipelines },
           { href: "/dashboard/settings/industries",    label: "Industries",    visible: canIndustries },
           { href: "/dashboard/settings/company-sizes", label: "Company sizes", visible: canManage },
           { href: "/dashboard/settings/lead-sources",  label: "Lead sources",  visible: canSources },

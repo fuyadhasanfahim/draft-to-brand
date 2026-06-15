@@ -14,6 +14,10 @@ import {
   DEFAULT_INDUSTRIES,
   DEFAULT_LEAD_SOURCES,
 } from "@/lib/crm/default-reference-data";
+import {
+  DEFAULT_PIPELINE,
+  DEFAULT_PIPELINE_STAGES,
+} from "@/lib/crm/default-pipeline";
 
 export type CreateWorkspaceResult =
   | { ok: true; organizationId: string; slug: string }
@@ -140,6 +144,19 @@ export async function createWorkspaceAction(
       });
       await tx.leadSource.createMany({
         data: DEFAULT_LEAD_SOURCES.map((s) => ({ ...s, organizationId: org.id })),
+        skipDuplicates: true,
+      });
+
+      // Seed a default sales pipeline + its stages so the Leads module is
+      // immediately usable without a trip to /dashboard/pipelines.
+      const defaultPipeline = await tx.pipeline.create({
+        data: { ...DEFAULT_PIPELINE, organizationId: org.id, isDefault: true },
+      });
+      await tx.pipelineStage.createMany({
+        data: DEFAULT_PIPELINE_STAGES.map((s) => ({
+          ...s,
+          pipelineId: defaultPipeline.id,
+        })),
         skipDuplicates: true,
       });
 

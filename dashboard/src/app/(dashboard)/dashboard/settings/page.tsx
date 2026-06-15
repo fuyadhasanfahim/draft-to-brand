@@ -5,6 +5,7 @@ import {
   IconUsers,
   IconWorld,
   IconTags,
+  IconChartArrowsVertical,
 } from "@tabler/icons-react";
 import { requireSession } from "@/lib/auth/session";
 import { can } from "@/lib/permissions";
@@ -16,13 +17,21 @@ export default async function SettingsIndex() {
   await requireSession();
   if (!(await can("settings.view"))) notFound();
 
-  const [canIndustries, canSizes, canSources] = await Promise.all([
+  const [canIndustries, canSizes, canSources, canPipelines] = await Promise.all([
     can("industries.manage"),
     can("company-sizes.manage"),
     can("lead-sources.manage"),
+    can("pipelines.manage"),
   ]);
 
   const cards = [
+    {
+      href: "/dashboard/settings/pipelines",
+      title: "Pipelines",
+      description: "Sales pipelines and stages. Mark stages as WON / LOST to close leads.",
+      icon: <IconChartArrowsVertical size={18} />,
+      visible: canPipelines,
+    },
     {
       href: "/dashboard/settings/industries",
       title: "Industries",

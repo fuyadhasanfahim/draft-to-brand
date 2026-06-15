@@ -13,7 +13,7 @@ export default async function LeadSourcesPage() {
   if (!(await can("settings.view"))) notFound();
 
   const orgId = session.member.organizationId;
-  const [rows, canManage, canIndustries, canSizes] = await Promise.all([
+  const [rows, canManage, canIndustries, canSizes, canPipelines] = await Promise.all([
     prisma.leadSource.findMany({
       where: { organizationId: orgId },
       orderBy: [{ archivedAt: "asc" }, { name: "asc" }],
@@ -21,6 +21,7 @@ export default async function LeadSourcesPage() {
     can("lead-sources.manage"),
     can("industries.manage"),
     can("company-sizes.manage"),
+    can("pipelines.manage"),
   ]);
 
   return (
@@ -31,6 +32,7 @@ export default async function LeadSourcesPage() {
       />
       <SettingsNav
         items={[
+          { href: "/dashboard/settings/pipelines",     label: "Pipelines",     visible: canPipelines },
           { href: "/dashboard/settings/industries",    label: "Industries",    visible: canIndustries },
           { href: "/dashboard/settings/company-sizes", label: "Company sizes", visible: canSizes },
           { href: "/dashboard/settings/lead-sources",  label: "Lead sources",  visible: canManage },

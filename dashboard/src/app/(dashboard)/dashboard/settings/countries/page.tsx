@@ -12,11 +12,12 @@ export default async function CountriesPage() {
   await requireSession();
   if (!(await can("settings.view"))) notFound();
 
-  const [countries, canIndustries, canSizes, canSources] = await Promise.all([
+  const [countries, canIndustries, canSizes, canSources, canPipelines] = await Promise.all([
     prisma.country.findMany({ orderBy: { name: "asc" } }),
     can("industries.manage"),
     can("company-sizes.manage"),
     can("lead-sources.manage"),
+    can("pipelines.manage"),
   ]);
 
   return (
@@ -28,6 +29,7 @@ export default async function CountriesPage() {
       />
       <SettingsNav
         items={[
+          { href: "/dashboard/settings/pipelines",     label: "Pipelines",     visible: canPipelines },
           { href: "/dashboard/settings/industries",    label: "Industries",    visible: canIndustries },
           { href: "/dashboard/settings/company-sizes", label: "Company sizes", visible: canSizes },
           { href: "/dashboard/settings/lead-sources",  label: "Lead sources",  visible: canSources },

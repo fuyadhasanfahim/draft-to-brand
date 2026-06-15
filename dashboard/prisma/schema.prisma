@@ -15,28 +15,30 @@ datasource db {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model User {
-  id            String    @id
+  id            String   @id
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   sessions Session[]
   accounts Account[]
 
   // Bridge into agency identity (1 auth user → many memberships across orgs)
-  memberships          Member[]
-  userPermissions      UserPermission[]
-  auditLogs            AuditLog[]
-  createdInvitations   Invitation[]   @relation("InvitationCreatedBy")
-  createdCompanies     Company[]      @relation("CompanyCreatedBy")
-  createdContacts      Contact[]      @relation("ContactCreatedBy")
-  createdNotes         Note[]         @relation("NoteCreatedBy")
-  createdIndustries    Industry[]     @relation("IndustryCreatedBy")
-  createdCompanySizes  CompanySize[]  @relation("CompanySizeCreatedBy")
-  createdLeadSources   LeadSource[]   @relation("LeadSourceCreatedBy")
+  memberships           Member[]
+  userPermissions       UserPermission[]
+  auditLogs             AuditLog[]
+  createdInvitations    Invitation[]     @relation("InvitationCreatedBy")
+  createdCompanies      Company[]        @relation("CompanyCreatedBy")
+  createdContacts       Contact[]        @relation("ContactCreatedBy")
+  createdNotes          Note[]           @relation("NoteCreatedBy")
+  createdIndustries     Industry[]       @relation("IndustryCreatedBy")
+  createdCompanySizes   CompanySize[]    @relation("CompanySizeCreatedBy")
+  createdLeadSources    LeadSource[]     @relation("LeadSourceCreatedBy")
+  createdLeads          Lead[]           @relation("LeadCreatedBy")
+  createdLeadActivities LeadActivity[]   @relation("LeadActivityCreatedBy")
 
   @@map("user")
 }
@@ -102,20 +104,23 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  branches     Branch[]
-  departments  Department[]
-  teams        Team[]
-  members      Member[]
-  roles        Role[]
-  invitations  Invitation[]
-  auditLogs    AuditLog[]
-  companies    Company[]
-  contacts     Contact[]
-  tags         Tag[]
-  notes        Note[]
-  industries   Industry[]
-  companySizes CompanySize[]
-  leadSources  LeadSource[]
+  branches       Branch[]
+  departments    Department[]
+  teams          Team[]
+  members        Member[]
+  roles          Role[]
+  invitations    Invitation[]
+  auditLogs      AuditLog[]
+  companies      Company[]
+  contacts       Contact[]
+  tags           Tag[]
+  notes          Note[]
+  industries     Industry[]
+  companySizes   CompanySize[]
+  leadSources    LeadSource[]
+  pipelines      Pipeline[]
+  leads          Lead[]
+  leadActivities LeadActivity[]
 
   @@index([slug])
   @@map("organization")
@@ -218,13 +223,14 @@ model Member {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  role         Role         @relation(fields: [roleId], references: [id])
-  ownedCompanies Company[]  @relation("CompanyOwner")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch         Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department     Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team           Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  role           Role         @relation(fields: [roleId], references: [id])
+  ownedCompanies Company[]    @relation("CompanyOwner")
+  ownedLeads     Lead[]       @relation("LeadOwner")
 
   @@unique([userId, organizationId])
   @@index([organizationId])
@@ -250,7 +256,7 @@ model Role {
   slug           String
   description    String?
   isSystem       Boolean  @default(false) // Owner/Admin/etc — not deletable
-  priority       Int      @default(0)     // for UI ordering & tie-breaks
+  priority       Int      @default(0) // for UI ordering & tie-breaks
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -268,8 +274,8 @@ model Permission {
   id          String   @id @default(cuid())
   // Global registry keyed by dotted slug, e.g. "users.view", "roles.manage"
   key         String   @unique
-  resource    String   // "users", "roles", "teams", …
-  action      String   // "view", "create", "edit", "delete", "manage"
+  resource    String // "users", "roles", "teams", …
+  action      String // "view", "create", "edit", "delete", "manage"
   description String?
   createdAt   DateTime @default(now())
 
@@ -325,8 +331,8 @@ model AuditLog {
   id             String   @id @default(cuid())
   organizationId String?
   actorUserId    String?
-  action         String   // "member.invited", "role.updated", …
-  resource       String   // "member", "role", "branch", …
+  action         String // "member.invited", "role.updated", …
+  resource       String // "member", "role", "branch", …
   resourceId     String?
   metadata       Json?
   ipAddress      String?
@@ -378,10 +384,10 @@ model Invitation {
   updatedAt      DateTime         @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role         Role         @relation(fields: [roleId],         references: [id])
-  branch       Branch?      @relation(fields: [branchId],       references: [id], onDelete: SetNull)
-  department   Department?  @relation(fields: [departmentId],   references: [id], onDelete: SetNull)
-  team         Team?        @relation(fields: [teamId],         references: [id], onDelete: SetNull)
+  role         Role         @relation(fields: [roleId], references: [id])
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
   createdBy    User?        @relation("InvitationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, email])
@@ -450,31 +456,32 @@ model Company {
   email          String?
 
   // Phase 2A.5 — reference-data FKs (replaced free-text industry/size/country).
-  industryId       String?
-  countryId        String?
-  companySizeId    String?
-  leadSourceId     String?
+  industryId    String?
+  countryId     String?
+  companySizeId String?
+  leadSourceId  String?
 
   // Phase 2A.5 — workflow relations.
-  ownerId          String?  // Member who owns this account in the CRM workflow.
-  primaryContactId String?  // The "main POC" — a Contact on this company (or unset).
+  ownerId          String? // Member who owns this account in the CRM workflow.
+  primaryContactId String? // The "main POC" — a Contact on this company (or unset).
 
-  archivedAt     DateTime?
-  createdById    String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  archivedAt  DateTime?
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy      User?        @relation("CompanyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  industry       Industry?    @relation(fields: [industryId],       references: [id], onDelete: SetNull)
-  country        Country?     @relation(fields: [countryId],        references: [id], onDelete: SetNull)
-  companySize    CompanySize? @relation(fields: [companySizeId],    references: [id], onDelete: SetNull)
-  leadSource     LeadSource?  @relation(fields: [leadSourceId],     references: [id], onDelete: SetNull)
-  owner          Member?      @relation("CompanyOwner",            fields: [ownerId], references: [id], onDelete: SetNull)
-  primaryContact Contact?     @relation("CompanyPrimaryContact",   fields: [primaryContactId], references: [id], onDelete: SetNull)
+  industry       Industry?    @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  country        Country?     @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  companySize    CompanySize? @relation(fields: [companySizeId], references: [id], onDelete: SetNull)
+  leadSource     LeadSource?  @relation(fields: [leadSourceId], references: [id], onDelete: SetNull)
+  owner          Member?      @relation("CompanyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  primaryContact Contact?     @relation("CompanyPrimaryContact", fields: [primaryContactId], references: [id], onDelete: SetNull)
   contacts       Contact[]    @relation("CompanyContacts")
   notes          Note[]
   tags           CompanyTag[]
+  leads          Lead[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -520,6 +527,7 @@ model Contact {
   createdBy    User?        @relation("ContactCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   noteEntries  Note[]
   tags         ContactTag[]
+  leads        Lead[]
 
   @@index([organizationId])
   @@index([organizationId, companyId])
@@ -671,8 +679,158 @@ model LeadSource {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User?        @relation("LeadSourceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   companies    Company[]
+  leads        Lead[]
 
   @@unique([organizationId, slug])
   @@index([organizationId, isActive])
   @@map("lead_source")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2B — Lead Management foundation.
+// Pipelines + Stages model the sales workflow. A Lead is an active sales
+// opportunity that walks the stages of a pipeline. LeadActivity is an
+// append-only timeline of state changes (stage moves, owner changes, notes).
+// Every record is organization-scoped; soft-delete via `archivedAt`.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum LeadStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Pipeline-stage terminal flag. `OPEN` stages keep the Lead alive; reaching
+// a `WON` or `LOST` stage closes the Lead with the matching status. Derived
+// at write time — there's no manual status dropdown on the Lead form.
+enum StageOutcome {
+  OPEN
+  WON
+  LOST
+}
+
+// Fixed currency allowlist for monetary fields. Free-text codes were
+// error-prone (typos, lowercase, ISO 4217 codes we don't actually support).
+enum Currency {
+  USD
+  EUR
+  GBP
+  AUD
+  CAD
+  SGD
+  AED
+  BDT
+}
+
+model Pipeline {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  description    String?
+  isDefault      Boolean   @default(false)
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stages       PipelineStage[]
+  leads        Lead[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([organizationId, archivedAt])
+  @@map("pipeline")
+}
+
+model PipelineStage {
+  id             String   @id @default(cuid())
+  pipelineId     String
+  name           String
+  slug           String
+  color          String   @default("#6b6e6e")
+  sortOrder      Int      @default(0)
+  // 0–100; how confident we are a Lead in this stage will close-won.
+  winProbability Int      @default(0)
+  // Marks this stage as terminal (WON / LOST) so Lead.status can be derived
+  // from it. Non-terminal stages keep the lead OPEN.
+  outcome        StageOutcome @default(OPEN)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  leads    Lead[]
+
+  @@unique([pipelineId, slug])
+  @@index([pipelineId, sortOrder])
+  @@map("pipeline_stage")
+}
+
+model Lead {
+  id                String       @id @default(cuid())
+  organizationId    String
+  title             String
+  companyId         String?
+  contactId         String?
+  leadSourceId      String?
+  ownerId           String? // Member id
+  pipelineId        String
+  stageId           String
+  status            LeadStatus   @default(OPEN)
+  priority          LeadPriority @default(MEDIUM)
+  estimatedValue    Decimal?     @db.Decimal(14, 2)
+  currency          Currency?
+  expectedCloseDate DateTime?
+  description       String?
+  archivedAt        DateTime?
+  createdById       String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  contact      Contact?       @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  leadSource   LeadSource?    @relation(fields: [leadSourceId], references: [id], onDelete: SetNull)
+  owner        Member?        @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  pipeline     Pipeline       @relation(fields: [pipelineId], references: [id])
+  stage        PipelineStage  @relation(fields: [stageId], references: [id])
+  createdBy    User?          @relation("LeadCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  activities   LeadActivity[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, archivedAt])
+  @@index([pipelineId, stageId])
+  @@index([companyId])
+  @@index([contactId])
+  @@index([ownerId])
+  @@index([leadSourceId])
+  @@map("lead")
+}
+
+model LeadActivity {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  // e.g. "lead.created", "stage.changed", "owner.changed", "note.added"
+  type           String
+  message        String?
+  metadata       Json?
+  createdById    String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("LeadActivityCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+  @@index([organizationId, createdAt])
+  @@map("lead_activity")
 }

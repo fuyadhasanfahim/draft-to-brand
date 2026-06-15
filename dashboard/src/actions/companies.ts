@@ -7,6 +7,10 @@ import { requireVerifiedSession } from "@/lib/auth/session";
 import { can } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { companySchema, type CompanyInput } from "@/lib/validators/crm";
+import {
+  setPrimaryContactSchema,
+  type SetPrimaryContactInput,
+} from "@/lib/validators/leads";
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -235,4 +239,55 @@ export async function archiveCompanyAction(id: string): Promise<Result> {
   revalidatePath("/dashboard/companies");
   revalidatePath(`/dashboard/companies/${id}`);
   return { ok: true };
+}
+
+/**
+ * Designate a company's primary contact. Used from the Lead detail Company
+ * tab so reps can flip the "main POC" without opening the full company
+ * editor. The contact must already belong to the company; pass `null` to
+ * clear the designation.
+ */
+export async function setPrimaryContactAction(
+  input: SetPrimaryContactInput
+): Promise<Result> {
+  const session = await requireVerifiedSession();
+  if (!(await can("companies.manage"))) return { ok: false, error: "No permission." };
+  const parsed = setPrimaryContactSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  const orgId = session.member.organizationId;
+
+  const company = await prisma.company.findFirst({
+    where: { id: parsed.data.companyId, organizationId: orgId },
+  });
+  if (!company) return { ok: false, error: "Company not found." };
+
+  if (parsed.data.contactId) {
+    const contact = await prisma.contact.findFirst({
+      where: {
+        id: parsed.data.contactId,
+        organizationId: orgId,
+        companyId: company.id,
+      },
+      select: { id: true },
+    });
+    if (!contact) {
+      return { ok: false, error: "Contact must be attached to this company." };
+    }
+  }
+
+  await prisma.company.update({
+    where: { id: company.id },
+    data: { primaryContactId: parsed.data.contactId },
+  });
+  await logAudit({
+    organizationId: orgId,
+    actorUserId: session.user.id,
+    action: "company.updated",
+    resource: "company",
+    resourceId: company.id,
+    metadata: { primaryContactId: parsed.data.contactId },
+  });
+  revalidatePath(`/dashboard/companies/${company.id}`);
+  revalidatePath("/dashboard/leads");
+  return { ok: true, id: company.id };
 }

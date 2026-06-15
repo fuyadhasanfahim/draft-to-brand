@@ -11,6 +11,10 @@ import {
   DEFAULT_INDUSTRIES,
   DEFAULT_LEAD_SOURCES,
 } from "../src/lib/crm/default-reference-data";
+import {
+  DEFAULT_PIPELINE,
+  DEFAULT_PIPELINE_STAGES,
+} from "../src/lib/crm/default-pipeline";
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
 const prisma = new PrismaClient({
@@ -36,8 +40,27 @@ async function main() {
       data: DEFAULT_LEAD_SOURCES.map((s) => ({ ...s, organizationId: org.id })),
       skipDuplicates: true,
     });
+    // Ensure a default Pipeline exists with its stages. Idempotent on slug.
+    const existing = await prisma.pipeline.findFirst({
+      where: { organizationId: org.id, slug: DEFAULT_PIPELINE.slug },
+      select: { id: true },
+    });
+    let pipelineCreated = 0;
+    let stagesCreated = 0;
+    if (!existing) {
+      const p = await prisma.pipeline.create({
+        data: { ...DEFAULT_PIPELINE, organizationId: org.id, isDefault: true },
+      });
+      const r = await prisma.pipelineStage.createMany({
+        data: DEFAULT_PIPELINE_STAGES.map((s) => ({ ...s, pipelineId: p.id })),
+        skipDuplicates: true,
+      });
+      pipelineCreated = 1;
+      stagesCreated = r.count;
+    }
+
     console.log(
-      `  ✓ ${org.name}  industries+${r1.count} sizes+${r2.count} sources+${r3.count}`
+      `  ✓ ${org.name}  industries+${r1.count} sizes+${r2.count} sources+${r3.count} pipeline+${pipelineCreated} stages+${stagesCreated}`
     );
   }
   console.log("\n✓ CRM defaults backfilled.");
