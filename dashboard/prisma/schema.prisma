@@ -27,13 +27,16 @@ model User {
   accounts Account[]
 
   // Bridge into agency identity (1 auth user → many memberships across orgs)
-  memberships        Member[]
-  userPermissions    UserPermission[]
-  auditLogs          AuditLog[]
-  createdInvitations Invitation[] @relation("InvitationCreatedBy")
-  createdCompanies   Company[]    @relation("CompanyCreatedBy")
-  createdContacts    Contact[]    @relation("ContactCreatedBy")
-  createdNotes       Note[]       @relation("NoteCreatedBy")
+  memberships          Member[]
+  userPermissions      UserPermission[]
+  auditLogs            AuditLog[]
+  createdInvitations   Invitation[]   @relation("InvitationCreatedBy")
+  createdCompanies     Company[]      @relation("CompanyCreatedBy")
+  createdContacts      Contact[]      @relation("ContactCreatedBy")
+  createdNotes         Note[]         @relation("NoteCreatedBy")
+  createdIndustries    Industry[]     @relation("IndustryCreatedBy")
+  createdCompanySizes  CompanySize[]  @relation("CompanySizeCreatedBy")
+  createdLeadSources   LeadSource[]   @relation("LeadSourceCreatedBy")
 
   @@map("user")
 }
@@ -99,17 +102,20 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  branches    Branch[]
-  departments Department[]
-  teams       Team[]
-  members     Member[]
-  roles       Role[]
-  invitations Invitation[]
-  auditLogs   AuditLog[]
-  companies   Company[]
-  contacts    Contact[]
-  tags        Tag[]
-  notes       Note[]
+  branches     Branch[]
+  departments  Department[]
+  teams        Team[]
+  members      Member[]
+  roles        Role[]
+  invitations  Invitation[]
+  auditLogs    AuditLog[]
+  companies    Company[]
+  contacts     Contact[]
+  tags         Tag[]
+  notes        Note[]
+  industries   Industry[]
+  companySizes CompanySize[]
+  leadSources  LeadSource[]
 
   @@index([slug])
   @@map("organization")
@@ -218,6 +224,7 @@ model Member {
   department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
   role         Role         @relation(fields: [roleId], references: [id])
+  ownedCompanies Company[]  @relation("CompanyOwner")
 
   @@unique([userId, organizationId])
   @@index([organizationId])
@@ -435,30 +442,50 @@ model Company {
   name           String
   slug           String
   website        String?
-  industry       String?
   description    String?
   status         CompanyStatus @default(ACTIVE)
-  size           String?
-  country        String?
   city           String?
   address        String?
   phone          String?
   email          String?
+
+  // Phase 2A.5 — reference-data FKs (replaced free-text industry/size/country).
+  industryId       String?
+  countryId        String?
+  companySizeId    String?
+  leadSourceId     String?
+
+  // Phase 2A.5 — workflow relations.
+  ownerId          String?  // Member who owns this account in the CRM workflow.
+  primaryContactId String?  // The "main POC" — a Contact on this company (or unset).
+
   archivedAt     DateTime?
   createdById    String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy    User?        @relation("CompanyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  contacts     Contact[]
-  notes        Note[]
-  tags         CompanyTag[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User?        @relation("CompanyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  industry       Industry?    @relation(fields: [industryId],       references: [id], onDelete: SetNull)
+  country        Country?     @relation(fields: [countryId],        references: [id], onDelete: SetNull)
+  companySize    CompanySize? @relation(fields: [companySizeId],    references: [id], onDelete: SetNull)
+  leadSource     LeadSource?  @relation(fields: [leadSourceId],     references: [id], onDelete: SetNull)
+  owner          Member?      @relation("CompanyOwner",            fields: [ownerId], references: [id], onDelete: SetNull)
+  primaryContact Contact?     @relation("CompanyPrimaryContact",   fields: [primaryContactId], references: [id], onDelete: SetNull)
+  contacts       Contact[]    @relation("CompanyContacts")
+  notes          Note[]
+  tags           CompanyTag[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
   @@index([organizationId, status])
   @@index([organizationId, archivedAt])
+  @@index([industryId])
+  @@index([countryId])
+  @@index([companySizeId])
+  @@index([leadSourceId])
+  @@index([ownerId])
+  @@index([primaryContactId])
   @@map("company")
 }
 
@@ -488,7 +515,8 @@ model Contact {
   updatedAt      DateTime      @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  company      Company?     @relation("CompanyContacts", fields: [companyId], references: [id], onDelete: SetNull)
+  primaryOf    Company[]    @relation("CompanyPrimaryContact")
   createdBy    User?        @relation("ContactCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   noteEntries  Note[]
   tags         ContactTag[]
@@ -563,4 +591,88 @@ model Note {
   @@index([companyId])
   @@index([contactId])
   @@map("note")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2A.5 — Reference data foundation.
+// Country is global (system-managed, ISO 3166-1). Industry/CompanySize/
+// LeadSource are per-organization dynamic taxonomies admins curate from
+// Settings. Every future CRM entity (Leads, Pipelines, Deals, Campaigns)
+// will attach to these so terminology stays consistent.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String
+  iso2      String   @unique
+  iso3      String   @unique
+  phoneCode String
+  createdAt DateTime @default(now())
+
+  companies Company[]
+
+  @@index([name])
+  @@map("country")
+}
+
+model Industry {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  isActive       Boolean   @default(true)
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("IndustryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  companies    Company[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, isActive])
+  @@map("industry")
+}
+
+model CompanySize {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  sortOrder      Int       @default(0)
+  isActive       Boolean   @default(true)
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("CompanySizeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  companies    Company[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, isActive, sortOrder])
+  @@map("company_size")
+}
+
+model LeadSource {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  color          String    @default("#6b6e6e")
+  isActive       Boolean   @default(true)
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("LeadSourceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  companies    Company[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, isActive])
+  @@map("lead_source")
 }

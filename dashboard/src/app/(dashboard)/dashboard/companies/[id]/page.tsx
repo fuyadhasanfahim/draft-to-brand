@@ -35,36 +35,90 @@ export default async function CompanyDetailPage({
     include: {
       tags: { include: { tag: true } },
       _count: { select: { contacts: true } },
+      industry: { select: { id: true, name: true } },
+      country: { select: { id: true, name: true } },
+      companySize: { select: { id: true, name: true } },
+      leadSource: { select: { id: true, name: true, color: true } },
+      owner: { include: { user: { select: { name: true } } } },
+      primaryContact: { select: { id: true, firstName: true, lastName: true } },
     },
   });
   if (!company) notFound();
 
-  const [contacts, notes, tags, canManage, canManageContacts, canManageTags, canCreateNote, canEditNote, canDeleteNote] =
-    await Promise.all([
-      prisma.contact.findMany({
-        where: { organizationId: orgId, companyId: company.id },
-        include: {
-          company: { select: { id: true, name: true } },
-          tags: { include: { tag: true } },
-        },
-        orderBy: [{ archivedAt: "asc" }, { lastName: "asc" }],
-      }),
-      prisma.note.findMany({
-        where: { organizationId: orgId, companyId: company.id },
-        include: { createdBy: { select: { name: true, image: true } } },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.tag.findMany({
-        where: { organizationId: orgId },
-        orderBy: { name: "asc" },
-      }),
-      can("companies.manage"),
-      can("contacts.manage"),
-      can("tags.manage"),
-      can("notes.create"),
-      can("notes.edit"),
-      can("notes.delete"),
-    ]);
+  const [
+    contacts,
+    notes,
+    tags,
+    industries,
+    countries,
+    companySizes,
+    leadSources,
+    owners,
+    canManage,
+    canManageContacts,
+    canManageTags,
+    canCreateNote,
+    canEditOwnNote,
+    canEditAnyNote,
+    canDeleteOwnNote,
+    canDeleteAnyNote,
+  ] = await Promise.all([
+    prisma.contact.findMany({
+      where: { organizationId: orgId, companyId: company.id },
+      include: {
+        company: { select: { id: true, name: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ archivedAt: "asc" }, { lastName: "asc" }],
+    }),
+    prisma.note.findMany({
+      where: { organizationId: orgId, companyId: company.id },
+      include: { createdBy: { select: { name: true, image: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.tag.findMany({
+      where: { organizationId: orgId },
+      orderBy: { name: "asc" },
+    }),
+    prisma.industry.findMany({
+      where: { organizationId: orgId, isActive: true, archivedAt: null },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.country.findMany({
+      select: { id: true, name: true, iso2: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.companySize.findMany({
+      where: { organizationId: orgId, isActive: true, archivedAt: null },
+      select: { id: true, name: true, sortOrder: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    }),
+    prisma.leadSource.findMany({
+      where: { organizationId: orgId, isActive: true, archivedAt: null },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.member.findMany({
+      where: { organizationId: orgId, status: "ACTIVE" },
+      include: { user: { select: { name: true } } },
+      orderBy: { joinedAt: "asc" },
+    }),
+    can("companies.manage"),
+    can("contacts.manage"),
+    can("tags.manage"),
+    can("notes.create"),
+    can("notes.edit.own"),
+    can("notes.edit.any"),
+    can("notes.delete.own"),
+    can("notes.delete.any"),
+  ]);
+
+  const ownerChoices = owners.map((m) => ({ id: m.id, name: m.user.name }));
+  const primaryContactCandidates = contacts.map((c) => ({
+    id: c.id,
+    name: `${c.firstName} ${c.lastName}`,
+  }));
 
   const meta = STATUS[company.status];
 
@@ -107,11 +161,14 @@ export default async function CompanyDetailPage({
                 name: company.name,
                 slug: company.slug,
                 website: company.website,
-                industry: company.industry,
                 description: company.description,
                 status: company.status,
-                size: company.size,
-                country: company.country,
+                industryId: company.industryId,
+                countryId: company.countryId,
+                companySizeId: company.companySizeId,
+                leadSourceId: company.leadSourceId,
+                ownerId: company.ownerId,
+                primaryContactId: company.primaryContactId,
                 city: company.city,
                 address: company.address,
                 phone: company.phone,
@@ -121,6 +178,12 @@ export default async function CompanyDetailPage({
               }}
               tags={tags}
               canManageTags={canManageTags}
+              industries={industries}
+              countries={countries}
+              companySizes={companySizes}
+              leadSources={leadSources}
+              owners={ownerChoices}
+              primaryContactCandidates={primaryContactCandidates}
             />
           ) : null}
         </div>
@@ -135,7 +198,24 @@ export default async function CompanyDetailPage({
         </TabsList>
 
         <TabsContent value="overview">
-          <CompanyOverview company={company} />
+          <CompanyOverview
+            company={{
+              industry: company.industry,
+              companySize: company.companySize,
+              country: company.country,
+              leadSource: company.leadSource,
+              owner: company.owner ? { name: company.owner.user.name } : null,
+              primaryContact: company.primaryContact
+                ? { name: `${company.primaryContact.firstName} ${company.primaryContact.lastName}` }
+                : null,
+              website: company.website,
+              email: company.email,
+              phone: company.phone,
+              city: company.city,
+              address: company.address,
+              description: company.description,
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="contacts">
@@ -156,12 +236,18 @@ export default async function CompanyDetailPage({
               content: n.content,
               createdAt: n.createdAt,
               updatedAt: n.updatedAt,
+              createdById: n.createdById,
               createdBy: n.createdBy,
             }))}
             companyId={company.id}
-            canCreate={canCreateNote}
-            canEdit={canEditNote}
-            canDelete={canDeleteNote}
+            permissions={{
+              currentUserId: session.user.id,
+              canCreate: canCreateNote,
+              canEditOwn: canEditOwnNote,
+              canEditAny: canEditAnyNote,
+              canDeleteOwn: canDeleteOwnNote,
+              canDeleteAny: canDeleteAnyNote,
+            }}
           />
         </TabsContent>
 

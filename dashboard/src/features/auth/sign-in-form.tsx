@@ -40,10 +40,10 @@ export function SignInForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <Field label="Email" error={errors.email?.message}>
+      <Field label="Email" required error={errors.email?.message}>
         <Input type="email" autoComplete="email" {...register("email")} />
       </Field>
-      <Field label="Password" error={errors.password?.message}>
+      <Field label="Password" required error={errors.password?.message}>
         <Input type="password" autoComplete="current-password" {...register("password")} />
       </Field>
       <Button type="submit" loading={isSubmitting}>Sign in</Button>

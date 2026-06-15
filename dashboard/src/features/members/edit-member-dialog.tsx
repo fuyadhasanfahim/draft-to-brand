@@ -107,7 +107,7 @@ export function EditMemberDialog({
         <Field label="Job title">
           <Input {...register("jobTitle")} placeholder="e.g. Senior Strategist" />
         </Field>
-        <Field label="Role" error={errors.roleId?.message}>
+        <Field label="Role" required error={errors.roleId?.message}>
           <Select {...register("roleId")}>
             {roles.map((r) => (
               <option key={r.id} value={r.id}>{r.name}</option>

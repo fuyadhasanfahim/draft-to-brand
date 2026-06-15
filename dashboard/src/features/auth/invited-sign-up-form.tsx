@@ -71,12 +71,13 @@ export function InvitedSignUpForm({
         <p className="mt-1 text-[var(--color-muted)]">{email}</p>
       </div>
 
-      <Field label="Full name" error={errors.name?.message}>
+      <Field label="Full name" required error={errors.name?.message}>
         <Input autoComplete="name" autoFocus {...register("name")} />
       </Field>
 
       <Field
         label="Password"
+        required
         hint="At least 8 characters"
         error={errors.password?.message}
       >

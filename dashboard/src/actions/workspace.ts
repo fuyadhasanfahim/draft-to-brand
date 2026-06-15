@@ -9,6 +9,11 @@ import {
   type CreateWorkspaceInput,
 } from "@/lib/validators/onboarding";
 import { PERMISSIONS } from "@/lib/permissions/registry";
+import {
+  DEFAULT_COMPANY_SIZES,
+  DEFAULT_INDUSTRIES,
+  DEFAULT_LEAD_SOURCES,
+} from "@/lib/crm/default-reference-data";
 
 export type CreateWorkspaceResult =
   | { ok: true; organizationId: string; slug: string }
@@ -122,6 +127,20 @@ export async function createWorkspaceAction(
           name: "Core Team",
           slug: "core-team",
         },
+      });
+
+      // Seed CRM reference taxonomies so the workspace is immediately usable.
+      await tx.industry.createMany({
+        data: DEFAULT_INDUSTRIES.map((i) => ({ ...i, organizationId: org.id })),
+        skipDuplicates: true,
+      });
+      await tx.companySize.createMany({
+        data: DEFAULT_COMPANY_SIZES.map((s) => ({ ...s, organizationId: org.id })),
+        skipDuplicates: true,
+      });
+      await tx.leadSource.createMany({
+        data: DEFAULT_LEAD_SOURCES.map((s) => ({ ...s, organizationId: org.id })),
+        skipDuplicates: true,
       });
 
       await tx.member.create({

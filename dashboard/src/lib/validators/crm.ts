@@ -19,15 +19,25 @@ const optionalEmail = z
     "Enter a valid email"
   );
 
+// Accepts ONLY `http://…` or `https://…`. `z.string().url()` accepts
+// `javascript:` and other dangerous schemes per the WHATWG URL spec, so
+// validating via Zod's built-in `url()` is not enough. We parse via
+// `new URL` and enforce the protocol allowlist explicitly — matching the
+// runtime guard in `src/lib/safe-url.ts`.
 const optionalUrl = z
   .string()
   .trim()
   .nullable()
   .optional()
-  .refine(
-    (v) => !v || z.string().url().safeParse(v).success,
-    "Enter a valid URL"
-  );
+  .refine((v) => {
+    if (!v) return true;
+    try {
+      const u = new URL(v);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "URL must start with http:// or https://");
 
 // ─── Company ─────────────────────────────────────────────────────────────
 
@@ -36,11 +46,15 @@ export const companySchema = z.object({
   name: z.string().trim().min(2, "Name is required").max(120),
   slug,
   website: optionalUrl,
-  industry: optionalString(80),
   description: optionalString(500),
   status: z.enum(["ACTIVE", "PROSPECT", "ARCHIVED"]),
-  size: optionalString(40),
-  country: optionalString(80),
+  // Reference-data FKs — validated cross-org in the action layer.
+  industryId: z.string().nullable().optional(),
+  countryId: z.string().nullable().optional(),
+  companySizeId: z.string().nullable().optional(),
+  leadSourceId: z.string().nullable().optional(),
+  ownerId: z.string().nullable().optional(),         // Member id
+  primaryContactId: z.string().nullable().optional(), // Contact id
   city: optionalString(80),
   address: optionalString(200),
   phone: optionalString(40),

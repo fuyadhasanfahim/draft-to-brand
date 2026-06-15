@@ -199,7 +199,7 @@ export function EmailVerificationGate({ email, name }: EmailVerificationGateProp
           </div>
 
           <form onSubmit={verify} className="px-6 pb-6 pt-5 flex flex-col gap-4">
-            <Field label="Verification code">
+            <Field label="Verification code" required>
               <Input
                 inputMode="numeric"
                 pattern="\d{6}"

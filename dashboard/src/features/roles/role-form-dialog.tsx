@@ -113,10 +113,10 @@ export function RoleFormDialog({
     >
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Name" error={errors.name?.message}>
+          <Field label="Name" required error={errors.name?.message}>
             <Input {...register("name")} disabled={isSystemEdit} />
           </Field>
-          <Field label="Slug" hint="URL-safe identifier" error={errors.slug?.message}>
+          <Field label="Slug" required hint="URL-safe identifier" error={errors.slug?.message}>
             <Input
               {...register("slug", { onChange: () => (slugDirty.current = true) })}
               disabled={isSystemEdit}

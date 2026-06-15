@@ -54,7 +54,7 @@ export function CreateWorkspaceForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-      <Field label="Workspace name" error={errors.name?.message}>
+      <Field label="Workspace name" required error={errors.name?.message}>
         <Input
           autoFocus
           placeholder="Acme Studio"
@@ -65,6 +65,7 @@ export function CreateWorkspaceForm() {
 
       <Field
         label="Workspace slug"
+        required
         hint="Lowercase letters, numbers, and hyphens. Used in URLs."
         error={errors.slug?.message}
       >

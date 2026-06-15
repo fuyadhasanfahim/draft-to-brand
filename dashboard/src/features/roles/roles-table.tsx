@@ -246,10 +246,10 @@ function CloneDialog({
       }
     >
       <div className="flex flex-col gap-3">
-        <Field label="Name">
+        <Field label="Name" required>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Field label="Slug">
+        <Field label="Slug" required>
           <Input value={slug} onChange={(e) => setSlug(e.target.value)} spellCheck={false} />
         </Field>
       </div>

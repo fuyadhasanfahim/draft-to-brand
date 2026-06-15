@@ -53,7 +53,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "System",
     items: [
       { label: "Audit Log", href: "/dashboard/audit",    icon: IconHistory,  permissions: ["audit.view"] },
-      { label: "Settings",  href: "/dashboard/settings", icon: IconSettings },
+      { label: "Settings",  href: "/dashboard/settings", icon: IconSettings, permissions: ["settings.view"] },
     ],
   },
 ];

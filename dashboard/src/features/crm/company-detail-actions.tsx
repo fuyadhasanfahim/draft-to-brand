@@ -12,6 +12,12 @@ import { archiveCompanyAction } from "@/actions/companies";
 import {
   CompanyFormDialog,
   type CompanyEditable,
+  type IndustryChoice,
+  type CountryChoice,
+  type CompanySizeChoice,
+  type LeadSourceChoice,
+  type MemberChoice,
+  type ContactChoice,
 } from "./company-form-dialog";
 import type { TagOption } from "./tag-selector";
 
@@ -19,10 +25,22 @@ export function CompanyDetailActions({
   company,
   tags,
   canManageTags,
+  industries,
+  countries,
+  companySizes,
+  leadSources,
+  owners,
+  primaryContactCandidates,
 }: {
   company: CompanyEditable & { archivedAt: Date | null };
   tags: TagOption[];
   canManageTags: boolean;
+  industries: IndustryChoice[];
+  countries: CountryChoice[];
+  companySizes: CompanySizeChoice[];
+  leadSources: LeadSourceChoice[];
+  owners: MemberChoice[];
+  primaryContactCandidates: ContactChoice[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -55,6 +73,12 @@ export function CompanyDetailActions({
         company={company}
         tags={tags}
         canManageTags={canManageTags}
+        industries={industries}
+        countries={countries}
+        companySizes={companySizes}
+        leadSources={leadSources}
+        owners={owners}
+        primaryContactCandidates={primaryContactCandidates}
       />
     </div>
   );

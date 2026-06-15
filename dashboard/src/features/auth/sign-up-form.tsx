@@ -35,14 +35,15 @@ export function SignUpForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <Field label="Full name" error={errors.name?.message}>
+      <Field label="Full name" required error={errors.name?.message}>
         <Input autoComplete="name" {...register("name")} />
       </Field>
-      <Field label="Email" error={errors.email?.message}>
+      <Field label="Email" required error={errors.email?.message}>
         <Input type="email" autoComplete="email" {...register("email")} />
       </Field>
       <Field
         label="Password"
+        required
         hint="At least 8 characters"
         error={errors.password?.message}
       >

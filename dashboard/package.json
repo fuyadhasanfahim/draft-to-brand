@@ -13,6 +13,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "db:resync-perms": "tsx scripts/resync-permissions.ts",
+    "db:seed-countries": "tsx scripts/seed-countries.ts",
+    "db:seed-crm-defaults": "tsx scripts/seed-crm-defaults.ts",
     "db:reset": "prisma migrate reset",
     "email:dev": "email dev --dir src/emails/templates --port 3001",
     "email:export": "email export --dir src/emails/templates --out .email-out",

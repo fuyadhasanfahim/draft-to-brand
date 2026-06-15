@@ -88,10 +88,6 @@ export function Sidebar({ permissions, organizationName, className }: SidebarPro
           );
         })}
       </nav>
-
-      <div className="border-t border-[var(--color-border)] px-4 py-3 text-[11px] text-[var(--color-muted)]">
-        v0.1 · Phase 0
-      </div>
     </aside>
   );
 }

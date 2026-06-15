@@ -39,9 +39,17 @@ export type PermissionKey =
   | "contacts.view"
   | "contacts.manage"
   | "tags.manage"
+  | "notes.view"
   | "notes.create"
-  | "notes.edit"
-  | "notes.delete";
+  | "notes.edit.own"
+  | "notes.edit.any"
+  | "notes.delete.own"
+  | "notes.delete.any"
+  // Phase 2A.5 — reference data / settings
+  | "settings.view"
+  | "industries.manage"
+  | "company-sizes.manage"
+  | "lead-sources.manage";
 
 export type PermissionDef = {
   key: PermissionKey;
@@ -81,9 +89,17 @@ export const PERMISSIONS: PermissionDef[] = [
   { key: "contacts.view",    resource: "contacts",  action: "view",   description: "View contacts in the CRM" },
   { key: "contacts.manage",  resource: "contacts",  action: "manage", description: "Create, edit, archive contacts" },
   { key: "tags.manage",      resource: "tags",      action: "manage", description: "Create, edit, delete tags for CRM records" },
-  { key: "notes.create",     resource: "notes",     action: "create", description: "Add notes on companies and contacts" },
-  { key: "notes.edit",       resource: "notes",     action: "edit",   description: "Edit notes (your own; admins can edit any)" },
-  { key: "notes.delete",     resource: "notes",     action: "delete", description: "Delete notes" },
+  { key: "notes.view",        resource: "notes", action: "view",        description: "View notes on companies and contacts" },
+  { key: "notes.create",      resource: "notes", action: "create",      description: "Add notes on companies and contacts" },
+  { key: "notes.edit.own",    resource: "notes", action: "edit.own",    description: "Edit notes you created" },
+  { key: "notes.edit.any",    resource: "notes", action: "edit.any",    description: "Edit any note in the workspace, regardless of author" },
+  { key: "notes.delete.own",  resource: "notes", action: "delete.own",  description: "Delete notes you created" },
+  { key: "notes.delete.any",  resource: "notes", action: "delete.any",  description: "Delete any note in the workspace, regardless of author" },
+
+  { key: "settings.view",         resource: "settings",       action: "view",   description: "Open the Settings area (reference data, taxonomies, country browser)" },
+  { key: "industries.manage",     resource: "industries",     action: "manage", description: "Create, edit, archive industry options" },
+  { key: "company-sizes.manage",  resource: "company-sizes",  action: "manage", description: "Create, edit, archive company-size buckets" },
+  { key: "lead-sources.manage",   resource: "lead-sources",   action: "manage", description: "Create, edit, archive lead-source taxonomy" },
 ];
 
 export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -124,7 +140,11 @@ export const SYSTEM_ROLES: Array<{
       "companies.view", "companies.manage",
       "contacts.view", "contacts.manage",
       "tags.manage",
-      "notes.create", "notes.edit", "notes.delete",
+      "notes.view", "notes.create",
+      "notes.edit.own", "notes.edit.any",
+      "notes.delete.own", "notes.delete.any",
+      "settings.view",
+      "industries.manage", "company-sizes.manage", "lead-sources.manage",
     ],
   },
   {
@@ -141,7 +161,10 @@ export const SYSTEM_ROLES: Array<{
       "companies.view", "companies.manage",
       "contacts.view", "contacts.manage",
       "tags.manage",
-      "notes.create", "notes.edit",
+      "notes.view", "notes.create",
+      "notes.edit.any", "notes.delete.any",
+      "settings.view",
+      "lead-sources.manage",
     ],
   },
   {
@@ -155,7 +178,8 @@ export const SYSTEM_ROLES: Array<{
       "departments.view",
       "branches.view",
       "companies.view", "contacts.view",
-      "notes.create",
+      "notes.view", "notes.create",
+      "notes.edit.any", "notes.delete.any",
     ],
   },
   {
@@ -181,7 +205,8 @@ export const SYSTEM_ROLES: Array<{
       "departments.view",
       "branches.view",
       "companies.view", "contacts.view",
-      "notes.create",
+      "notes.view", "notes.create",
+      "notes.edit.own", "notes.delete.own",
     ],
   },
 ];

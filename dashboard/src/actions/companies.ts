@@ -22,6 +22,83 @@ async function validateTagIds(organizationId: string, tagIds: string[]) {
   return null;
 }
 
+/**
+ * Validates that every FK reference on a Company payload either is null
+ * OR points at a row inside the actor's organization (and, for the
+ * primary contact, inside the target Company itself). Returns the first
+ * problem found, or null when everything is sound.
+ *
+ * Cross-org foot-gun protection — without this, a Manager in Org A could
+ * smuggle an Org B industry/country/etc. into their own Company row.
+ */
+async function validateReferences(args: {
+  organizationId: string;
+  companyId?: string;
+  industryId?: string | null;
+  countryId?: string | null;
+  companySizeId?: string | null;
+  leadSourceId?: string | null;
+  ownerId?: string | null;
+  primaryContactId?: string | null;
+}): Promise<string | null> {
+  const orgId = args.organizationId;
+
+  if (args.industryId) {
+    const r = await prisma.industry.findFirst({
+      where: { id: args.industryId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!r) return "Industry not found in this workspace.";
+  }
+  if (args.companySizeId) {
+    const r = await prisma.companySize.findFirst({
+      where: { id: args.companySizeId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!r) return "Company size not found in this workspace.";
+  }
+  if (args.leadSourceId) {
+    const r = await prisma.leadSource.findFirst({
+      where: { id: args.leadSourceId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!r) return "Lead source not found in this workspace.";
+  }
+  if (args.countryId) {
+    // Country is global; just confirm the id exists.
+    const r = await prisma.country.findUnique({
+      where: { id: args.countryId },
+      select: { id: true },
+    });
+    if (!r) return "Country not found.";
+  }
+  if (args.ownerId) {
+    const r = await prisma.member.findFirst({
+      where: { id: args.ownerId, organizationId: orgId, status: "ACTIVE" },
+      select: { id: true },
+    });
+    if (!r) return "Owner must be an active member of this workspace.";
+  }
+  if (args.primaryContactId) {
+    // Primary contact must belong to this org AND to this Company (when
+    // editing an existing Company). On create we accept any in-org contact;
+    // the FK is fixed at create-time.
+    const where: Prisma.ContactWhereInput = {
+      id: args.primaryContactId,
+      organizationId: orgId,
+    };
+    if (args.companyId) where.companyId = args.companyId;
+    const r = await prisma.contact.findFirst({ where, select: { id: true } });
+    if (!r) {
+      return args.companyId
+        ? "Primary contact must be a contact attached to this company."
+        : "Primary contact not found in this workspace.";
+    }
+  }
+
+  return null;
+}
+
 export async function upsertCompanyAction(input: CompanyInput): Promise<Result> {
   const session = await requireVerifiedSession();
   if (!(await can("companies.manage"))) return { ok: false, error: "No permission." };
@@ -32,15 +109,32 @@ export async function upsertCompanyAction(input: CompanyInput): Promise<Result> 
   const tagErr = await validateTagIds(orgId, parsed.data.tagIds);
   if (tagErr) return { ok: false, error: tagErr };
 
+  const refErr = await validateReferences({
+    organizationId: orgId,
+    companyId: parsed.data.id,
+    industryId: parsed.data.industryId ?? null,
+    countryId: parsed.data.countryId ?? null,
+    companySizeId: parsed.data.companySizeId ?? null,
+    leadSourceId: parsed.data.leadSourceId ?? null,
+    ownerId: parsed.data.ownerId ?? null,
+    // primaryContactId only makes sense when editing an existing company
+    // (the contact would already be attached). Skip on create — set it
+    // via a follow-up edit after creating the first contact.
+    primaryContactId: parsed.data.id ? parsed.data.primaryContactId ?? null : null,
+  });
+  if (refErr) return { ok: false, error: refErr };
+
   const baseData = {
     name: parsed.data.name,
     slug: parsed.data.slug,
     website: parsed.data.website ?? null,
-    industry: parsed.data.industry ?? null,
     description: parsed.data.description ?? null,
     status: parsed.data.status,
-    size: parsed.data.size ?? null,
-    country: parsed.data.country ?? null,
+    industryId: parsed.data.industryId ?? null,
+    countryId: parsed.data.countryId ?? null,
+    companySizeId: parsed.data.companySizeId ?? null,
+    leadSourceId: parsed.data.leadSourceId ?? null,
+    ownerId: parsed.data.ownerId ?? null,
     city: parsed.data.city ?? null,
     address: parsed.data.address ?? null,
     phone: parsed.data.phone ?? null,
@@ -58,7 +152,7 @@ export async function upsertCompanyAction(input: CompanyInput): Promise<Result> 
       result = await prisma.$transaction(async (tx) => {
         const updated = await tx.company.update({
           where: { id: existing.id },
-          data: baseData,
+          data: { ...baseData, primaryContactId: parsed.data.primaryContactId ?? null },
         });
         await tx.companyTag.deleteMany({ where: { companyId: existing.id } });
         if (parsed.data.tagIds.length > 0) {

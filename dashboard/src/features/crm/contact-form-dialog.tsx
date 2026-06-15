@@ -142,10 +142,10 @@ export function ContactFormDialog({
     >
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="First name" error={errors.firstName?.message}>
+          <Field label="First name" required error={errors.firstName?.message}>
             <Input autoFocus {...register("firstName")} />
           </Field>
-          <Field label="Last name" error={errors.lastName?.message}>
+          <Field label="Last name" required error={errors.lastName?.message}>
             <Input {...register("lastName")} />
           </Field>
         </div>
@@ -181,7 +181,7 @@ export function ContactFormDialog({
               ))}
             </Select>
           </Field>
-          <Field label="Status">
+          <Field label="Status" required>
             <Select {...register("status")}>
               <option value="ACTIVE">Active</option>
               <option value="ARCHIVED">Archived</option>

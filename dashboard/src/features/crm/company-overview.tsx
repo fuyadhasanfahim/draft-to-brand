@@ -6,18 +6,22 @@ import {
   IconUsers,
   IconWorld,
 } from "@tabler/icons-react";
+import { isSafeUrl } from "@/lib/safe-url";
 
 export function CompanyOverview({
   company,
 }: {
   company: {
-    industry: string | null;
-    size: string | null;
+    industry: { name: string } | null;
+    companySize: { name: string } | null;
+    country: { name: string } | null;
+    leadSource: { name: string; color: string } | null;
+    owner: { name: string } | null;
+    primaryContact: { name: string } | null;
     website: string | null;
     email: string | null;
     phone: string | null;
     city: string | null;
-    country: string | null;
     address: string | null;
     description: string | null;
   };
@@ -26,26 +30,32 @@ export function CompanyOverview({
     {
       icon: <IconBuilding size={13} />,
       label: "Industry",
-      value: company.industry,
+      value: company.industry?.name ?? null,
     },
     {
       icon: <IconUsers size={13} />,
       label: "Size",
-      value: company.size,
+      value: company.companySize?.name ?? null,
     },
     {
       icon: <IconWorld size={13} />,
       label: "Website",
-      value: company.website ? (
-        <a
-          href={company.website}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-[var(--color-foreground)]"
-        >
-          {company.website.replace(/^https?:\/\//, "")}
-        </a>
-      ) : null,
+      // isSafeUrl returns null for any non-http(s) scheme — defense in depth
+      // on top of the Zod validator.
+      value: (() => {
+        const href = isSafeUrl(company.website);
+        if (!href) return null;
+        return (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-[var(--color-foreground)]"
+          >
+            {href.replace(/^https?:\/\//, "")}
+          </a>
+        );
+      })(),
     },
     {
       icon: <IconAt size={13} />,
@@ -67,7 +77,22 @@ export function CompanyOverview({
     {
       icon: <IconMapPin size={13} />,
       label: "Location",
-      value: [company.city, company.country].filter(Boolean).join(", ") || null,
+      value: [company.city, company.country?.name].filter(Boolean).join(", ") || null,
+    },
+    {
+      icon: <IconBuilding size={13} />,
+      label: "Lead source",
+      value: company.leadSource?.name ?? null,
+    },
+    {
+      icon: <IconUsers size={13} />,
+      label: "Account owner",
+      value: company.owner?.name ?? null,
+    },
+    {
+      icon: <IconUsers size={13} />,
+      label: "Primary contact",
+      value: company.primaryContact?.name ?? null,
     },
   ];
 

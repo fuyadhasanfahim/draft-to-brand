@@ -139,14 +139,14 @@ export function InvitationEditDialog({
     >
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Name" error={errors.name?.message}>
+          <Field label="Name" required error={errors.name?.message}>
             <Input autoFocus {...register("name")} />
           </Field>
-          <Field label="Email" error={errors.email?.message}>
+          <Field label="Email" required error={errors.email?.message}>
             <Input type="email" autoComplete="off" {...register("email")} />
           </Field>
         </div>
-        <Field label="Role" error={errors.roleId?.message}>
+        <Field label="Role" required error={errors.roleId?.message}>
           <Select {...register("roleId")}>
             {roles.map((r) => (
               <option key={r.id} value={r.id}>{r.name}</option>

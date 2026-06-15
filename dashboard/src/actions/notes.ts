@@ -76,17 +76,25 @@ export async function updateNoteAction(input: {
   content: string;
 }): Promise<Result> {
   const session = await requireVerifiedSession();
-  if (!(await can("notes.edit"))) return { ok: false, error: "No permission." };
   const orgId = session.member.organizationId;
+
   const existing = await loadOwnedNote(input.id, orgId);
   if (!existing) return { ok: false, error: "Note not found." };
 
-  // Authors can always edit their own. Other users need notes.edit
-  // (which we already checked above), so this is the chokepoint:
-  // explicit deny for cross-author edits would happen here. Phase 2A
-  // policy: anyone with notes.edit can edit any note — keeps the UX
-  // simple. Future: introduce notes.edit.own vs notes.edit.any.
-  void existing.createdById;
+  // Ownership-aware gate: `notes.edit.any` grants org-wide edit, otherwise
+  // the actor must be the original author AND hold `notes.edit.own`.
+  const isAuthor = existing.createdById === session.user.id;
+  const canAny = await can("notes.edit.any");
+  const canOwn = isAuthor && (await can("notes.edit.own"));
+  if (!canAny && !canOwn) {
+    return {
+      ok: false,
+      error: isAuthor
+        ? "You don't have permission to edit notes."
+        : "You can only edit notes you created.",
+    };
+  }
+  const ownershipScope: "own" | "any" = canAny && !isAuthor ? "any" : "own";
 
   const content = input.content.trim();
   if (!content) return { ok: false, error: "Note can't be empty." };
@@ -102,6 +110,7 @@ export async function updateNoteAction(input: {
     action: "note.updated",
     resource: "note",
     resourceId: existing.id,
+    metadata: { ownershipScope, authorId: existing.createdById },
   });
   revalidateForNote(existing);
   return { ok: true };
@@ -109,10 +118,24 @@ export async function updateNoteAction(input: {
 
 export async function deleteNoteAction(id: string): Promise<Result> {
   const session = await requireVerifiedSession();
-  if (!(await can("notes.delete"))) return { ok: false, error: "No permission." };
   const orgId = session.member.organizationId;
+
   const existing = await loadOwnedNote(id, orgId);
   if (!existing) return { ok: false, error: "Note not found." };
+
+  // Same ownership rule as edit.
+  const isAuthor = existing.createdById === session.user.id;
+  const canAny = await can("notes.delete.any");
+  const canOwn = isAuthor && (await can("notes.delete.own"));
+  if (!canAny && !canOwn) {
+    return {
+      ok: false,
+      error: isAuthor
+        ? "You don't have permission to delete notes."
+        : "You can only delete notes you created.",
+    };
+  }
+  const ownershipScope: "own" | "any" = canAny && !isAuthor ? "any" : "own";
 
   await prisma.note.delete({ where: { id: existing.id } });
   await logAudit({
@@ -121,7 +144,12 @@ export async function deleteNoteAction(id: string): Promise<Result> {
     action: "note.deleted",
     resource: "note",
     resourceId: id,
-    metadata: { companyId: existing.companyId, contactId: existing.contactId },
+    metadata: {
+      ownershipScope,
+      authorId: existing.createdById,
+      companyId: existing.companyId,
+      contactId: existing.contactId,
+    },
   });
   revalidateForNote(existing);
   return { ok: true };

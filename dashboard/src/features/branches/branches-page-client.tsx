@@ -232,10 +232,10 @@ function BranchDialog({
     >
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Name" error={errors.name?.message}>
+          <Field label="Name" required error={errors.name?.message}>
             <Input autoFocus {...register("name")} />
           </Field>
-          <Field label="Slug" error={errors.slug?.message}>
+          <Field label="Slug" required error={errors.slug?.message}>
             <Input
               spellCheck={false}
               {...register("slug", { onChange: () => (slugDirty.current = true) })}

@@ -32,24 +32,32 @@ export type NoteRow = {
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  createdById: string | null;
   createdBy: { name: string; image: string | null } | null;
+};
+
+export type NotePermissions = {
+  /** Current viewer's user id — used to compute per-note ownership. */
+  currentUserId: string;
+  canCreate: boolean;
+  canEditOwn: boolean;
+  canEditAny: boolean;
+  canDeleteOwn: boolean;
+  canDeleteAny: boolean;
 };
 
 export function NotesSection({
   notes,
   companyId,
   contactId,
-  canCreate,
-  canEdit,
-  canDelete,
+  permissions,
 }: {
   notes: NoteRow[];
   companyId?: string;
   contactId?: string;
-  canCreate: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
+  permissions: NotePermissions;
 }) {
+  const { canCreate } = permissions;
   const router = useRouter();
   const { toast } = useToast();
   const [draft, setDraft] = React.useState("");
@@ -106,16 +114,24 @@ export function NotesSection({
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
-          {notes.map((n) => (
-            <li key={n.id}>
-              <NoteCard
-                note={n}
-                canEdit={canEdit}
-                canDelete={canDelete}
-                onChange={() => router.refresh()}
-              />
-            </li>
-          ))}
+          {notes.map((n) => {
+            // Per-note resolution: ownership-aware.
+            const isAuthor = n.createdById === permissions.currentUserId;
+            const canEditThis =
+              permissions.canEditAny || (isAuthor && permissions.canEditOwn);
+            const canDeleteThis =
+              permissions.canDeleteAny || (isAuthor && permissions.canDeleteOwn);
+            return (
+              <li key={n.id}>
+                <NoteCard
+                  note={n}
+                  canEdit={canEditThis}
+                  canDelete={canDeleteThis}
+                  onChange={() => router.refresh()}
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

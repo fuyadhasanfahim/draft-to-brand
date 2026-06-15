@@ -14,7 +14,8 @@ import {
   IconExternalLink,
   IconPlus,
 } from "@tabler/icons-react";
-import type { Company } from "@prisma/client";
+import type { Company, Country, CompanySize, Industry, LeadSource } from "@prisma/client";
+import { isSafeUrl } from "@/lib/safe-url";
 import {
   Badge,
   Button,
@@ -26,12 +27,24 @@ import {
   useToast,
 } from "@/components/ui";
 import { archiveCompanyAction } from "@/actions/companies";
-import { CompanyFormDialog, type CompanyEditable } from "./company-form-dialog";
+import {
+  CompanyFormDialog,
+  type CompanyEditable,
+  type IndustryChoice,
+  type CountryChoice,
+  type CompanySizeChoice,
+  type LeadSourceChoice,
+  type MemberChoice,
+} from "./company-form-dialog";
 import type { TagOption } from "./tag-selector";
 
 export type CompanyRow = Company & {
   _count: { contacts: number };
   tags: { tag: { id: string; name: string; color: string } }[];
+  industry: Pick<Industry, "id" | "name"> | null;
+  country: Pick<Country, "id" | "name" | "iso2"> | null;
+  companySize: Pick<CompanySize, "id" | "name"> | null;
+  leadSource: Pick<LeadSource, "id" | "name" | "color"> | null;
 };
 
 const STATUS: Record<CompanyRow["status"], { label: string; variant: "success" | "warning" | "neutral" }> = {
@@ -43,21 +56,28 @@ const STATUS: Record<CompanyRow["status"], { label: string; variant: "success" |
 export function CompaniesPageClient({
   companies,
   tags,
-  tagsById,
   canManage,
   canManageTags,
+  industries,
+  countries,
+  companySizes,
+  leadSources,
+  owners,
 }: {
   companies: CompanyRow[];
   tags: TagOption[];
-  tagsById: Record<string, TagOption>;
   canManage: boolean;
   canManageTags: boolean;
+  industries: IndustryChoice[];
+  countries: CountryChoice[];
+  companySizes: CompanySizeChoice[];
+  leadSources: LeadSourceChoice[];
+  owners: MemberChoice[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [createOpen, setCreateOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CompanyEditable | null>(null);
-  void tagsById;
 
   const columns: ColumnDef<CompanyRow, unknown>[] = [
     {
@@ -78,9 +98,9 @@ export function CompaniesPageClient({
               >
                 {c.name}
               </Link>
-              {c.industry ? (
+              {c.industry?.name ? (
                 <span className="text-[11px] text-[var(--color-muted)] truncate">
-                  {c.industry}
+                  {c.industry.name}
                 </span>
               ) : null}
             </div>
@@ -93,16 +113,16 @@ export function CompaniesPageClient({
       accessorFn: (c) => c.website ?? "",
       header: "Website",
       cell: ({ row }) => {
-        const w = row.original.website;
-        if (!w) return <span className="text-[var(--color-muted)] text-xs">—</span>;
+        const href = isSafeUrl(row.original.website);
+        if (!href) return <span className="text-[var(--color-muted)] text-xs">—</span>;
         return (
           <a
-            href={w}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-[12px] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors truncate max-w-[220px]"
           >
-            <span className="truncate">{w.replace(/^https?:\/\//, "")}</span>
+            <span className="truncate">{href.replace(/^https?:\/\//, "")}</span>
             <IconExternalLink size={11} className="shrink-0" />
           </a>
         );
@@ -160,11 +180,14 @@ export function CompaniesPageClient({
                       name: row.original.name,
                       slug: row.original.slug,
                       website: row.original.website,
-                      industry: row.original.industry,
                       description: row.original.description,
                       status: row.original.status,
-                      size: row.original.size,
-                      country: row.original.country,
+                      industryId: row.original.industryId,
+                      countryId: row.original.countryId,
+                      companySizeId: row.original.companySizeId,
+                      leadSourceId: row.original.leadSourceId,
+                      ownerId: row.original.ownerId,
+                      primaryContactId: row.original.primaryContactId,
                       city: row.original.city,
                       address: row.original.address,
                       phone: row.original.phone,
@@ -222,6 +245,11 @@ export function CompaniesPageClient({
             onOpenChange={setCreateOpen}
             tags={tags}
             canManageTags={canManageTags}
+            industries={industries}
+            countries={countries}
+            companySizes={companySizes}
+            leadSources={leadSources}
+            owners={owners}
           />
           {editing ? (
             <CompanyFormDialog
@@ -230,6 +258,11 @@ export function CompaniesPageClient({
               company={editing}
               tags={tags}
               canManageTags={canManageTags}
+              industries={industries}
+              countries={countries}
+              companySizes={companySizes}
+              leadSources={leadSources}
+              owners={owners}
             />
           ) : null}
         </>
