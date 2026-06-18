@@ -39,6 +39,7 @@ model User {
   createdLeadSources    LeadSource[]     @relation("LeadSourceCreatedBy")
   createdLeads          Lead[]           @relation("LeadCreatedBy")
   createdLeadActivities LeadActivity[]   @relation("LeadActivityCreatedBy")
+  createdEmailCampaigns EmailCampaign[]  @relation("EmailCampaignCreatedBy")
 
   @@map("user")
 }
@@ -122,6 +123,7 @@ model Organization {
   leads          Lead[]
   leadActivities LeadActivity[]
   clients        Client[]
+  emailCampaigns EmailCampaign[]
 
   @@index([slug])
   @@map("organization")
@@ -480,11 +482,12 @@ model Company {
   leadSource     LeadSource?  @relation(fields: [leadSourceId], references: [id], onDelete: SetNull)
   owner          Member?      @relation("CompanyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
   primaryContact Contact?     @relation("CompanyPrimaryContact", fields: [primaryContactId], references: [id], onDelete: SetNull)
-  contacts       Contact[]    @relation("CompanyContacts")
-  notes          Note[]
-  tags           CompanyTag[]
-  leads          Lead[]
-  client         Client?
+  contacts        Contact[]        @relation("CompanyContacts")
+  notes           Note[]
+  tags            CompanyTag[]
+  leads           Lead[]
+  client          Client?
+  emailRecipients EmailRecipient[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -531,6 +534,7 @@ model Contact {
   noteEntries  Note[]
   tags         ContactTag[]
   leads        Lead[]
+  emailRecipients EmailRecipient[]
 
   @@index([organizationId])
   @@index([organizationId, companyId])
@@ -807,6 +811,7 @@ model Lead {
   createdBy    User?          @relation("LeadCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   activities   LeadActivity[]
   client       Client?
+  emailRecipients EmailRecipient[]
 
   @@index([organizationId])
   @@index([organizationId, status])
@@ -885,4 +890,125 @@ model Client {
   @@index([organizationId, archivedAt])
   @@index([ownerId])
   @@map("client")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3A — Cold Email Campaign foundation.
+// An EmailCampaign is a one-off cold-email blast: a subject + body sent to a
+// set of recipients drawn from existing Contacts and/or Leads. EmailRecipient
+// denormalizes the address/name (so a later contact edit can't rewrite history)
+// and tracks per-recipient delivery state. EmailEvent is an append-only timeline
+// of delivery signals (sent/opened/clicked/replied/bounced) powering analytics.
+//
+// FOUNDATION ONLY: there is NO real sending, no Resend integration, no
+// scheduling, no sequences, no inbox. Status + events are the data model that a
+// future sending/tracking phase will write into. Everything is org-scoped via
+// the parent campaign; soft-delete via `archivedAt` on the campaign.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum EmailCampaignStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+}
+
+// Furthest delivery state reached for a recipient. Advances monotonically in
+// the intended happy path (PENDING → SENT → OPENED → CLICKED → REPLIED); a
+// hard BOUNCED is terminal. Timestamps below record the first time each signal
+// fired, so analytics stay accurate even after the status advances further.
+enum EmailRecipientStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+}
+
+enum EmailEventType {
+  SENT
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+}
+
+model EmailCampaign {
+  id             String              @id @default(cuid())
+  organizationId String
+  name           String
+  subject        String
+  body           String              @db.Text
+  // Sender identity overrides (Phase 2A). `fromName` becomes the display name
+  // on the From header; `replyTo` overrides where replies route. Both optional —
+  // fall back to the workspace brand defaults (EMAIL_CONFIG) when unset.
+  fromName       String?
+  replyTo        String?
+  status         EmailCampaignStatus @default(DRAFT)
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?            @relation("EmailCampaignCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  recipients   EmailRecipient[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, archivedAt])
+  @@map("email_campaign")
+}
+
+model EmailRecipient {
+  id         String               @id @default(cuid())
+  campaignId String
+  // Optional provenance — which CRM record this recipient was selected from.
+  // SetNull so deleting/archiving the source record doesn't erase send history.
+  leadId     String?
+  contactId  String?
+  // Resolved server-side from the source Contact→Company or Lead→Company at
+  // add-time (never trusted from the client). Powers future per-company
+  // reporting (open/reply rate by company). SetNull keeps history if the
+  // company is later removed.
+  companyId  String?
+  // Denormalized address + name captured at add-time (history is immutable).
+  email      String
+  firstName  String?
+  lastName   String?
+  status     EmailRecipientStatus @default(PENDING)
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  repliedAt  DateTime?
+  bouncedAt  DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  campaign EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead     Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  contact  Contact?      @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company  Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  events   EmailEvent[]
+
+  @@index([campaignId])
+  @@index([campaignId, status])
+  @@index([leadId])
+  @@index([contactId])
+  @@index([companyId])
+  @@map("email_recipient")
+}
+
+model EmailEvent {
+  id          String         @id @default(cuid())
+  recipientId String
+  type        EmailEventType
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  recipient EmailRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, createdAt])
+  @@map("email_event")
 }

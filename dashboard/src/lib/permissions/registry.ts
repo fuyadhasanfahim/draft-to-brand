@@ -62,7 +62,13 @@ export type PermissionKey =
   | "clients.create"
   | "clients.edit"
   | "clients.delete"
-  | "clients.manage";
+  | "clients.manage"
+  // Phase 3A — Cold Email campaigns (Sales Outreach)
+  | "campaigns.view"
+  | "campaigns.create"
+  | "campaigns.edit"
+  | "campaigns.delete"
+  | "campaigns.manage";
 
 export type PermissionDef = {
   key: PermissionKey;
@@ -126,6 +132,12 @@ export const PERMISSIONS: PermissionDef[] = [
   { key: "clients.edit",     resource: "clients",   action: "edit",   description: "Edit existing client records" },
   { key: "clients.delete",   resource: "clients",   action: "delete", description: "Archive or restore clients" },
   { key: "clients.manage",   resource: "clients",   action: "manage", description: "Full client administration — convert, edit, archive, reassign" },
+
+  { key: "campaigns.view",   resource: "campaigns", action: "view",   description: "View cold email campaigns and their analytics" },
+  { key: "campaigns.create", resource: "campaigns", action: "create", description: "Create cold email campaigns" },
+  { key: "campaigns.edit",   resource: "campaigns", action: "edit",   description: "Edit campaigns and manage their recipients" },
+  { key: "campaigns.delete", resource: "campaigns", action: "delete", description: "Archive or restore campaigns" },
+  { key: "campaigns.manage", resource: "campaigns", action: "manage", description: "Full campaign administration — create, edit, recipients, archive" },
 ];
 
 export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -174,6 +186,7 @@ export const SYSTEM_ROLES: Array<{
       "leads.view", "leads.create", "leads.edit", "leads.delete", "leads.manage",
       "pipelines.manage",
       "clients.view", "clients.create", "clients.edit", "clients.delete", "clients.manage",
+      "campaigns.view", "campaigns.create", "campaigns.edit", "campaigns.delete", "campaigns.manage",
     ],
   },
   {
@@ -197,6 +210,7 @@ export const SYSTEM_ROLES: Array<{
       "leads.view", "leads.create", "leads.edit", "leads.delete",
       "pipelines.manage",
       "clients.view", "clients.create", "clients.edit", "clients.delete",
+      "campaigns.view", "campaigns.create", "campaigns.edit", "campaigns.delete",
     ],
   },
   {
@@ -214,6 +228,7 @@ export const SYSTEM_ROLES: Array<{
       "notes.edit.any", "notes.delete.any",
       "leads.view", "leads.create", "leads.edit",
       "clients.view", "clients.create", "clients.edit",
+      "campaigns.view", "campaigns.create", "campaigns.edit",
     ],
   },
   {
@@ -243,6 +258,7 @@ export const SYSTEM_ROLES: Array<{
       "notes.edit.own", "notes.delete.own",
       "leads.view",
       "clients.view",
+      "campaigns.view",
     ],
   },
 ];

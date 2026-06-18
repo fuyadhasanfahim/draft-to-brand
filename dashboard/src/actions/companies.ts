@@ -113,6 +113,14 @@ export async function upsertCompanyAction(input: CompanyInput): Promise<Result> 
   const tagErr = await validateTagIds(orgId, parsed.data.tagIds);
   if (tagErr) return { ok: false, error: tagErr };
 
+  // Owner assignment is decided on the server, never trusted from the client.
+  // On CREATE the current member becomes the owner automatically (the form
+  // doesn't even render an owner selector). On EDIT we honor the submitted
+  // owner so existing reassignment behavior is preserved.
+  const ownerId = parsed.data.id
+    ? parsed.data.ownerId ?? null
+    : session.member.id;
+
   const refErr = await validateReferences({
     organizationId: orgId,
     companyId: parsed.data.id,
@@ -120,7 +128,7 @@ export async function upsertCompanyAction(input: CompanyInput): Promise<Result> 
     countryId: parsed.data.countryId ?? null,
     companySizeId: parsed.data.companySizeId ?? null,
     leadSourceId: parsed.data.leadSourceId ?? null,
-    ownerId: parsed.data.ownerId ?? null,
+    ownerId,
     // primaryContactId only makes sense when editing an existing company
     // (the contact would already be attached). Skip on create — set it
     // via a follow-up edit after creating the first contact.
@@ -138,7 +146,7 @@ export async function upsertCompanyAction(input: CompanyInput): Promise<Result> 
     countryId: parsed.data.countryId ?? null,
     companySizeId: parsed.data.companySizeId ?? null,
     leadSourceId: parsed.data.leadSourceId ?? null,
-    ownerId: parsed.data.ownerId ?? null,
+    ownerId,
     city: parsed.data.city ?? null,
     address: parsed.data.address ?? null,
     phone: parsed.data.phone ?? null,

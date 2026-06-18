@@ -11,6 +11,7 @@ import {
   IconBriefcase,
   IconDots,
   IconEdit,
+  IconEye,
   IconPlus,
 } from "@tabler/icons-react";
 import {
@@ -166,16 +167,21 @@ export function ClientsPageClient({
       id: "actions",
       header: "",
       enableSorting: false,
-      cell: ({ row }) =>
-        canEdit || canDelete ? (
-          <div className="flex justify-end">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="ghost" size="icon-sm" aria-label="Actions">
-                  <IconDots size={16} />
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent>
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button variant="ghost" size="icon-sm" aria-label="Actions">
+                <IconDots size={16} />
+              </Button>
+            </DropdownTrigger>
+            <DropdownContent>
+              <DropdownItem
+                onSelect={() => router.push(`/dashboard/clients/${row.original.id}`)}
+              >
+                <IconEye size={14} /> View
+              </DropdownItem>
+              <>
                 {canEdit ? (
                   <DropdownItem
                     onSelect={() =>
@@ -212,10 +218,11 @@ export function ClientsPageClient({
                     )}
                   </DropdownItem>
                 ) : null}
-              </DropdownContent>
-            </Dropdown>
-          </div>
-        ) : null,
+              </>
+            </DropdownContent>
+          </Dropdown>
+        </div>
+      ),
     },
   ];
 

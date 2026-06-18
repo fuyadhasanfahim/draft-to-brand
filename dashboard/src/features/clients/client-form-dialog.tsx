@@ -56,6 +56,9 @@ export function ClientFormDialog({
   const router = useRouter();
   const { toast } = useToast();
   const isEdit = Boolean(client);
+  const editingCompanyName = client
+    ? choices.companies.find((c) => c.id === client.companyId)?.name
+    : undefined;
 
   const defaults: ClientFormValues = client
     ? {
@@ -109,7 +112,7 @@ export function ClientFormDialog({
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit client" : "New client"}
+      title={isEdit ? `Edit ${editingCompanyName ?? "client"}` : "New client"}
       description="Clients are post-sale customers; future modules (Projects, Invoices) attach here."
       size="md"
       footer={

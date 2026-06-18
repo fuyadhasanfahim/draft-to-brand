@@ -252,17 +252,21 @@ export function CompanyFormDialog({
               ))}
             </Select>
           </Field>
-          <Field label="Account owner" hint="Member responsible">
-            <Select
-              value={watch("ownerId") ?? ""}
-              onChange={(e) => setValue("ownerId", e.target.value || null)}
-            >
-              <option value="">—</option>
-              {owners.map((o) => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </Select>
-          </Field>
+          {/* Owner is auto-assigned to the current member on create (handled
+              server-side), so the selector only appears when editing. */}
+          {isEdit ? (
+            <Field label="Account owner" hint="Member responsible">
+              <Select
+                value={watch("ownerId") ?? ""}
+                onChange={(e) => setValue("ownerId", e.target.value || null)}
+              >
+                <option value="">—</option>
+                {owners.map((o) => (
+                  <option key={o.id} value={o.id}>{o.name}</option>
+                ))}
+              </Select>
+            </Field>
+          ) : null}
           {isEdit && primaryContactCandidates && primaryContactCandidates.length > 0 ? (
             <Field label="Primary contact" hint="Main POC at this company">
               <Select

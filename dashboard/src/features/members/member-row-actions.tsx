@@ -79,6 +79,9 @@ export function MemberRowActions({
           </Button>
         </DropdownTrigger>
         <DropdownContent>
+          {/* TODO: Add a "View" action once a Member detail page
+              (/dashboard/members/[id]) exists. Skipped for now — members
+              have no dedicated detail route. */}
           {canEdit ? (
             <DropdownItem onSelect={() => setEditOpen(true)} disabled={isArchived}>
               <IconEdit size={14} /> Edit member

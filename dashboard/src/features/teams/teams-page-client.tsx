@@ -92,6 +92,9 @@ export function TeamsPageClient({
               </Button>
             </DropdownTrigger>
             <DropdownContent>
+              {/* TODO: Add a "View" action once a Team detail page
+                  (/dashboard/teams/[id]) exists. Skipped for now — teams
+                  have no dedicated detail route. */}
               <DropdownItem onSelect={() => setEditing(row.original)}>
                 <IconEdit size={14} /> Edit
               </DropdownItem>

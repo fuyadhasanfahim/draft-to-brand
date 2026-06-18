@@ -103,6 +103,10 @@ export function ReferenceList<T extends ReferenceRow>({
                 </Button>
               </DropdownTrigger>
               <DropdownContent>
+                {/* TODO: Add a "View" action once these reference entities
+                    (industries / company sizes / lead sources) gain dedicated
+                    detail pages. Skipped for now — they are managed inline and
+                    have no detail route. */}
                 <DropdownItem onSelect={() => onEdit(row.original)}>
                   <IconEdit size={14} /> Edit
                 </DropdownItem>

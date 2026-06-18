@@ -134,6 +134,9 @@ function RowMenu({
         </Button>
       </DropdownTrigger>
       <DropdownContent>
+        {/* TODO: Add a "View" action once a Branch detail page
+            (/dashboard/branches/[id]) exists. Skipped for now — branches
+            have no dedicated detail route. */}
         <DropdownItem onSelect={onEdit}>
           <IconEdit size={14} /> Edit
         </DropdownItem>

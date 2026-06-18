@@ -31,6 +31,7 @@ import {
   type ContactEditable,
 } from "./contact-form-dialog";
 import type { TagOption } from "./tag-selector";
+import { TagChip } from "./tag-chip";
 
 export type ContactRow = Contact & {
   company: { id: string; name: string } | null;
@@ -75,6 +76,18 @@ export function ContactsPageClient({
               <span className="font-medium text-[var(--color-foreground)] truncate">{fullName}</span>
               {c.jobTitle ? (
                 <span className="text-[11px] text-[var(--color-muted)] truncate">{c.jobTitle}</span>
+              ) : null}
+              {c.tags.length > 0 ? (
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {c.tags.slice(0, 3).map(({ tag }) => (
+                    <TagChip key={tag.id} name={tag.name} color={tag.color} />
+                  ))}
+                  {c.tags.length > 3 ? (
+                    <span className="text-[10px] text-[var(--color-muted)]">
+                      +{c.tags.length - 3}
+                    </span>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           </div>
@@ -160,6 +173,9 @@ export function ContactsPageClient({
                 </Button>
               </DropdownTrigger>
               <DropdownContent>
+                {/* TODO: Add a "View" action once a Contact detail page
+                    (/dashboard/contacts/[id]) exists. Skipped for now —
+                    contacts have no dedicated detail route. */}
                 <DropdownItem
                   onSelect={() =>
                     setEditing({

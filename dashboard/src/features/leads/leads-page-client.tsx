@@ -10,6 +10,7 @@ import {
   IconArchiveOff,
   IconDots,
   IconEdit,
+  IconEye,
   IconPlus,
   IconTargetArrow,
 } from "@tabler/icons-react";
@@ -266,16 +267,21 @@ export function LeadsPageClient({
       id: "actions",
       header: "",
       enableSorting: false,
-      cell: ({ row }) =>
-        canEdit || canDelete ? (
-          <div className="flex justify-end">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="ghost" size="icon-sm" aria-label="Actions">
-                  <IconDots size={16} />
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent>
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button variant="ghost" size="icon-sm" aria-label="Actions">
+                <IconDots size={16} />
+              </Button>
+            </DropdownTrigger>
+            <DropdownContent>
+              <DropdownItem
+                onSelect={() => router.push(`/dashboard/leads/${row.original.id}`)}
+              >
+                <IconEye size={14} /> View
+              </DropdownItem>
+              <>
                 {canEdit ? (
                   <DropdownItem
                     onSelect={() =>
@@ -321,10 +327,11 @@ export function LeadsPageClient({
                     )}
                   </DropdownItem>
                 ) : null}
-              </DropdownContent>
-            </Dropdown>
-          </div>
-        ) : null,
+              </>
+            </DropdownContent>
+          </Dropdown>
+        </div>
+      ),
     },
   ];
 

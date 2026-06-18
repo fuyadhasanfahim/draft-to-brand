@@ -13,6 +13,7 @@ import {
   IconAddressBook,
   IconTargetArrow,
   IconBriefcase,
+  IconMailForward,
 } from "@tabler/icons-react";
 import type { NavSection } from "@/types/navigation";
 
@@ -34,6 +35,12 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Clients",   href: "/dashboard/clients",   icon: IconBriefcase,   permissions: ["clients.view"] },
       { label: "Companies", href: "/dashboard/companies", icon: IconBuilding,    permissions: ["companies.view"] },
       { label: "Contacts",  href: "/dashboard/contacts",  icon: IconAddressBook, permissions: ["contacts.view"] },
+    ],
+  },
+  {
+    label: "Sales Outreach",
+    items: [
+      { label: "Campaigns", href: "/dashboard/campaigns", icon: IconMailForward, permissions: ["campaigns.view"] },
     ],
   },
   {

@@ -211,6 +211,10 @@ function PipelineCard({
                 </Button>
               </DropdownTrigger>
               <DropdownContent>
+                {/* TODO: Add a "View" action once a Pipeline detail page
+                    exists. Skipped for now — the Pipelines page itself is the
+                    detail/management surface (stages render inline per card),
+                    so there is no separate detail route to navigate to. */}
                 <DropdownItem onSelect={onEditPipeline}>
                   <IconEdit size={14} /> Edit
                 </DropdownItem>

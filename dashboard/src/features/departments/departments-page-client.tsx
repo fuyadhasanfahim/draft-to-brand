@@ -84,6 +84,9 @@ export function DepartmentsPageClient({
               </Button>
             </DropdownTrigger>
             <DropdownContent>
+              {/* TODO: Add a "View" action once a Department detail page
+                  (/dashboard/departments/[id]) exists. Skipped for now —
+                  departments have no dedicated detail route. */}
               <DropdownItem onSelect={() => setEditing(row.original)}>
                 <IconEdit size={14} /> Edit
               </DropdownItem>

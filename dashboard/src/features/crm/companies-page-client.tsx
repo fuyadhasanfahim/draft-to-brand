@@ -12,6 +12,7 @@ import {
   IconDots,
   IconEdit,
   IconExternalLink,
+  IconEye,
   IconPlus,
 } from "@tabler/icons-react";
 import type { Company, Country, CompanySize, Industry, LeadSource } from "@prisma/client";
@@ -37,6 +38,7 @@ import {
   type MemberChoice,
 } from "./company-form-dialog";
 import type { TagOption } from "./tag-selector";
+import { TagChip } from "./tag-chip";
 
 export type CompanyRow = Company & {
   _count: { contacts: number };
@@ -103,6 +105,18 @@ export function CompaniesPageClient({
                   {c.industry.name}
                 </span>
               ) : null}
+              {c.tags.length > 0 ? (
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {c.tags.slice(0, 3).map(({ tag }) => (
+                    <TagChip key={tag.id} name={tag.name} color={tag.color} />
+                  ))}
+                  {c.tags.length > 3 ? (
+                    <span className="text-[10px] text-[var(--color-muted)]">
+                      +{c.tags.length - 3}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
         );
@@ -163,16 +177,22 @@ export function CompaniesPageClient({
       id: "actions",
       header: "",
       enableSorting: false,
-      cell: ({ row }) =>
-        canManage ? (
-          <div className="flex justify-end">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="ghost" size="icon-sm" aria-label="Actions">
-                  <IconDots size={16} />
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent>
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button variant="ghost" size="icon-sm" aria-label="Actions">
+                <IconDots size={16} />
+              </Button>
+            </DropdownTrigger>
+            <DropdownContent>
+              <DropdownItem
+                onSelect={() => router.push(`/dashboard/companies/${row.original.id}`)}
+              >
+                <IconEye size={14} /> View
+              </DropdownItem>
+              {canManage ? (
+                <>
                 <DropdownItem
                   onSelect={() =>
                     setEditing({
@@ -215,10 +235,12 @@ export function CompaniesPageClient({
                     </>
                   )}
                 </DropdownItem>
-              </DropdownContent>
-            </Dropdown>
-          </div>
-        ) : null,
+                </>
+              ) : null}
+            </DropdownContent>
+          </Dropdown>
+        </div>
+      ),
     },
   ];
 
