@@ -19,6 +19,7 @@ import {
 } from "@/components/ui";
 import { LeadOverview } from "@/features/leads/lead-overview";
 import { LeadDetailActions } from "@/features/leads/lead-detail-actions";
+import { ConvertLeadButton } from "@/features/clients/convert-lead-button";
 import { LeadOwnerReassign } from "@/features/leads/lead-owner-reassign";
 import { PrimaryContactSelector } from "@/features/leads/primary-contact-selector";
 import {
@@ -61,6 +62,9 @@ export default async function LeadDetailPage({
       owner:      { include: { user: { select: { name: true } } } },
       pipeline:   { select: { id: true, name: true } },
       stage:      { select: { id: true, name: true, color: true } },
+      // Phase 2E — surface the converted Client so the UI can swap the
+      // Convert CTA for a "Converted" badge.
+      client:     { select: { id: true } },
     },
   });
   if (!lead) notFound();
@@ -84,6 +88,8 @@ export default async function LeadDetailPage({
     canDelete,
     canManage,
     canManageCompanies,
+    canCreateClient,
+    canManageClients,
     canCreateNote,
     canEditOwnNote,
     canEditAnyNote,
@@ -138,6 +144,8 @@ export default async function LeadDetailPage({
     can("leads.delete"),
     can("leads.manage"),
     can("companies.manage"),
+    can("clients.create"),
+    can("clients.manage"),
     can("notes.create"),
     can("notes.edit.own"),
     can("notes.edit.any"),
@@ -208,6 +216,7 @@ export default async function LeadDetailPage({
               <Badge variant={status.variant}>{status.label}</Badge>
               <Badge variant={priority.variant}>{priority.label}</Badge>
               {lead.archivedAt ? <Badge variant="neutral">Archived</Badge> : null}
+              {lead.client ? <Badge variant="primary">Converted</Badge> : null}
             </div>
             <p className="mt-2 text-xs text-[var(--color-muted)]">
               {lead.pipeline.name} · {lead.stage.name} · Created{" "}
@@ -227,28 +236,40 @@ export default async function LeadDetailPage({
             ) : null}
           </div>
 
-          <LeadDetailActions
-            lead={{
-              id: lead.id,
-              title: lead.title,
-              companyId: lead.companyId,
-              contactId: lead.contactId,
-              leadSourceId: lead.leadSourceId,
-              ownerId: lead.ownerId,
-              pipelineId: lead.pipelineId,
-              stageId: lead.stageId,
-              status: lead.status,
-              priority: lead.priority,
-              estimatedValue: lead.estimatedValue ? Number(lead.estimatedValue.toString()) : null,
-              currency: lead.currency,
-              expectedCloseDate: lead.expectedCloseDate,
-              description: lead.description,
-            }}
-            choices={choices}
-            canEdit={canEdit || canManage}
-            canDelete={canDelete || canManage}
-            isArchived={Boolean(lead.archivedAt)}
-          />
+          <div className="flex items-center gap-2 flex-wrap">
+            {lead.status === "WON" &&
+            !lead.client &&
+            !lead.archivedAt &&
+            (canCreateClient || canManageClients) ? (
+              <ConvertLeadButton
+                leadId={lead.id}
+                leadTitle={lead.title}
+                companyName={lead.company?.name ?? null}
+              />
+            ) : null}
+            <LeadDetailActions
+              lead={{
+                id: lead.id,
+                title: lead.title,
+                companyId: lead.companyId,
+                contactId: lead.contactId,
+                leadSourceId: lead.leadSourceId,
+                ownerId: lead.ownerId,
+                pipelineId: lead.pipelineId,
+                stageId: lead.stageId,
+                status: lead.status,
+                priority: lead.priority,
+                estimatedValue: lead.estimatedValue ? Number(lead.estimatedValue.toString()) : null,
+                currency: lead.currency,
+                expectedCloseDate: lead.expectedCloseDate,
+                description: lead.description,
+              }}
+              choices={choices}
+              canEdit={canEdit || canManage}
+              canDelete={canDelete || canManage}
+              isArchived={Boolean(lead.archivedAt)}
+            />
+          </div>
         </div>
       </div>
 
