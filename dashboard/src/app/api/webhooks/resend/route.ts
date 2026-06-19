@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/db";
-import { recordBounce } from "@/lib/email/tracking-events";
+import { recordBounce, recordComplaint } from "@/lib/email/tracking-events";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -43,9 +43,10 @@ export async function POST(req: Request) {
     return new NextResponse("Bad payload", { status: 400 });
   }
 
-  // Only bounces are actioned here. Acknowledge everything else so Resend
+  // Action bounces + complaints (both suppress the address). Opens/clicks are
+  // tracked by our own pixel/link routes; acknowledge everything else so Resend
   // doesn't retry.
-  if (event.type !== "email.bounced") {
+  if (event.type !== "email.bounced" && event.type !== "email.complained") {
     return NextResponse.json({ ok: true, ignored: event.type ?? "unknown" });
   }
 
@@ -64,9 +65,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    await recordBounce(sentEvent.recipientId, event);
+    if (event.type === "email.bounced") {
+      await recordBounce(sentEvent.recipientId, event);
+    } else {
+      await recordComplaint(sentEvent.recipientId);
+    }
   } catch (err) {
-    console.error("[webhooks/resend] failed to record bounce", err);
+    console.error("[webhooks/resend] failed to process event", err);
     return new NextResponse("Processing error", { status: 500 });
   }
 

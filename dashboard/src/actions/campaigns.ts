@@ -9,6 +9,8 @@ import { logAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/send-email";
 import { buildFrom } from "@/lib/email/from";
 import { enrollSentRecipients } from "@/lib/email/sequence-runner";
+import { suppressedEmailSet } from "@/lib/email/suppression";
+import { unsubscribeUrl } from "@/lib/email/unsubscribe";
 import CampaignEmail from "@/emails/templates/campaign-email";
 import {
   campaignSchema,
@@ -25,7 +27,7 @@ import {
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 type SendResult =
-  | { ok: true; sent: number; failed: number }
+  | { ok: true; sent: number; failed: number; suppressed: number }
   | { ok: false; error: string };
 
 /** Trim a sender field to null when empty so blank inputs fall back to brand defaults. */
@@ -312,6 +314,128 @@ export async function addRecipientsAction(
 }
 
 /**
+ * Refresh recipient snapshots from their source Contact/Lead — **DRAFT only**.
+ *
+ * EmailRecipient denormalizes email/name/companyId at add time (immutable
+ * history). For an unsent draft, a later Contact/Lead edit leaves the recipient
+ * stale; this re-resolves email/firstName/lastName/companyId from the live
+ * source. Recipients with no source (manual) and recipients whose source was
+ * deleted (FK already SetNull) are skipped. RUNNING/PAUSED/COMPLETED campaigns
+ * are rejected — sent history stays immutable.
+ */
+export async function refreshRecipientsAction(campaignId: string): Promise<Result> {
+  const session = await requireVerifiedSession();
+  if (!(await can("campaigns.edit")) && !(await can("campaigns.manage"))) {
+    return { ok: false, error: "No permission." };
+  }
+  const orgId = session.member.organizationId;
+
+  const campaign = await findOrgCampaign(campaignId, orgId);
+  if (!campaign) return { ok: false, error: "Campaign not found." };
+  if (campaign.status !== "DRAFT") {
+    return { ok: false, error: "Only draft campaigns can be refreshed." };
+  }
+
+  // Only recipients that still have a source can be refreshed.
+  const recipients = await prisma.emailRecipient.findMany({
+    where: {
+      campaignId: campaign.id,
+      OR: [{ contactId: { not: null } }, { leadId: { not: null } }],
+    },
+    select: {
+      id: true,
+      contactId: true,
+      leadId: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      companyId: true,
+    },
+  });
+  if (recipients.length === 0) return { ok: true, id: campaign.id };
+
+  const contactIds = recipients.filter((r) => !r.leadId && r.contactId).map((r) => r.contactId!);
+  const leadIds = recipients.filter((r) => r.leadId).map((r) => r.leadId!);
+
+  const [contacts, leads] = await Promise.all([
+    contactIds.length
+      ? prisma.contact.findMany({
+          where: { id: { in: contactIds }, organizationId: orgId },
+          select: { id: true, email: true, firstName: true, lastName: true, companyId: true },
+        })
+      : Promise.resolve([]),
+    leadIds.length
+      ? prisma.lead.findMany({
+          where: { id: { in: leadIds }, organizationId: orgId },
+          select: {
+            id: true,
+            contactId: true,
+            companyId: true,
+            contact: { select: { email: true, firstName: true, lastName: true } },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+  const contactById = new Map(contacts.map((c) => [c.id, c]));
+  const leadById = new Map(leads.map((l) => [l.id, l]));
+
+  const updates: Prisma.PrismaPromise<unknown>[] = [];
+  for (const r of recipients) {
+    let next: { email: string; firstName: string | null; lastName: string | null; companyId: string | null; contactId: string | null } | null = null;
+
+    if (r.leadId) {
+      const l = leadById.get(r.leadId);
+      if (l) {
+        next = {
+          email: l.contact?.email ?? "",
+          firstName: l.contact?.firstName ?? null,
+          lastName: l.contact?.lastName ?? null,
+          companyId: l.companyId ?? null,
+          contactId: l.contactId ?? null,
+        };
+      }
+    } else if (r.contactId) {
+      const c = contactById.get(r.contactId);
+      if (c) {
+        next = {
+          email: c.email ?? "",
+          firstName: c.firstName ?? null,
+          lastName: c.lastName ?? null,
+          companyId: c.companyId ?? null,
+          contactId: c.id,
+        };
+      }
+    }
+    if (!next) continue;
+
+    const changed =
+      next.email !== r.email ||
+      next.firstName !== r.firstName ||
+      next.lastName !== r.lastName ||
+      next.companyId !== r.companyId;
+    if (!changed) continue;
+
+    updates.push(
+      prisma.emailRecipient.update({ where: { id: r.id }, data: next })
+    );
+  }
+
+  if (updates.length === 0) return { ok: true, id: campaign.id };
+
+  await prisma.$transaction(updates);
+  await logAudit({
+    organizationId: orgId,
+    actorUserId: session.user.id,
+    action: "campaign.updated",
+    resource: "campaign",
+    resourceId: campaign.id,
+    metadata: { change: "recipients_refreshed", count: updates.length },
+  });
+  revalidatePath(`/dashboard/campaigns/${campaign.id}`);
+  return { ok: true, id: campaign.id };
+}
+
+/**
  * Remove a single recipient from a campaign. Cascade drops its events. The
  * recipient is located through its campaign so the org guard still applies.
  */
@@ -397,6 +521,13 @@ export async function sendCampaignAction(
     return { ok: false, error: "No pending recipients to send." };
   }
 
+  // Production safety — never send to a suppressed (unsubscribed / bounced /
+  // complained) address. One query, no N+1.
+  const suppressedSet = await suppressedEmailSet(
+    orgId,
+    recipients.map((r) => r.email).filter(Boolean)
+  );
+
   const from = buildFrom(campaign.fromName);
   const replyTo = campaign.replyTo ?? undefined;
 
@@ -405,6 +536,7 @@ export async function sendCampaignAction(
   const sentRecipientIds: string[] = [];
   const events: Prisma.EmailEventCreateManyInput[] = [];
   let failed = 0;
+  let suppressed = 0;
 
   for (const r of recipients) {
     // No address → can't deliver. Treat as a failure (don't mark SENT).
@@ -412,14 +544,30 @@ export async function sendCampaignAction(
       failed += 1;
       continue;
     }
+    // Suppressed → skip (leave PENDING, don't mark SENT).
+    if (suppressedSet.has(r.email.trim().toLowerCase())) {
+      suppressed += 1;
+      continue;
+    }
+    const unsub = unsubscribeUrl(r.id);
     const res = await sendEmail({
       to: r.email,
       subject: campaign.subject,
       // recipientId activates open-pixel + click-link tracking (Phase 2B).
-      react: CampaignEmail({ body: campaign.body, firstName: r.firstName, recipientId: r.id }),
+      react: CampaignEmail({
+        body: campaign.body,
+        firstName: r.firstName,
+        recipientId: r.id,
+        unsubscribeUrl: unsub,
+      }),
       from,
       replyTo,
       tags: [{ name: "category", value: "campaign" }],
+      // One-click unsubscribe (RFC 8058) + visible footer link.
+      headers: {
+        "List-Unsubscribe": `<${unsub}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
       // Dedupe at the provider in case of an accidental double-fire.
       idempotencyKey: `campaign_${campaign.id}_recipient_${r.id}`,
     });
@@ -438,7 +586,13 @@ export async function sendCampaignAction(
 
   // Nothing delivered — leave the campaign DRAFT so the user can retry.
   if (sentRecipientIds.length === 0) {
-    return { ok: false, error: "No emails could be sent. Check recipient addresses and try again." };
+    return {
+      ok: false,
+      error:
+        suppressed > 0
+          ? "No emails sent — every recipient is unsubscribed or suppressed."
+          : "No emails could be sent. Check recipient addresses and try again.",
+    };
   }
 
   const sentAt = new Date();
@@ -489,5 +643,5 @@ export async function sendCampaignAction(
 
   revalidatePath(`/dashboard/campaigns/${campaign.id}`);
   revalidatePath("/dashboard/campaigns");
-  return { ok: true, sent: sentRecipientIds.length, failed };
+  return { ok: true, sent: sentRecipientIds.length, failed, suppressed };
 }

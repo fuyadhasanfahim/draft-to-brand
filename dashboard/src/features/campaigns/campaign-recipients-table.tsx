@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { IconDots, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconDots, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import {
   Button,
   DataTable,
@@ -14,7 +14,7 @@ import {
   DropdownTrigger,
   useToast,
 } from "@/components/ui";
-import { removeRecipientAction } from "@/actions/campaigns";
+import { removeRecipientAction, refreshRecipientsAction } from "@/actions/campaigns";
 import {
   RecipientStatusBadge,
   type RecipientStatus,
@@ -39,16 +39,32 @@ export function CampaignRecipientsTable({
   availableContacts,
   availableLeads,
   canEdit,
+  isDraft,
 }: {
   campaignId: string;
   recipients: CampaignRecipientRow[];
   availableContacts: ContactOption[];
   availableLeads: LeadOption[];
   canEdit: boolean;
+  /** DRAFT campaigns allow refreshing the recipient snapshot from source. */
+  isDraft: boolean;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [addOpen, setAddOpen] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    const res = await refreshRecipientsAction(campaignId);
+    setRefreshing(false);
+    if (!res.ok) {
+      toast({ variant: "error", title: "Couldn't refresh", description: res.error });
+      return;
+    }
+    toast({ variant: "success", title: "Recipients refreshed from source" });
+    router.refresh();
+  };
 
   const fullName = (r: CampaignRecipientRow) =>
     [r.firstName, r.lastName].filter(Boolean).join(" ").trim();
@@ -137,7 +153,18 @@ export function CampaignRecipientsTable({
   return (
     <div className="flex flex-col gap-3">
       {canEdit ? (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {isDraft ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRefresh}
+              loading={refreshing}
+              title="Re-sync email/name from the source Contact/Lead"
+            >
+              <IconRefresh size={14} /> Refresh recipients
+            </Button>
+          ) : null}
           <Button variant="secondary" size="sm" onClick={() => setAddOpen(true)}>
             <IconPlus size={14} /> Add recipients
           </Button>

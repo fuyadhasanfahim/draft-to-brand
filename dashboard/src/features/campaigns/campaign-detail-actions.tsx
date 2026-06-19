@@ -70,10 +70,13 @@ export function CampaignDetailActions({
       toast({ variant: "error", title: "Couldn't send", description: res.error });
       return;
     }
+    const notes: string[] = [];
+    if (res.failed > 0) notes.push(`${res.failed} failed`);
+    if (res.suppressed > 0) notes.push(`${res.suppressed} suppressed (unsubscribed/bounced)`);
     toast({
       variant: "success",
       title: `Campaign sent to ${res.sent} recipient${res.sent === 1 ? "" : "s"}`,
-      description: res.failed > 0 ? `${res.failed} failed and were left pending.` : undefined,
+      description: notes.length ? `${notes.join(" · ")} and skipped.` : undefined,
     });
     router.refresh();
   };

@@ -126,6 +126,7 @@ model Organization {
   clients        Client[]
   emailCampaigns EmailCampaign[]
   emailSequences EmailSequence[]
+  suppressions   SuppressionList[]
 
   @@index([slug])
   @@map("organization")
@@ -1103,6 +1104,11 @@ model EmailSequenceEnrollment {
   status      SequenceEnrollmentStatus @default(ACTIVE)
   // When the next step is due. The scheduler polls on (status, nextRunAt).
   nextRunAt   DateTime?
+  // Production hardening — scheduler claim lock. A run atomically sets lockedAt
+  // before processing so a concurrent run can't double-send the same step.
+  // Cleared after processing; a stale lock (older than the reclaim window) is
+  // re-claimable so a crashed run can't strand an enrollment.
+  lockedAt    DateTime?
   enrolledAt  DateTime                 @default(now())
   completedAt DateTime?
   createdAt   DateTime                 @default(now())
@@ -1118,4 +1124,36 @@ model EmailSequenceEnrollment {
   @@index([sequenceId])
   @@index([recipientId])
   @@map("email_sequence_enrollment")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Production hardening — Suppression list (Do Not Contact).
+// Org-scoped, email-keyed. Every campaign + followup send is filtered against
+// this list. Populated by: recipient unsubscribe (one-click / footer link),
+// hard bounce, and spam complaint. A reply does NOT suppress (it only stops the
+// sequence) — replying is engagement, not opt-out.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SuppressionReason {
+  UNSUBSCRIBE
+  BOUNCE
+  COMPLAINT
+  MANUAL
+}
+
+model SuppressionList {
+  id             String            @id @default(cuid())
+  organizationId String
+  // Lowercased email. Unique per org so a single address is suppressed once.
+  email          String
+  reason         SuppressionReason
+  // Free-form provenance (e.g. recipientId, campaignId, "webhook:complaint").
+  source         String?
+  createdAt      DateTime          @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId, email])
+  @@map("suppression_list")
 }

@@ -15,6 +15,12 @@ export type SendEmailInput = {
   tags?: { name: string; value: string }[];
   /** Optional idempotency key for Resend deduplication. */
   idempotencyKey?: string;
+  /**
+   * Optional custom MIME headers (e.g. `List-Unsubscribe` /
+   * `List-Unsubscribe-Post` for one-click unsubscribe). Passed straight to
+   * Resend.
+   */
+  headers?: Record<string, string>;
 };
 
 export type SendEmailResult =
@@ -75,6 +81,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
         text,
         replyTo: input.replyTo ?? EMAIL_CONFIG.replyTo,
         tags: sanitizeTags(input.tags ?? EMAIL_CONFIG.tags.transactional()),
+        ...(input.headers ? { headers: input.headers } : {}),
       },
       input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined
     );

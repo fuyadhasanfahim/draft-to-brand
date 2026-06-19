@@ -15,6 +15,12 @@ export interface CampaignEmailProps {
    * in previews → plain, untracked render.
    */
   recipientId?: string | null;
+  /**
+   * One-click unsubscribe URL. When present, a visible unsubscribe link is added
+   * to the footer (paired with the `List-Unsubscribe` header set by the caller).
+   * Required for compliant bulk/cold email.
+   */
+  unsubscribeUrl?: string | null;
 }
 
 /**
@@ -26,7 +32,12 @@ export interface CampaignEmailProps {
  * `/api/email/*` routes (see src/lib/email/tracking.ts). No personalization
  * tokens or builder — still deliberately minimal.
  */
-export default function CampaignEmail({ body, firstName, recipientId }: CampaignEmailProps) {
+export default function CampaignEmail({
+  body,
+  firstName,
+  recipientId,
+  unsubscribeUrl,
+}: CampaignEmailProps) {
   const preview = body.slice(0, 110).replace(/\s+/g, " ").trim() || "A message for you";
   void firstName; // reserved for future personalization tokens
 
@@ -35,7 +46,18 @@ export default function CampaignEmail({ body, firstName, recipientId }: Campaign
       <Text style={paragraph}>{renderBody(body, recipientId ?? null)}</Text>
 
       <Hr style={{ borderColor: BRAND.colors.border, margin: "24px 0 12px" }} />
-      <Text style={note}>You received this email from {BRAND.name}.</Text>
+      <Text style={note}>
+        You received this email from {BRAND.name}.
+        {unsubscribeUrl ? (
+          <>
+            {" "}
+            <Link href={unsubscribeUrl} style={unsubscribeLink}>
+              Unsubscribe
+            </Link>
+            .
+          </>
+        ) : null}
+      </Text>
 
       {/* Open-tracking pixel — only on real sends. The served image is a
           transparent 1×1 GIF; its request is what records the open. */}
@@ -109,5 +131,9 @@ const note = {
 };
 const link = {
   color: BRAND.colors.primary,
+  textDecoration: "underline",
+};
+const unsubscribeLink = {
+  color: BRAND.colors.mutedText,
   textDecoration: "underline",
 };

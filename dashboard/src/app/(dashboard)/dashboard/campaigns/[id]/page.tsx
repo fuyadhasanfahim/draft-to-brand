@@ -242,6 +242,7 @@ export default async function CampaignDetailPage({
             availableContacts={availableContacts}
             availableLeads={availableLeads}
             canEdit={canEdit || canManage}
+            isDraft={campaign.status === "DRAFT"}
           />
         </TabsContent>
 
