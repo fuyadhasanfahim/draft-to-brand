@@ -14,6 +14,7 @@ import {
   IconTargetArrow,
   IconBriefcase,
   IconMailForward,
+  IconMailFast,
 } from "@tabler/icons-react";
 import type { NavSection } from "@/types/navigation";
 
@@ -41,6 +42,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Sales Outreach",
     items: [
       { label: "Campaigns", href: "/dashboard/campaigns", icon: IconMailForward, permissions: ["campaigns.view"] },
+      { label: "Sequences", href: "/dashboard/sequences", icon: IconMailFast,    permissions: ["sequences.view"] },
     ],
   },
   {

@@ -6,4 +6,5 @@ export type EmailEventType =
   | "OPENED"
   | "CLICKED"
   | "REPLIED"
-  | "BOUNCED";
+  | "BOUNCED"
+  | "FOLLOWUP_SENT";

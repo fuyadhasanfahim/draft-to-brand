@@ -17,6 +17,7 @@ const LABELS: Record<EmailEventType, string> = {
   CLICKED: "Link clicked",
   REPLIED: "Replied",
   BOUNCED: "Bounced",
+  FOLLOWUP_SENT: "Followup sent",
 };
 
 const DOT: Record<EmailEventType, string> = {
@@ -25,6 +26,7 @@ const DOT: Record<EmailEventType, string> = {
   CLICKED: "bg-[var(--color-warning)]",
   REPLIED: "bg-[var(--color-success)]",
   BOUNCED: "bg-[var(--color-danger)]",
+  FOLLOWUP_SENT: "bg-[var(--color-primary)]",
 };
 
 /**

@@ -7,7 +7,8 @@ import { requireVerifiedSession } from "@/lib/auth/session";
 import { can } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/send-email";
-import { EMAIL_CONFIG } from "@/lib/email/email-config";
+import { buildFrom } from "@/lib/email/from";
+import { enrollSentRecipients } from "@/lib/email/sequence-runner";
 import CampaignEmail from "@/emails/templates/campaign-email";
 import {
   campaignSchema,
@@ -31,18 +32,6 @@ type SendResult =
 function blankToNull(v: string | null | undefined): string | null {
   const s = v?.trim();
   return s ? s : null;
-}
-
-/**
- * Build the From header. Resend accepts `"Display Name <address>"`. We keep the
- * verified sending address from EMAIL_CONFIG and only override the display name,
- * so a campaign can't send from an unverified domain.
- */
-function buildFrom(fromName: string | null): string | undefined {
-  if (!fromName) return undefined; // sendEmail falls back to EMAIL_CONFIG.from
-  const match = /<([^>]+)>/.exec(EMAIL_CONFIG.from);
-  const address = (match ? match[1] : EMAIL_CONFIG.from).trim();
-  return `${fromName} <${address}>`;
 }
 
 /**
@@ -477,6 +466,26 @@ export async function sendCampaignAction(
       failedCount: failed,
     },
   });
+
+  // Phase 3 — if a followup sequence is attached, enroll the sent recipients.
+  // The scheduler takes it from here (see lib/email/sequence-runner.ts).
+  if (campaign.sequenceId) {
+    const enrolled = await enrollSentRecipients(
+      campaign.sequenceId,
+      sentRecipientIds,
+      sentAt
+    );
+    if (enrolled > 0) {
+      await logAudit({
+        organizationId: orgId,
+        actorUserId: session.user.id,
+        action: "recipient.enrolled",
+        resource: "campaign",
+        resourceId: campaign.id,
+        metadata: { sequenceId: campaign.sequenceId, count: enrolled },
+      });
+    }
+  }
 
   revalidatePath(`/dashboard/campaigns/${campaign.id}`);
   revalidatePath("/dashboard/campaigns");

@@ -9,6 +9,7 @@ import { formatRate } from "./analytics";
 export function CampaignOverview({
   campaign,
   stats,
+  followupsSent,
 }: {
   campaign: {
     subject: string;
@@ -19,6 +20,8 @@ export function CampaignOverview({
     createdAt: Date;
   };
   stats: CampaignStats;
+  /** Phase 3 — count of FOLLOWUP_SENT events across this campaign's recipients. */
+  followupsSent?: number;
 }) {
   const cards: Array<{ label: string; value: string }> = [
     { label: "Recipients", value: String(stats.recipients) },
@@ -31,6 +34,9 @@ export function CampaignOverview({
     { label: "Click rate", value: formatRate(stats.clickRate) },
     { label: "Bounce rate", value: formatRate(stats.bounceRate) },
     { label: "Reply rate", value: formatRate(stats.replyRate) },
+    ...(followupsSent !== undefined
+      ? [{ label: "Followups sent", value: String(followupsSent) }]
+      : []),
   ];
 
   return (

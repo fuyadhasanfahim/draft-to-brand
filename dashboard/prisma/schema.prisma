@@ -40,6 +40,7 @@ model User {
   createdLeads          Lead[]           @relation("LeadCreatedBy")
   createdLeadActivities LeadActivity[]   @relation("LeadActivityCreatedBy")
   createdEmailCampaigns EmailCampaign[]  @relation("EmailCampaignCreatedBy")
+  createdEmailSequences EmailSequence[]  @relation("EmailSequenceCreatedBy")
 
   @@map("user")
 }
@@ -124,6 +125,7 @@ model Organization {
   leadActivities LeadActivity[]
   clients        Client[]
   emailCampaigns EmailCampaign[]
+  emailSequences EmailSequence[]
 
   @@index([slug])
   @@map("organization")
@@ -932,6 +934,8 @@ enum EmailEventType {
   CLICKED
   REPLIED
   BOUNCED
+  // Phase 3 — a sequence followup email was dispatched to this recipient.
+  FOLLOWUP_SENT
 }
 
 model EmailCampaign {
@@ -945,6 +949,10 @@ model EmailCampaign {
   // fall back to the workspace brand defaults (EMAIL_CONFIG) when unset.
   fromName       String?
   replyTo        String?
+  // Phase 3 — optional followup sequence. When set, recipients are enrolled
+  // into this sequence at send time. SetNull so deleting a sequence doesn't
+  // delete the campaign.
+  sequenceId     String?
   status         EmailCampaignStatus @default(DRAFT)
   archivedAt     DateTime?
   createdById    String?
@@ -953,11 +961,13 @@ model EmailCampaign {
 
   organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User?            @relation("EmailCampaignCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  sequence     EmailSequence?   @relation(fields: [sequenceId], references: [id], onDelete: SetNull)
   recipients   EmailRecipient[]
 
   @@index([organizationId])
   @@index([organizationId, status])
   @@index([organizationId, archivedAt])
+  @@index([sequenceId])
   @@map("email_campaign")
 }
 
@@ -986,11 +996,12 @@ model EmailRecipient {
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
 
-  campaign EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  lead     Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
-  contact  Contact?      @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  company  Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  events   EmailEvent[]
+  campaign    EmailCampaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead        Lead?                      @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  contact     Contact?                   @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company     Company?                   @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  events      EmailEvent[]
+  enrollments EmailSequenceEnrollment[]
 
   @@index([campaignId])
   @@index([campaignId, status])
@@ -1011,4 +1022,100 @@ model EmailEvent {
 
   @@index([recipientId, createdAt])
   @@map("email_event")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3 — Followup Sequences.
+// A reusable EmailSequence is an ordered list of EmailSequenceStep followups.
+// A campaign attaches one sequence; at send time each sent recipient gets an
+// EmailSequenceEnrollment. A scheduler (poll-based, queue-ready) walks ACTIVE
+// enrollments whose nextRunAt is due, evaluates the step's condition against
+// the recipient's tracking state, and sends the followup via the existing email
+// stack — recording a FOLLOWUP_SENT EmailEvent. Built on the campaign/recipient
+// /event models; NOT a generic workflow builder.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Gate deciding whether a step's followup is sent for a given recipient.
+enum SequenceStepCondition {
+  ALWAYS              // always send
+  NOT_OPENED          // openedAt IS NULL
+  OPENED_NOT_CLICKED  // openedAt IS NOT NULL AND clickedAt IS NULL
+  CLICKED_NOT_REPLIED // clickedAt IS NOT NULL AND repliedAt IS NULL
+}
+
+enum SequenceEnrollmentStatus {
+  ACTIVE     // walking the steps
+  PAUSED     // manually held (or sequence paused)
+  COMPLETED  // ran out of steps
+  STOPPED    // halted early (recipient replied/bounced)
+}
+
+model EmailSequence {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  // Activate / Pause toggle. Inactive sequences don't advance enrollments.
+  isActive       Boolean   @default(true)
+  // Soft-delete (codebase convention) — "Archive".
+  archivedAt     DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?                     @relation("EmailSequenceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  steps        EmailSequenceStep[]
+  enrollments  EmailSequenceEnrollment[]
+  campaigns    EmailCampaign[]
+
+  @@index([organizationId])
+  @@index([organizationId, archivedAt])
+  @@map("email_sequence")
+}
+
+model EmailSequenceStep {
+  id         String                @id @default(cuid())
+  sequenceId String
+  // 1-based position in the sequence (ordering).
+  stepNumber Int
+  // Days after enrollment (campaign send) this step fires. e.g. 0, 3, 7, 14.
+  delayDays  Int                   @default(0)
+  subject    String
+  body       String                @db.Text
+  condition  SequenceStepCondition @default(ALWAYS)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  sequence EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@unique([sequenceId, stepNumber])
+  @@index([sequenceId, stepNumber])
+  @@map("email_sequence_step")
+}
+
+model EmailSequenceEnrollment {
+  id          String                   @id @default(cuid())
+  sequenceId  String
+  recipientId String
+  // Zero-based pointer into the ordered steps: the index of the NEXT step to run.
+  currentStep Int                      @default(0)
+  status      SequenceEnrollmentStatus @default(ACTIVE)
+  // When the next step is due. The scheduler polls on (status, nextRunAt).
+  nextRunAt   DateTime?
+  enrolledAt  DateTime                 @default(now())
+  completedAt DateTime?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  sequence  EmailSequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  recipient EmailRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  // One enrollment per recipient per sequence (idempotent enrollment on send).
+  @@unique([sequenceId, recipientId])
+  // Primary scheduler index — find due, active enrollments fast.
+  @@index([status, nextRunAt])
+  @@index([sequenceId])
+  @@index([recipientId])
+  @@map("email_sequence_enrollment")
 }

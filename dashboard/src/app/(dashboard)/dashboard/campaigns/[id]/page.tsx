@@ -19,6 +19,7 @@ import {
 } from "@/features/campaigns/campaign-activity-timeline";
 import { computeCampaignStats } from "@/features/campaigns/analytics";
 import type { ContactOption, LeadOption } from "@/features/campaigns/recipient-selector";
+import { CampaignSequenceAttach } from "@/features/campaigns/campaign-sequence-attach";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function CampaignDetailPage({
     where: { id, organizationId: orgId },
     include: {
       createdBy: { select: { name: true } },
+      sequence: { select: { id: true, name: true } },
       recipients: {
         orderBy: { createdAt: "asc" },
         select: {
@@ -58,8 +60,16 @@ export default async function CampaignDetailPage({
   });
   if (!campaign) notFound();
 
-  const [events, canEdit, canDelete, canManage, allContacts, allLeads] =
-    await Promise.all([
+  const [
+    events,
+    followupsSent,
+    activeSequences,
+    canEdit,
+    canDelete,
+    canManage,
+    allContacts,
+    allLeads,
+  ] = await Promise.all([
       prisma.emailEvent.findMany({
         where: { recipient: { campaignId: campaign.id } },
         include: {
@@ -67,6 +77,14 @@ export default async function CampaignDetailPage({
         },
         orderBy: { createdAt: "desc" },
         take: 100,
+      }),
+      prisma.emailEvent.count({
+        where: { type: "FOLLOWUP_SENT", recipient: { campaignId: campaign.id } },
+      }),
+      prisma.emailSequence.findMany({
+        where: { organizationId: orgId, isActive: true, archivedAt: null },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
       }),
       can("campaigns.edit"),
       can("campaigns.delete"),
@@ -193,17 +211,28 @@ export default async function CampaignDetailPage({
         </TabsList>
 
         <TabsContent value="overview">
-          <CampaignOverview
-            campaign={{
-              subject: campaign.subject,
-              body: campaign.body,
-              fromName: campaign.fromName,
-              replyTo: campaign.replyTo,
-              createdByName: campaign.createdBy?.name ?? null,
-              createdAt: campaign.createdAt,
-            }}
-            stats={stats}
-          />
+          <div className="flex flex-col gap-4">
+            <CampaignOverview
+              campaign={{
+                subject: campaign.subject,
+                body: campaign.body,
+                fromName: campaign.fromName,
+                replyTo: campaign.replyTo,
+                createdByName: campaign.createdBy?.name ?? null,
+                createdAt: campaign.createdAt,
+              }}
+              stats={stats}
+              followupsSent={followupsSent}
+            />
+            <CampaignSequenceAttach
+              campaignId={campaign.id}
+              status={campaign.status}
+              currentSequenceId={campaign.sequenceId}
+              currentSequenceName={campaign.sequence?.name ?? null}
+              sequences={activeSequences}
+              canEdit={canEdit || canManage}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="recipients">
