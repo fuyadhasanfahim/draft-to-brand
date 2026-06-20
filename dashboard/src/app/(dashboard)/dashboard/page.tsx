@@ -37,7 +37,6 @@ export default async function DashboardOverviewPage() {
     return (
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <Badge variant="primary">CRM · Phase 2D Prep</Badge>
           <h1 className="text-display text-3xl">
             Welcome back, {session.user.name.split(" ")[0]}.
           </h1>
@@ -259,7 +258,6 @@ export default async function DashboardOverviewPage() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <Badge variant="primary">CRM · Overview</Badge>
         <h1 className="text-display text-3xl">
           Welcome back, {session.user.name.split(" ")[0]}.
         </h1>

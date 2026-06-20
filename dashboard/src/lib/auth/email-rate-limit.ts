@@ -83,7 +83,7 @@ const POLICIES: Record<EmailDeliveryScope, Policy> = {
   },
   // Send once, ever, per email.
   WELCOME_SENT: {
-    windowMs: Number.MAX_SAFE_INTEGER,
+    windowMs: 100 * 365 * 24 * 60 * 60 * 1000, // 100 years
     max: 1,
     cooldownMs: 0,
     oneShot: true,
