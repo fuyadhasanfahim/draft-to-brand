@@ -5,7 +5,6 @@ import {
     IconBrandInstagram,
     IconBrandLinkedin,
     IconBrandX,
-    IconBrandDribbble,
 } from '@tabler/icons-react';
 import { services } from '@/lib/data';
 
@@ -22,7 +21,7 @@ export function Footer() {
                     <div className="md:col-span-5">
                         <div className="inline-flex w-fit items-center rounded-2xl bg-white px-5 py-3">
                             <Image
-                                src="/https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
+                                src="https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
                                 width={520}
                                 height={170}
                                 alt={siteConfig.name}
@@ -47,12 +46,6 @@ export function Footer() {
                             </SocialLink>
                             <SocialLink href={siteConfig.socials.x} label="X">
                                 <IconBrandX size={18} />
-                            </SocialLink>
-                            <SocialLink
-                                href={siteConfig.socials.dribbble}
-                                label="Dribbble"
-                            >
-                                <IconBrandDribbble size={18} />
                             </SocialLink>
                         </div>
                     </div>

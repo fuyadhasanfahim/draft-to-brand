@@ -4,15 +4,14 @@ export const siteConfig = {
   description:
     "A full-service digital marketing and brand management agency. We turn ideas into brands people remember.",
   url: "https://drafttobrand.com",
-  email: "hello@drafttobrand.com",
-  whatsapp: "+15551234567",
-  whatsappUrl: "https://wa.me/15551234567",
-  calendly: "https://calendly.com/drafttobrand/discovery",
+  email: "drafttobrand@gmail.com",
+  whatsapp: "+8801877910384",
+  whatsappUrl: "https://wa.me/8801877910384",
+  calendly: "https://calendly.com/drafttobrand/30min",
   socials: {
     instagram: "https://instagram.com/drafttobrand",
     linkedin: "https://linkedin.com/company/drafttobrand",
-    x: "https://x.com/drafttobrand",
-    dribbble: "https://dribbble.com/drafttobrand",
+    x: "https://x.com/drafttobrand"
   },
 };
 

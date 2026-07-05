@@ -75,24 +75,24 @@ export function Testimonials() {
           drag="x"
           dragConstraints={{ left: -10000, right: 10000 }}
           dragElastic={0.05}
-          className="flex w-max cursor-grab gap-5 active:cursor-grabbing"
+          className="flex w-max cursor-grab items-start gap-5 active:cursor-grabbing"
         >
           {items.map((t, i) => (
             <div
               key={i}
-              className="w-[85vw] shrink-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur sm:w-[420px] md:w-[480px] md:p-10"
+              className="flex w-[85vw] shrink-0 flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur sm:w-[420px] md:w-[480px] md:p-10"
             >
               <IconQuote
                 size={28}
-                className="text-[#ff3131]"
+                className="shrink-0 text-[#ff3131]"
                 stroke={1.5}
               />
               <p className="mt-6 text-lg leading-relaxed text-white/90 md:text-2xl">
                 {t.quote}
               </p>
-              <div className="mt-10 flex items-center gap-4 border-t border-white/10 pt-6">
+              <div className="mt-10 flex shrink-0 items-center gap-4 border-t border-white/10 pt-6">
                 <div
-                  className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-[#ff3131] to-[#c62525] text-sm font-medium"
+                  className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#ff3131] to-[#c62525] text-sm font-medium"
                 >
                   {t.name
                     .split(" ")
@@ -101,9 +101,7 @@ export function Testimonials() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[15px] font-medium">{t.name}</span>
-                  <span className="text-sm text-white/50">
-                    {t.role} · {t.company}
-                  </span>
+                  <span className="text-sm text-white/50">{t.role}</span>
                 </div>
               </div>
             </div>

@@ -44,7 +44,7 @@ export function Navbar() {
                         aria-label={siteConfig.name}
                     >
                         <Image
-                            src="/https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
+                            src="https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
                             width={420}
                             height={140}
                             alt={siteConfig.name}

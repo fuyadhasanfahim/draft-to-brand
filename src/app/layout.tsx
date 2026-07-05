@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     metadataBase: new URL(siteConfig.url),
     icons: {
-        icon: '/https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png',
-        apple: '/https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png',
+        icon: 'https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png',
+        apple: 'https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png',
     },
     openGraph: {
         title: `${siteConfig.name} — ${siteConfig.tagline}`,

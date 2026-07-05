@@ -143,9 +143,9 @@ function AnimatedLine({
 }
 
 const stats = [
-  { value: "120+", label: "Brands launched" },
+  { value: "30+", label: "Brands launched" },
   { value: "4.6×", label: "Avg ROAS" },
-  { value: "$240M", label: "Revenue moved" },
+  { value: "$5M", label: "Revenue moved" },
   { value: "98%", label: "Client retention" },
 ];
 

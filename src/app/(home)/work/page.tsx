@@ -92,12 +92,12 @@ export default function WorkPage() {
                           {String(i + 1).padStart(2, "0")}
                         </div>
                         <div className="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.16em] text-white/80">
-                          {c.client}
+                          {c.industry}
                         </div>
                       </div>
                       <div>
                         <div className="text-serif truncate text-5xl italic leading-none text-white/80 sm:text-7xl md:text-[120px]">
-                          {c.client.split(" ")[0]}
+                          {c.industry.split(" ")[0]}
                         </div>
                       </div>
                     </div>

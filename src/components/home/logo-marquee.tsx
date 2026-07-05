@@ -1,16 +1,15 @@
 import { Container } from "../shared/container";
 
 const logos = [
-  "Northwind",
-  "Halcyon",
-  "Lumen Health",
-  "Atlas Coffee",
-  "Northstar",
-  "Soma",
-  "Verdant",
-  "Kindred",
-  "Studio Cohort",
-  "Ridgeline",
+  "TSC",
+  "The Ultimate Tooth Station",
+  "Cut Out Pixel",
+  "Family Rialto",
+  "An Nisa's World",
+  "Cholo Academy",
+  "Bindu IT",
+  "Bindu Mart",
+  "Fuyad Hasan Fahim",
 ];
 
 export function LogoMarquee() {
