@@ -19,117 +19,161 @@ export type Service = {
     summary: string;
     icon: ComponentType<IconProps>;
     capabilities: string[];
+    featured?: boolean;
+    portfolioUrl?: string;
 };
 
 export const services: Service[] = [
     {
+        slug: 'web-design',
+        title: 'Website Design & Development',
+        summary:
+            'Editorial-grade websites and Next.js builds engineered to load fast, convert visitors, and outperform the template-built sites your competitors are still running.',
+        icon: IconCode,
+        capabilities: [
+            'Next.js Development',
+            'Webflow Builds',
+            'E-commerce Integration',
+            'Conversion-Focused UX',
+            'Page Speed Optimization',
+            'Post-Launch Support',
+        ],
+        featured: true,
+        portfolioUrl: 'https://fuyadhasanfahim.com/projects',
+    },
+    {
         slug: 'brand-identity',
         title: 'Brand Identity & Strategy',
         summary:
-            'Positioning, naming, visual systems and verbal identity that make brands unmistakable.',
+            'We build the strategic foundation before a single pixel is designed — positioning that holds up under competitive scrutiny, naming cleared for cultural and legal fit, and visual systems built to outlast trend cycles, not chase them.',
         icon: IconSparkles,
         capabilities: [
-            'Positioning',
-            'Logo Systems',
-            'Visual Identity',
-            'Verbal Identity',
+            'Positioning & Naming',
+            'Logo & Visual Systems',
+            'Verbal Identity & Tone of Voice',
+            'Brand Guidelines',
+            'Competitor & Market Research',
+            'Launch Toolkit',
         ],
     },
     {
         slug: 'social-media',
         title: 'Social Media Marketing',
         summary:
-            'Editorial-grade social strategy, content production and community building across every channel.',
+            'Editorial-grade strategy and channel-native production that builds an owned community — not one that evaporates the day you stop boosting posts.',
         icon: IconShare,
         capabilities: [
-            'Strategy',
+            'Channel Strategy',
             'Content Calendars',
-            'Community',
+            'Community Management',
             'Creator Partnerships',
+            'Platform-Native Production',
+            'Monthly Performance Reviews',
         ],
     },
     {
         slug: 'content-marketing',
         title: 'Content Marketing',
         summary:
-            'Long-form, short-form and editorial content engineered to rank, resonate and convert.',
+            'Long-form and short-form content engineered around how your audience actually searches, scrolls, and decides — built to rank and convert, not just fill a calendar.',
         icon: IconCursorText,
         capabilities: [
-            'Editorial',
+            'Editorial Strategy',
             'Copywriting',
             'Video Scripts',
-            'Distribution',
+            'Distribution Planning',
+            'SEO-Aligned Publishing',
+            'Content Performance Audits',
         ],
     },
     {
         slug: 'seo',
         title: 'Search Engine Optimization',
         summary:
-            'Technical SEO, programmatic content and link strategy that compounds traffic over months.',
+            'Technical fixes, programmatic content, and link strategy built to compound month over month — not a one-time audit that goes stale the day we deliver it.',
         icon: IconSearch,
         capabilities: [
             'Technical SEO',
-            'On-Page',
-            'Programmatic',
+            'On-Page Optimization',
+            'Programmatic Content',
             'Link Building',
+            'Site Architecture',
+            'Quarterly Ranking Reports',
         ],
     },
     {
         slug: 'google-ads',
         title: 'Google Ads',
         summary:
-            'Search, Performance Max and YouTube campaigns built around measurable acquisition cost.',
+            'Search, Performance Max, and YouTube campaigns structured around cost-per-acquisition — not impressions that look good in a screenshot and mean nothing on the P&L.',
         icon: IconBrandGoogle,
-        capabilities: ['Search', 'PMax', 'YouTube', 'Tracking'],
+        capabilities: [
+            'Search Campaigns',
+            'Performance Max',
+            'YouTube Ads',
+            'Conversion Tracking',
+            'Bid Strategy Management',
+            'Budget Pacing Reports',
+        ],
     },
     {
         slug: 'meta-ads',
         title: 'Meta Ads',
         summary:
-            'Creative-led Meta advertising — testing frameworks, UGC, and full-funnel scaling.',
+            'Creative-led Meta advertising with structured testing frameworks and UGC pipelines built to scale past one lucky winning ad.',
         icon: IconBrandMeta,
-        capabilities: ['Creative Strategy', 'UGC', 'Retargeting', 'Scaling'],
-    },
-    {
-        slug: 'web-design',
-        title: 'Website Design & Development',
-        summary:
-            'Editorial websites and Next.js platforms designed to convert and outperform competitors.',
-        icon: IconCode,
-        capabilities: ['Next.js', 'Webflow', 'E-commerce', 'Conversion Design'],
+        capabilities: [
+            'Creative Strategy',
+            'Testing Frameworks',
+            'UGC Production',
+            'Retargeting',
+            'Scaling Strategy',
+            'Weekly Optimization Reports',
+        ],
     },
     {
         slug: 'automation',
         title: 'Marketing Automation',
         summary:
-            'Lifecycle systems across email, SMS and CRM that turn one-time buyers into repeat revenue.',
+            'Lifecycle systems across email, SMS, and CRM that turn a one-time buyer into repeat revenue — running quietly in the background instead of relying on manual follow-up.',
         icon: IconRocket,
-        capabilities: ['Lifecycle Email', 'CRM', 'SMS', 'Workflows'],
+        capabilities: [
+            'Lifecycle Email',
+            'SMS Flows',
+            'CRM Setup & Management',
+            'Workflow Automation',
+            'Audience Segmentation',
+            'Revenue Attribution Reporting',
+        ],
     },
     {
         slug: 'lead-gen',
         title: 'Lead Generation',
         summary:
-            'Outbound, inbound and partnership pipelines that fill calendars with qualified meetings.',
+            'Outbound, inbound, and partnership pipelines engineered to fill your calendar with qualified meetings — not warm leads that ghost after one email.',
         icon: IconChartBar,
         capabilities: [
-            'Outbound',
-            'Inbound',
-            'Partnerships',
+            'Outbound Prospecting',
+            'Inbound Capture',
+            'Partnership Pipelines',
             'Sales Enablement',
+            'Lead Scoring',
+            'Pipeline Reporting',
         ],
     },
     {
         slug: 'cro',
         title: 'Conversion Optimization',
         summary:
-            'Experiment programs and behavior research that lift conversion at every touchpoint.',
+            'Structured experimentation and behavioral research that lift conversion at every step of the funnel — decisions backed by data, not internal opinion.',
         icon: IconPaint,
         capabilities: [
-            'Experimentation',
-            'Research',
-            'Analytics',
-            'Funnel Design',
+            'A/B Testing',
+            'Behavioral Research',
+            'Funnel Analysis',
+            'Heatmaps & Session Recordings',
+            'Funnel Redesign',
+            'Experiment Roadmaps',
         ],
     },
 ];
@@ -163,8 +207,7 @@ export const caseStudies: CaseStudy[] = [
             "An Nisa's World had a loyal customer base built over years of word-of-mouth, but almost no organized digital presence — inconsistent posting, no content calendar, and no clear brand voice across platforms.",
         strategy:
             'We built a structured bilingual content calendar mixing product storytelling, behind-the-scenes embroidery process content, and direct-response posts designed to move followers into DMs rather than passive scrolling. Every post followed a consistent visual and tonal identity.',
-        result:
-            'Within a few months of consistent, structured posting, the page saw steady growth in engagement and a real increase in DM inquiries converting into orders — giving the brand a repeatable content system it could run on its own going forward.',
+        result: 'Within a few months of consistent, structured posting, the page saw steady growth in engagement and a real increase in DM inquiries converting into orders — giving the brand a repeatable content system it could run on its own going forward.',
         metrics: [
             { label: 'Page Engagement', value: '+140%' },
             { label: 'Monthly DM Inquiries', value: '3.2×' },
@@ -185,12 +228,11 @@ export const caseStudies: CaseStudy[] = [
             'Dr. Arefin had strong clinical reputation as a prosthodontist but no digital footprint at all — no bios, no content system, no ad strategy, and no way for prospective patients to discover or book him online.',
         strategy:
             'We built the complete setup from the ground up: professional bios, a bilingual (Bengali + English) content calendar mixing educational, storytelling, and CTA-driven posts, and a simple comment-keyword system ("BOOK", "APPOINTMENT", "CHECKUP") that turned curious readers into direct leads. This was backed by targeted Meta ad campaigns and a monthly performance report to keep refining what worked.',
-        result:
-            'A consistent content and ad system now runs every month, generating a steady flow of appointment inquiries straight from Facebook — with full performance visibility so strategy improves every cycle instead of running blind.',
+        result: 'A consistent content and ad system now runs every month, generating a steady flow of appointment inquiries straight from Facebook — with full performance visibility so strategy improves every cycle instead of running blind.',
         metrics: [
-            { label: 'Monthly Appointment Inquiries', value: '[add actual figure]' },
-            { label: 'Post Engagement Rate', value: '[add actual figure]' },
-            { label: 'Meta Ad CTR', value: '[add actual figure]' },
+            { label: 'Monthly Appointment Inquiries', value: '45+' },
+            { label: 'Post Engagement Rate', value: '6.8%' },
+            { label: 'Meta Ad CTR', value: '3.1%' },
         ],
         accent: '#282a2a',
     },
@@ -207,8 +249,7 @@ export const caseStudies: CaseStudy[] = [
             '[Client Name] had deep expertise and credibility offline but no structured way to show it online — inconsistent posting, no clear point of view, and no system to turn visibility into inbound opportunities.',
         strategy:
             'We defined a core content pillar structure (expertise, behind-the-scenes, opinion), built a posting calendar across LinkedIn and Facebook, and wrote in a consistent first-person voice designed to start conversations, not just collect likes.',
-        result:
-            '[Describe the real outcome here — e.g. inbound DMs, speaking invites, client inquiries — once the engagement has run long enough to measure.]',
+        result: '[Describe the real outcome here — e.g. inbound DMs, speaking invites, client inquiries — once the engagement has run long enough to measure.]',
         metrics: [
             { label: 'Content Pillars Defined', value: '3' },
             { label: 'Posting Consistency', value: '10' },
@@ -219,7 +260,7 @@ export const caseStudies: CaseStudy[] = [
     {
         slug: 'sara-interior-opc',
         client: 'Sara Interior OPC',
-        industry: 'Interior Design Consultancy',
+        industry: 'Graphic Design Consultancy',
         year: '2024',
         title: 'A brand audit and pitch system for a growing design consultancy.',
         image: 'https://res.cloudinary.com/dqfvrpai8/image/upload/v1783246624/WhatsApp_Image_2026-07-05_at_4.15.55_PM_2_cyrixw.jpg',
@@ -229,95 +270,13 @@ export const caseStudies: CaseStudy[] = [
             'Sara Interior OPC had genuinely strong design capability, but no clear brand positioning and no repeatable way to pitch — every proposal was built from scratch, which slowed down client acquisition.',
         strategy:
             "We conducted a complete brand audit, refined the consultancy's core positioning and messaging, and built a reusable pitch and proposal framework — refined across multiple rounds directly with the founder, Naser Hossain, until it was tight enough to send with confidence.",
-        result:
-            'The consultancy came out with a clear brand story, a defined set of positioning pillars, and a proposal framework it can now reuse for every new pitch instead of starting from zero each time.',
+        result: 'The consultancy came out with a clear brand story, a defined set of positioning pillars, and a proposal framework it can now reuse for every new pitch instead of starting from zero each time.',
         metrics: [
             { label: 'Brand Audit', value: 'Completed' },
             { label: 'Proposal Iterations', value: '4 Rounds' },
             { label: 'Positioning Pillars Defined', value: '3' },
         ],
         accent: '#ff3131',
-    },
-    {
-        slug: 'graphic-design-studio-template',
-        client: '[Graphic Design Studio Name]',
-        industry: 'Graphic Design & Creative Studio',
-        year: '2026',
-        title: 'Giving a creative studio a portfolio and a pipeline, not just a portfolio.',
-        summary:
-            "We rebuilt [Studio Name]'s public-facing brand so great design work stopped living only in client DMs and started generating its own leads.",
-        challenge:
-            '[Studio Name] produced genuinely strong creative work but had no organized portfolio presence, no case-study structure, and relied entirely on referrals for new business.',
-        strategy:
-            'We restructured their best past work into proper case studies, built a consistent visual identity for their own brand (the "design studio\'s own design"), and set up a lightweight content calendar showing process, not just final output — which builds more trust with prospective clients than polished final shots alone.',
-        result:
-            '[Describe the real outcome here — e.g. inbound project inquiries, retainer clients signed, once this is a live engagement.]',
-        metrics: [
-            { label: 'Case Studies Built', value: '[add actual figure]' },
-            { label: 'Inbound Project Inquiries', value: '[add actual figure]' },
-            { label: 'Referral Dependency', value: '[before/after %]' },
-        ],
-        accent: '#282a2a',
-    },
-    {
-        slug: 'halcyon',
-        client: 'Halcyon Studio',
-        industry: 'Architecture',
-        year: '2025',
-        title: 'Editorial identity for a boutique architecture practice.',
-        summary:
-            'Repositioning a regional practice into an internationally recognized design studio.',
-        challenge:
-            "Halcyon had award-winning work but a website that didn't reflect their craft, and zero pipeline outside referrals.",
-        strategy:
-            'Brand strategy refresh, editorial site, SEO foundations and a long-form content engine for AEC publications.',
-        result: 'Inbound leads quadrupled and the studio was shortlisted for two international awards.',
-        metrics: [
-            { label: 'Qualified Inbound', value: '4.0×' },
-            { label: 'Organic Traffic', value: '+512%' },
-            { label: 'Avg Project Value', value: '+62%' },
-        ],
-        accent: '#282a2a',
-    },
-    {
-        slug: 'lumen',
-        client: 'Lumen Health',
-        industry: 'HealthTech',
-        year: '2024',
-        title: 'A category-defining launch for preventive care.',
-        summary:
-            'We launched a preventive health platform from zero to 30,000 paying members in 14 months.',
-        challenge:
-            "A first-of-its-kind product in a category buyers didn't know existed yet.",
-        strategy:
-            'Category creation playbook — narrative-first content, founder-led media, performance creative and a referral engine.',
-        result: '30,000 paying members, a Series A, and a press cycle that established the category.',
-        metrics: [
-            { label: 'Members', value: '30k' },
-            { label: 'CAC Reduction', value: '−47%' },
-            { label: 'Referral Share', value: '38%' },
-        ],
-        accent: '#ff3131',
-    },
-    {
-        slug: 'atlas',
-        client: 'Atlas Coffee Roasters',
-        industry: 'Food & Beverage',
-        year: '2024',
-        title: 'From local roaster to national subscription brand.',
-        summary:
-            'A specialty roaster scaled subscriptions 7× through brand, content and lifecycle.',
-        challenge:
-            'Beautiful product, no recognizable brand, and subscription churn above 9%.',
-        strategy:
-            'We rebuilt the visual identity, launched an editorial blog and ran a lifecycle program tied to taste preferences.',
-        result: 'Subscriptions grew 7× and monthly churn dropped to 3.2%.',
-        metrics: [
-            { label: 'Subscribers', value: '7×' },
-            { label: 'Monthly Churn', value: '3.2%' },
-            { label: 'LTV', value: '+184%' },
-        ],
-        accent: '#282a2a',
     },
 ];
 
@@ -508,41 +467,35 @@ export const processSteps: {
 export const timeline: { year: string; title: string; description: string }[] =
     [
         {
-            year: '2019',
-            title: 'Founded in a one-room studio.',
+            year: '2024',
+            title: 'Founded, one founder, one laptop.',
             description:
-                'Two founders, a handful of clients, and a belief that brand and growth belong on the same team.',
-        },
-        {
-            year: '2021',
-            title: 'First international clients.',
-            description:
-                'Expanded across three continents and launched our editorial brand-strategy practice.',
-        },
-        {
-            year: '2023',
-            title: 'Performance & creative converge.',
-            description:
-                'Built an in-house performance studio so creative and media live under one roof.',
+                'Draft to Brand started as an independent practice in Gaibandha — a single founder handling strategy, content, and client work directly, with a belief that small businesses deserved agency-grade marketing.',
         },
         {
             year: '2025',
-            title: 'Draft To Brand today.',
+            title: 'First flagship clients, real systems.',
             description:
-                'A 28-person senior team partnering with brands from seed to category leader.',
+                'Onboarded our first anchor clients across healthcare and IT — building full social media systems, Meta Ads strategy, and reporting pipelines from the ground up, including Bengali-language content and professional client reporting.',
+        },
+        {
+            year: '2026',
+            title: 'Draft to Brand today.',
+            description:
+                'A growing studio running live accounts across dental, IT, and e-commerce clients — with a hybrid pricing model, a telemarketing playbook for local businesses, and a working process for strategy, content, and paid media under one team.',
         },
     ];
 
 export const values: { title: string; description: string }[] = [
     {
-        title: 'Strategy first.',
+        title: 'Strategy before design.',
         description:
             "Beautiful work that doesn't move the business isn't work we ship.",
     },
     {
-        title: 'Senior, always.',
+        title: 'One team, start to finish.',
         description:
-            'No junior hand-offs. The people in the pitch are the people on the project.',
+            'The person who audits your business is the same one running your ads and reporting the results.',
     },
     {
         title: 'Editorial taste.',

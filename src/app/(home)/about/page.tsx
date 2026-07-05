@@ -28,14 +28,12 @@ export default function AboutPage() {
                 consults a brand
               </span>
               <br />
-              from draft to brand.
+              from draft to a brand.
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-10 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
-              We are a digital marketing and brand management agency. Our job is
-              to translate ambition into a brand the world recognizes — and to
-              keep that brand compounding long after the launch.
+              Draft to Brand is a digital marketing and brand management studio based in Bangladesh. We work with clinics, IT firms, and local businesses that are done improvising, and ready to grow with a plan.
             </p>
           </Reveal>
         </Container>
@@ -58,8 +56,8 @@ export default function AboutPage() {
               },
               {
                 label: "Promise",
-                title: "Senior team. Honest counsel. Real outcomes.",
-                body: "Every retainer is delivered by the people who pitched it. No junior hand-offs, no theatre — only the work, and the truth about what it will take.",
+                title: "One team. Honest numbers. Work you can check.",
+                body: "No juniors quietly running your account. Every report is real, the same person who plans your strategy is the one reporting on what it actually did.",
               },
             ].map((b) => (
               <div

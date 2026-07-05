@@ -76,29 +76,6 @@ export default function ContactPage() {
                 description="For RFPs and detailed briefs, email reaches us fastest."
                 href={`mailto:${siteConfig.email}`}
               />
-              <div className="glass-card mt-2 flex flex-col gap-3 rounded-3xl p-6">
-                <span className="text-xs uppercase tracking-[0.18em] text-muted">
-                  Studios
-                </span>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <div className="font-medium">New York</div>
-                    <div className="text-muted">112 Greene St, SoHo</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">Dubai</div>
-                    <div className="text-muted">DIFC Gate Village</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">London</div>
-                    <div className="text-muted">3 Soho Square</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">Singapore</div>
-                    <div className="text-muted">Robinson Road</div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="lg:col-span-7">

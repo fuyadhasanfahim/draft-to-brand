@@ -1,28 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
+import type { z } from "zod";
 import { motion } from "framer-motion";
 import { IconArrowUpRight, IconCheck } from "@tabler/icons-react";
+import { contactSchema } from "@/lib/contact-schema";
 
-const schema = z.object({
-  name: z.string().min(2, "Please enter your name."),
-  email: z.string().email("Enter a valid email address."),
-  company: z.string().optional(),
-  budget: z.string().min(1, "Please choose a range."),
-  message: z.string().min(20, "Tell us a little more — 20+ characters."),
-});
-
-type Errors = Partial<Record<keyof z.infer<typeof schema>, string>>;
+type Errors = Partial<Record<keyof z.infer<typeof contactSchema>, string>>;
 
 const budgets = ["< $5k / mo", "$5k–$10k / mo", "$10k–$20k / mo", "$20k+ / mo"];
 
 export function ContactForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [budget, setBudget] = useState<string>("");
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const data = {
@@ -32,7 +27,7 @@ export function ContactForm() {
       budget: String(fd.get("budget") || ""),
       message: String(fd.get("message") || ""),
     };
-    const parsed = schema.safeParse(data);
+    const parsed = contactSchema.safeParse(data);
     if (!parsed.success) {
       const errs: Errors = {};
       for (const issue of parsed.error.issues) {
@@ -43,7 +38,26 @@ export function ContactForm() {
       return;
     }
     setErrors({});
-    setSubmitted(true);
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed.data),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "Something went wrong. Please try again.");
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -157,8 +171,18 @@ export function ContactForm() {
         )}
       </div>
 
-      <button type="submit" className="btn-accent mt-2 self-start">
-        Send message
+      {submitError && (
+        <span role="alert" className="text-sm text-[#ff3131]">
+          {submitError}
+        </span>
+      )}
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className="btn-accent mt-2 self-start disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {submitting ? "Sending…" : "Send message"}
         <IconArrowUpRight size={18} />
       </button>
     </form>

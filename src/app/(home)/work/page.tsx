@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
 import { caseStudies } from "@/lib/data";
@@ -60,8 +61,8 @@ export default function WorkPage() {
                   </p>
                   <div className="mt-2 grid grid-cols-3 gap-3 border-t border-[color:var(--color-border)] pt-6 md:gap-4">
                     {c.metrics.map((m) => (
-                      <div key={m.label}>
-                        <div className="text-display text-2xl font-medium md:text-4xl">
+                      <div key={m.label} className="min-w-0">
+                        <div className="text-display text-2xl font-medium break-words md:text-4xl">
                           {m.value}
                         </div>
                         <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-muted md:text-[11px] md:tracking-[0.16em]">
@@ -74,7 +75,7 @@ export default function WorkPage() {
 
                 <div className="lg:col-span-7">
                   <div
-                    className="relative aspect-[4/3] overflow-hidden rounded-3xl"
+                    className="group relative aspect-[4/3] overflow-hidden rounded-3xl"
                     style={{
                       background:
                         c.accent === "#ff3131"
@@ -82,11 +83,25 @@ export default function WorkPage() {
                           : `linear-gradient(135deg, #282a2a 0%, #1a1c1c 100%)`,
                     }}
                   >
+                    {c.image && (
+                      <Image
+                        src={c.image}
+                        alt={c.title || `${c.industry} case study`}
+                        fill
+                        sizes="(min-width: 1024px) 60vw, 100vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        preload={i === 0}
+                      />
+                    )}
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
+                    />
                     <div
                       aria-hidden
                       className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><circle cx=%221%22 cy=%221%22 r=%221%22 fill=%22white%22 opacity=%220.07%22/></svg>')]"
                     />
-                    <div className="relative flex h-full flex-col justify-between p-8 text-white md:p-12">
+                    <div className="relative flex h-full flex-col justify-between p-8 text-white opacity-0 transition-all duration-500 ease-out group-hover:opacity-100 group-focus-within:opacity-100 [transform:translateY(10px)] group-hover:[transform:translateY(0)] group-focus-within:[transform:translateY(0)] md:p-12">
                       <div className="flex items-start justify-between">
                         <div className="text-display text-5xl font-medium leading-none">
                           {String(i + 1).padStart(2, "0")}
@@ -96,14 +111,14 @@ export default function WorkPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="text-serif truncate text-5xl italic leading-none text-white/80 sm:text-7xl md:text-[120px]">
-                          {c.industry.split(" ")[0]}
+                        <div className="text-serif text-3xl italic leading-tight text-white/80 sm:text-4xl md:text-6xl">
+                          {c.industry}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="mt-8 grid grid-cols-1 items-start gap-4 md:grid-cols-3">
                     {[
                       { label: "Challenge", body: c.challenge },
                       { label: "Strategy", body: c.strategy },
