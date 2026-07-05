@@ -332,30 +332,30 @@ export type Pricing = {
 export const pricing: Pricing[] = [
     {
         name: 'Starter',
-        price: '$4,800',
+        price: '$347',
         cadence: 'per month',
         description:
             'For founders building momentum. A focused engagement on the channels that move the needle now.',
         features: [
             'Brand & messaging tune-up',
-            'Two priority channels',
+            'Social Media Optimization',
+            'One priority channel',
             'Up to 12 creatives per month',
             'Monthly strategy review',
-            'Slack + email support',
         ],
         cta: 'Start with Starter',
     },
     {
         name: 'Growth',
-        price: '$9,400',
+        price: '$847',
         cadence: 'per month',
         description:
             'For brands scaling past $1M. Full-funnel growth across brand, content, paid and lifecycle.',
         features: [
             'Brand strategy + design system',
-            'Four channels — paid + organic',
-            'Up to 40 creatives per month',
-            'Weekly growth standups',
+            'Three channels, paid + organic',
+            'Up to 27 creatives per month',
+            'Monthly growth standups',
             'Dedicated brand + growth lead',
             'Quarterly creative refresh',
         ],
@@ -364,14 +364,14 @@ export const pricing: Pricing[] = [
     },
     {
         name: 'Scale',
-        price: '$18,000+',
+        price: '$1,547',
         cadence: 'per month',
         description:
             'For market leaders. A senior team embedded in your business, accountable to revenue.',
         features: [
             'Full marketing operating system',
-            'Unlimited channels',
-            'Unlimited creative scope',
+            'Five channels',
+            '47 creatives per month',
             'Embedded senior team',
             'On-site quarterly workshops',
             'Direct line to founders',
@@ -386,15 +386,15 @@ export const compareRows: {
     values: [string, string, string];
 }[] = [
     { label: 'Dedicated Strategist', values: ['—', '✓', 'Senior'] },
-    { label: 'Priority Channels', values: ['2', '4', 'Unlimited'] },
-    { label: 'Creatives / month', values: ['12', '40', 'Unlimited'] },
+    { label: 'Priority Channels', values: ['1', '3', '5'] },
+    { label: 'Creatives / month', values: ['12', '27', '47'] },
     {
         label: 'Brand System',
         values: ['Tune-up', 'Full system', 'Operating system'],
     },
     {
         label: 'Strategy Cadence',
-        values: ['Monthly', 'Weekly', 'Weekly + Quarterly'],
+        values: ['Monthly', 'Monthly', 'Weekly + Quarterly'],
     },
     {
         label: 'Analytics & Reporting',
