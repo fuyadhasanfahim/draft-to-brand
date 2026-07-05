@@ -5,6 +5,7 @@ import { Badge } from "@/components/shared/badge";
 import { caseStudies } from "@/lib/data";
 import { Reveal } from "@/components/shared/animations";
 import { HomeCta } from "@/components/home/cta";
+import { ExpandableCard } from "@/components/shared/expandable-card";
 
 export const metadata: Metadata = {
   title: "Work — Selected Case Studies",
@@ -124,17 +125,7 @@ export default function WorkPage() {
                       { label: "Strategy", body: c.strategy },
                       { label: "Result", body: c.result },
                     ].map((b) => (
-                      <div
-                        key={b.label}
-                        className="glass-card flex flex-col gap-3 rounded-2xl p-5"
-                      >
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-[#ff3131]">
-                          {b.label}
-                        </div>
-                        <p className="text-[15px] leading-relaxed text-foreground">
-                          {b.body}
-                        </p>
-                      </div>
+                      <ExpandableCard key={b.label} label={b.label} body={b.body} />
                     ))}
                   </div>
                 </div>
