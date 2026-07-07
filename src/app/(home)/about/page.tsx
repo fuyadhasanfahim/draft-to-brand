@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
 import { Reveal } from "@/components/shared/animations";
 import { SectionHeader } from "@/components/shared/section-header";
 import { timeline, values, processSteps } from "@/lib/data";
 import { HomeCta } from "@/components/home/cta";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "About — Our Studio",
+export const metadata = pageMetadata({
+  title: "About: Our Studio",
   description:
     "Draft To Brand is a digital marketing and brand management studio. We consult a brand from draft to brand.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

@@ -36,7 +36,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Accessible focus ring — only on keyboard nav */
+/* Accessible focus ring, only on keyboard nav */
 :focus-visible {
   outline: 2px solid #ff3131;
   outline-offset: 3px;

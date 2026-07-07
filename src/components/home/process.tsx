@@ -31,7 +31,7 @@ export function Process() {
         />
 
         <div className="relative mt-16 md:mt-20">
-          {/* Vertical timeline line — only on md+ */}
+          {/* Vertical timeline line, only on md+ */}
           <div className="absolute left-0 top-0 hidden h-full w-px bg-[color:var(--color-border)] md:block" />
           <motion.div
             style={{ height: lineHeight }}

@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     details: [
       { label: "Name", value: name },
       { label: "Email", value: email },
-      { label: "Company", value: company || "—" },
+      { label: "Company", value: company || "N/A" },
       { label: "Monthly budget", value: budget },
       { label: "Message", value: message },
     ],
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     preheader: "We've received your message and will be in touch shortly.",
     heading: "Message received.",
     intro: `Hi ${name}, thanks for reaching out to Draft To Brand.`,
-    bodyHtml: `<p style="margin:16px 0 0;font-size:16px;line-height:1.6;color:#282a2a;">We've received your message and will be in touch with you shortly — usually within one business day.</p>`,
+    bodyHtml: `<p style="margin:16px 0 0;font-size:16px;line-height:1.6;color:#282a2a;">We've received your message and will be in touch with you shortly, usually within one business day.</p>`,
     details: [
       { label: "Monthly budget", value: budget },
       { label: "Your message", value: message },
@@ -46,13 +46,13 @@ export async function POST(request: Request) {
     await Promise.all([
       sendMail({
         to: siteConfig.email,
-        subject: `New enquiry — ${name}${company ? ` (${company})` : ""}`,
+        subject: `New enquiry: ${name}${company ? ` (${company})` : ""}`,
         html: notifyHtml,
         replyTo: email,
       }),
       sendMail({
         to: email,
-        subject: "We've received your message — Draft To Brand",
+        subject: "We've received your message | Draft To Brand",
         html: confirmationHtml,
       }),
     ]);

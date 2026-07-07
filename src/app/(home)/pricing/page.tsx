@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
 import { PricingCards } from "@/components/pricing/pricing-cards";
@@ -7,12 +6,14 @@ import { Faq } from "@/components/pricing/faq";
 import { HomeCta } from "@/components/home/cta";
 import { Reveal } from "@/components/shared/animations";
 import { SectionHeader } from "@/components/shared/section-header";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Pricing — Plans & Retainers",
+export const metadata = pageMetadata({
+  title: "Pricing: Plans & Retainers",
   description:
     "Three retainer tiers designed to match where your brand is today and where it's going next.",
-};
+  path: "/pricing",
+});
 
 export default function PricingPage() {
   return (

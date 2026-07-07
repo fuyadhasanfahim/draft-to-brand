@@ -4,6 +4,8 @@ export const siteConfig = {
   description:
     "A full-service digital marketing and brand management agency. We turn ideas into brands people remember.",
   url: "https://drafttobrand.com",
+  ogImage:
+    "https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png",
   email: "drafttobrand@gmail.com",
   whatsapp: "+8801877910384",
   whatsappUrl: "https://wa.me/8801877910384",

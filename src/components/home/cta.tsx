@@ -43,7 +43,7 @@ export function HomeCta() {
               </h2>
               <p className="mt-8 max-w-md text-lg text-white/80">
                 Book a 30-minute discovery call. We'll tell you honestly if
-                there's a fit — and what your first 90 days could look like.
+                there's a fit, and what your first 90 days could look like.
               </p>
             </div>
             <div className="flex flex-col gap-3 md:items-end">

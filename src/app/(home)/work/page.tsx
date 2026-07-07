@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
@@ -6,12 +5,14 @@ import { caseStudies } from "@/lib/data";
 import { Reveal } from "@/components/shared/animations";
 import { HomeCta } from "@/components/home/cta";
 import { ExpandableCard } from "@/components/shared/expandable-card";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Work — Selected Case Studies",
+export const metadata = pageMetadata({
+  title: "Work: Selected Case Studies",
   description:
     "Selected case studies from brands we've shaped from draft to category leader.",
-};
+  path: "/work",
+});
 
 export default function WorkPage() {
   return (

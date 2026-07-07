@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
 import { Reveal } from "@/components/shared/animations";
 import { ContactForm } from "@/components/contact/contact-form";
 import { siteConfig } from "@/lib/site";
+import { pageMetadata } from "@/lib/metadata";
 import {
   IconBrandWhatsapp,
   IconCalendarEvent,
@@ -12,11 +12,12 @@ import {
   IconArrowUpRight,
 } from "@tabler/icons-react";
 
-export const metadata: Metadata = {
-  title: "Contact — Let's Begin",
+export const metadata = pageMetadata({
+  title: "Contact: Let's Begin",
   description:
     "Book a discovery call, send us a message, or message us on WhatsApp.",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (
@@ -56,7 +57,7 @@ export default function ContactPage() {
                 icon={<IconCalendarEvent size={20} />}
                 label="Book a discovery call"
                 title="30 minutes with a partner."
-                description="Pick a time that works — we'll come prepared with a take on your moment."
+                description="Pick a time that works; we'll come prepared with a take on your moment."
                 href={siteConfig.calendly}
                 external
                 accent
@@ -65,7 +66,7 @@ export default function ContactPage() {
                 icon={<IconBrandWhatsapp size={20} />}
                 label="WhatsApp"
                 title="Message us directly."
-                description="Quick questions, async timezones — we're on WhatsApp during business hours."
+                description="Quick questions, async timezones; we're on WhatsApp during business hours."
                 href={siteConfig.whatsappUrl}
                 external
               />

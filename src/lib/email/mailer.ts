@@ -29,7 +29,7 @@ export async function sendMail({ to, subject, html, replyTo }: SendMailInput) {
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   if (!from) {
     throw new Error(
-      "SMTP is not configured — set SMTP_HOST, SMTP_USER, SMTP_PASS in your environment.",
+      "SMTP is not configured: set SMTP_HOST, SMTP_USER, SMTP_PASS in your environment.",
     );
   }
 

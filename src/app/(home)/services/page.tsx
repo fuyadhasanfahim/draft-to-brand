@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/shared/badge";
 import { services } from "@/lib/data";
 import { HomeCta } from "@/components/home/cta";
 import { Reveal } from "@/components/shared/animations";
 import { IconCheck, IconArrowUpRight, IconStar } from "@tabler/icons-react";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Services — Brand, Growth & Performance",
+export const metadata = pageMetadata({
+  title: "Services: Brand, Growth & Performance",
   description:
     "A full-service studio for brand, content, paid media, SEO, web and growth systems.",
-};
+  path: "/services",
+});
 
 export default function ServicesPage() {
   return (
@@ -37,7 +38,7 @@ export default function ServicesPage() {
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
               We're not a marketplace of freelancers. Every service below is
               delivered by a senior team that has lived inside the discipline
-              for a decade — and we only take on engagements where we can lead
+              for a decade, and we only take on engagements where we can lead
               with conviction.
             </p>
           </Reveal>
