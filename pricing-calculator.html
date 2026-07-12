@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Pricing Calculator | Draft to Brand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#ED1C24;
+    --red-dark:#C8151C;
+    --red-tint:#FFF0EF;
+    --ink:#1E1B1B;
+    --ink-soft:#4A4544;
+    --paper:#FFFFFF;
+    --canvas:#F7F5F3;
+    --line:#E7E2DF;
+    --good:#1E7A4C;
+    --good-tint:#EAF6EF;
+    --warn:#B8860B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Hind Siliguri','Poppins',sans-serif;
+    background:var(--canvas);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:'Poppins',sans-serif;}
+
+  /* ---------- Header ---------- */
+  .topbar{
+    background:var(--ink);
+    padding:22px 6vw;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brandmark{display:flex;align-items:center;gap:10px;}
+  .brandmark svg{height:26px;width:auto;display:block;}
+  .brandmark span{
+    font-family:'Poppins',sans-serif;
+    color:#fff;font-size:13px;letter-spacing:.06em;
+    opacity:.75;border-left:1px solid rgba(255,255,255,.25);
+    padding-left:10px;
+  }
+  .tag{
+    font-family:'Poppins',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--red);
+    background:rgba(237,28,36,.12);
+    border:1px solid rgba(237,28,36,.35);
+    padding:6px 12px;border-radius:100px;
+  }
+
+  .hero{
+    padding:52px 6vw 34px;
+    background:
+      radial-gradient(1100px 260px at 85% -40px, rgba(237,28,36,.10), transparent 60%),
+      var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  .hero h1{
+    font-family:'Poppins',sans-serif;
+    font-weight:800;
+    font-size:clamp(26px,3.4vw,40px);
+    margin:0 0 10px;
+    letter-spacing:-.01em;
+  }
+  .hero h1 em{
+    font-style:normal;color:var(--red);
+  }
+  .hero p{
+    max-width:640px;
+    color:var(--ink-soft);
+    font-size:16.5px;
+    margin:0;
+  }
+  .hero p b{color:var(--ink);}
+
+  /* ---------- Layout ---------- */
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:36px 6vw 80px;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:26px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .wrap{grid-template-columns:1fr; padding:28px 5vw 60px;}
+  }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 26px 28px;
+  }
+  .card + .card{margin-top:22px;}
+  .card h2{
+    font-family:'Poppins',sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--red-dark);
+    margin:0 0 4px;
+  }
+  .card .sub{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin:0 0 22px;
+  }
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:520px){.grid2{grid-template-columns:1fr;}}
+
+  .field{margin-bottom:18px;}
+  .field label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:7px;
+  }
+  .field label .hint{
+    font-weight:400;color:#9a9391;font-size:12.5px;
+  }
+  .inputbox{
+    position:relative;
+    display:flex;align-items:center;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    background:#FCFBFA;
+    transition:border-color .15s, background .15s;
+  }
+  .inputbox:focus-within{
+    border-color:var(--red);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(237,28,36,.10);
+  }
+  .inputbox .prefix{
+    padding:0 12px;
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    color:#a8a19e;
+    font-size:14px;
+    border-right:1px solid var(--line);
+    align-self:stretch;
+    display:flex;align-items:center;
+  }
+  .inputbox input{
+    border:none;background:transparent;outline:none;
+    padding:11px 12px;
+    font-family:'Poppins',sans-serif;
+    font-size:15px;font-weight:600;color:var(--ink);
+    width:100%;min-width:0;
+  }
+  .inputbox .suffix{
+    padding:0 12px;color:#a8a19e;font-size:13px;font-weight:600;
+    font-family:'Poppins',sans-serif;
+  }
+
+  .segmented{
+    display:flex;background:#F1EEEC;border-radius:10px;padding:4px;gap:4px;margin-bottom:18px;
+  }
+  .segmented button{
+    flex:1;border:none;background:transparent;padding:10px 8px;
+    font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:14px;
+    color:var(--ink-soft);border-radius:7px;cursor:pointer;transition:all .15s;
+  }
+  .segmented button.active{
+    background:var(--ink);color:#fff;
+  }
+
+  .divider{
+    border:none;border-top:1px dashed var(--line);margin:24px 0;
+  }
+
+  /* ---------- Results ---------- */
+  .result-hero{
+    background:linear-gradient(160deg, var(--ink) 0%, #322C2C 100%);
+    border-radius:var(--radius);
+    padding:28px 26px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+  .result-hero::after{
+    content:"";
+    position:absolute; right:-40px; top:-60px;
+    width:220px;height:220px;
+    background:radial-gradient(circle, rgba(237,28,36,.35), transparent 65%);
+  }
+  .result-hero .label{
+    font-family:'Poppins',sans-serif;
+    font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    color:#EFA8AB; margin-bottom:10px; position:relative;
+  }
+  .result-hero .price{
+    font-family:'Poppins',sans-serif;
+    font-weight:800;
+    font-size:clamp(34px,4.2vw,52px);
+    letter-spacing:-.02em;
+    display:flex;align-items:baseline;gap:8px;
+    position:relative;
+  }
+  .result-hero .price .cur{font-size:.5em;font-weight:600;color:#EFA8AB;}
+  .result-hero .foot{
+    margin-top:14px;font-size:14px;color:#D8D2D1;position:relative;
+  }
+  .result-hero .foot b{color:#fff;}
+
+  .kpis{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:22px;
+  }
+  .kpi{
+    background:var(--canvas);
+    border:1px solid var(--line);
+    border-radius:11px;
+    padding:15px 16px;
+  }
+  .kpi .k-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .kpi .k-value{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;
+  }
+  .kpi.good{background:var(--good-tint);border-color:#CFE9DA;}
+  .kpi.good .k-value{color:var(--good);}
+
+  .breakdown-row{
+    display:flex;align-items:center;gap:12px;padding:9px 0;
+  }
+  .breakdown-row .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .breakdown-row .name{flex:1;font-size:14.5px;color:var(--ink-soft);}
+  .breakdown-row .amt{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;min-width:70px;text-align:right;
+  }
+  .breakdown-row .pct{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px;color:#9a9391;min-width:42px;text-align:right;
+  }
+  .bar-track{
+    height:9px;border-radius:100px;background:var(--canvas);overflow:hidden;display:flex;margin:6px 0 4px;border:1px solid var(--line);
+  }
+  .bar-seg{height:100%;}
+
+  .summary-box{
+    background:var(--red-tint);
+    border:1px solid #F6C7C9;
+    border-radius:12px;
+    padding:18px 20px;
+    font-size:14.5px;
+    color:#5C1417;
+    margin-top:20px;
+  }
+  .summary-box b{color:var(--red-dark);}
+  .summary-box .title{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--red-dark);
+    margin-bottom:8px;
+  }
+
+  .warning{
+    background:#FFF7E6;border:1px solid #F3D48A;color:#7A5B00;
+    border-radius:10px;padding:12px 16px;font-size:14px;margin-top:16px;
+  }
+
+  .footer-note{
+    text-align:center;color:#9a9391;font-size:13px;padding:0 6vw 40px;
+  }
+  .footer-note a{color:var(--red-dark);text-decoration:none;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brandmark">
+    <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="42" font-family="Poppins, sans-serif" font-weight="800" font-size="34" fill="#ffffff">Draft</text>
+      <circle cx="128" cy="30" r="15" fill="none" stroke="#ED1C24" stroke-width="7"/>
+      <path d="M138 18 L158 4 M158 4 L145 6 M158 4 L156 16" stroke="#ED1C24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <text x="150" y="42" font-family="Poppins, sans-serif" font-weight="800" font-size="34" fill="#ffffff">Brand</text>
+    </svg>
+    <span>MARKETING &amp; BRAND STRATEGY</span>
+  </div>
+  <div class="tag">Client Tool</div>
+</div>
+
+<div class="hero">
+  <h1>Product Pricing <em>Calculator</em></h1>
+  <p>তোমার প্রোডাক্টের সব খরচ (COGS, Delivery, Return, Operational, Marketing) বসাও — আমরা হিসাব করে বলে দেব <b>কোন দামে বিক্রি করলে তুমি প্রফিটে থাকবে</b>, আর মার্কেটিং-এ কত বাজেট রাখা নিরাপদ।</p>
+</div>
+
+<div class="wrap">
+
+  <!-- INPUT COLUMN -->
+  <div>
+    <div class="card">
+      <h2>ধাপ ১ — প্রোডাক্ট কস্ট</h2>
+      <p class="sub">প্রতি ইউনিট প্রোডাক্ট বানাতে/কিনতে কত খরচ হয়</p>
+
+      <div class="grid2">
+        <div class="field">
+          <label>প্রোডাক্ট কস্ট (COGS)<span class="hint">প্রতি পিস</span></label>
+          <div class="inputbox"><span class="prefix">৳</span><input type="number" id="cogs" value="100" min="0" step="1"></div>
+        </div>
+        <div class="field">
+          <label>প্যাকেজিং কস্ট<span class="hint">প্রতি পিস</span></label>
+          <div class="inputbox"><span class="prefix">৳</span><input type="number" id="packaging" value="15" min="0" step="1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ধাপ ২ — ডেলিভারি &amp; রিটার্ন</h2>
+      <p class="sub">কুরিয়ার কস্ট এবং রিটার্ন হলে যে লস হয়</p>
+
+      <div class="grid2">
+        <div class="field">
+          <label>ডেলিভারি কস্ট<span class="hint">প্রতি অর্ডার</span></label>
+          <div class="inputbox"><span class="prefix">৳</span><input type="number" id="delivery" value="70" min="0" step="1"></div>
+        </div>
+        <div class="field">
+          <label>রিটার্ন রেট<span class="hint">গড় %</span></label>
+          <div class="inputbox"><input type="number" id="returnRate" value="12" min="0" max="90" step="1"><span class="suffix">%</span></div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>রিটার্ন হলে লস<span class="hint">যাওয়া-আসা ডেলিভারি + প্যাকেজিং</span></label>
+        <div class="inputbox"><span class="prefix">৳</span><input type="number" id="returnLoss" value="140" min="0" step="1"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ধাপ ৩ — অপারেশনাল কস্ট</h2>
+      <p class="sub">অফিস, স্যালারি, টুলস — প্রতি ইউনিটে যতটুকু ভাগে পড়ে</p>
+      <div class="field" style="margin-bottom:0;">
+        <label>অপারেশনাল কস্ট<span class="hint">প্রতি পিস (approx)</span></label>
+        <div class="inputbox"><span class="prefix">৳</span><input type="number" id="operational" value="20" min="0" step="1"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ধাপ ৪ — মার্কেটিং &amp; প্রফিট</h2>
+      <p class="sub">Ads বাজেট বিক্রয়মূল্যের কত % রাখতে চাও, আর কত % প্রফিট রাখতে চাও</p>
+
+      <div class="segmented" id="mktModeSwitch">
+        <button class="active" data-mode="percent">বিক্রয়মূল্যের %</button>
+        <button data-mode="fixed">নির্দিষ্ট CPA (৳)</button>
+      </div>
+
+      <div id="mktPercentField" class="field">
+        <label>মার্কেটিং কস্ট<span class="hint">বিক্রয়মূল্যের %</span></label>
+        <div class="inputbox"><input type="number" id="mktPercent" value="15" min="0" max="90" step="1"><span class="suffix">%</span></div>
+      </div>
+      <div id="mktFixedField" class="field" style="display:none;">
+        <label>মার্কেটিং কস্ট<span class="hint">প্রতি সেল (CPA)</span></label>
+        <div class="inputbox"><span class="prefix">৳</span><input type="number" id="mktFixed" value="120" min="0" step="1"></div>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <label>প্রফিট মার্জিন<span class="hint">বিক্রয়মূল্যের %</span></label>
+        <div class="inputbox"><input type="number" id="profit" value="20" min="0" max="90" step="1"><span class="suffix">%</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ধাপ ৫ — Ads Manager Check (CPR)</h2>
+      <p class="sub">Order type বসাও। নিচে যে <b>Max CPR</b> নাম্বার আসবে, সেটাই তোমার লিমিট।</p>
+
+      <div class="segmented" id="orderTypeSwitch">
+        <button class="active" data-type="cod">COD</button>
+        <button data-type="prepaid">Prepaid</button>
+      </div>
+
+      <div style="background:var(--canvas); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:14px; color:var(--ink-soft);">
+        📌 <b style="color:var(--ink);">CPR মানে কী?</b> Facebook Ads Manager-এ প্রতিটা সেল/অর্ডার আনতে গড়ে কত টাকা খরচ হচ্ছে, সেটাই CPR (Cost per Result)। Ads Manager খুললে "Cost per Result" নামে একটা কলাম দেখবে — ওই নাম্বারটাই এর সাথে মিলাবে।
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT COLUMN -->
+  <div style="position:sticky; top:20px;">
+    <div class="result-hero">
+      <div class="label">প্রস্তাবিত বিক্রয়মূল্য</div>
+      <div class="price"><span class="cur">৳</span><span id="sp" class="num">0</span></div>
+      <div class="foot">এই দামে বিক্রি করলে <b id="foot-profit">৳0</b> প্রফিট + <b id="foot-mkt">৳0</b> মার্কেটিং বাজেট প্রতি ইউনিটে থাকবে</div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="k-label">সর্বনিম্ন দাম (No profit)</div>
+          <div class="k-value num" id="breakeven">৳0</div>
+        </div>
+        <div class="kpi good">
+          <div class="k-label">ইউনিট প্রতি প্রফিট</div>
+          <div class="k-value num" id="profitAmt">৳0</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">Max CPR <span style="font-weight:400;">(প্রতি সেলে সর্বোচ্চ কত খরচ করা যাবে)</span></div>
+          <div class="k-value num" id="maxCpr">৳0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>কস্ট ব্রেকডাউন</h2>
+      <p class="sub">বিক্রয়মূল্যের প্রতিটা অংশ কোথায় যাচ্ছে</p>
+
+      <div class="bar-track" id="barTrack"></div>
+      <div id="breakdownList"></div>
+
+      <div class="warning" id="warningBox" style="display:none;"></div>
+
+      <div class="summary-box" id="summaryBox"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">Built for <a href="https://drafttobrand.com">Draft to Brand</a> clients — নিজের বিজনেসের জন্য এই টুল ফ্রিতে ব্যবহার করো।</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString('en-IN');
+
+let mktMode = 'percent';
+
+document.querySelectorAll('#mktModeSwitch button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#mktModeSwitch button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    mktMode = btn.dataset.mode;
+    $('mktPercentField').style.display = mktMode==='percent' ? 'block':'none';
+    $('mktFixedField').style.display = mktMode==='fixed' ? 'block':'none';
+    calculate();
+  });
+});
+
+document.querySelectorAll('#orderTypeSwitch button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#orderTypeSwitch button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(btn.dataset.type === 'cod'){
+      $('returnRate').value = 12;
+    } else {
+      $('returnRate').value = 3;
+    }
+    calculate();
+  });
+});
+
+const COLORS = {
+  cogs:'#1E1B1B', packaging:'#6B6462', delivery:'#B8860B',
+  operational:'#5C7A9A', marketing:'#ED1C24', profit:'#1E7A4C'
+};
+
+function calculate(){
+  const cogs = parseFloat($('cogs').value)||0;
+  const packaging = parseFloat($('packaging').value)||0;
+  const delivery = parseFloat($('delivery').value)||0;
+  const returnRate = (parseFloat($('returnRate').value)||0)/100;
+  const returnLoss = parseFloat($('returnLoss').value)||0;
+  const operational = parseFloat($('operational').value)||0;
+  const profitPct = (parseFloat($('profit').value)||0)/100;
+
+  const effDelivery = delivery + returnRate*returnLoss;
+  const baseCost = cogs + packaging + effDelivery + operational;
+
+  let sp, marketingBudget, mktPctOfSP, warn = null;
+
+  if(mktMode === 'percent'){
+    const mktPct = (parseFloat($('mktPercent').value)||0)/100;
+    const totalPct = mktPct + profitPct;
+    if(totalPct >= 0.98){
+      warn = "মার্কেটিং % + প্রফিট % মিলিয়ে প্রায় ১০০% হয়ে যাচ্ছে — শতাংশ একটু কমাও, নাহলে হিসাব বসবে না।";
+      sp = baseCost / 0.02;
+    } else {
+      sp = baseCost / (1 - totalPct);
+    }
+    marketingBudget = sp * mktPct;
+    mktPctOfSP = mktPct;
+  } else {
+    const mktFixed = parseFloat($('mktFixed').value)||0;
+    if(profitPct >= 0.98){
+      warn = "প্রফিট মার্জিন প্রায় ১০০% — একটু কমাও।";
+      sp = (baseCost+mktFixed)/0.02;
+    } else {
+      sp = (baseCost + mktFixed) / (1 - profitPct);
+    }
+    marketingBudget = mktFixed;
+    mktPctOfSP = sp>0 ? marketingBudget/sp : 0;
+  }
+
+  const profitAmount = sp - baseCost - marketingBudget;
+  const breakeven = baseCost + marketingBudget; // price with 0 profit, same marketing spend
+
+  $('sp').textContent = fmt(sp);
+  $('breakeven').textContent = '৳'+fmt(breakeven);
+  $('profitAmt').textContent = '৳'+fmt(profitAmount);
+  $('foot-profit').textContent = '৳'+fmt(profitAmount);
+  $('foot-mkt').textContent = '৳'+fmt(marketingBudget);
+
+  const maxCpr = marketingBudget;
+  $('maxCpr').textContent = '৳'+fmt(maxCpr);
+
+  // breakdown
+  const parts = [
+    {name:'প্রোডাক্ট কস্ট (COGS + প্যাকেজিং)', value: cogs+packaging, color:COLORS.cogs},
+    {name:'ডেলিভারি ও রিটার্ন লস', value: effDelivery, color:COLORS.delivery},
+    {name:'অপারেশনাল কস্ট', value: operational, color:COLORS.operational},
+    {name:'মার্কেটিং বাজেট', value: marketingBudget, color:COLORS.marketing},
+    {name:'প্রফিট', value: profitAmount, color:COLORS.profit},
+  ];
+
+  const track = $('barTrack'); track.innerHTML='';
+  const list = $('breakdownList'); list.innerHTML='';
+
+  parts.forEach(p=>{
+    const pct = sp>0 ? (p.value/sp*100) : 0;
+    const seg = document.createElement('div');
+    seg.className='bar-seg';
+    seg.style.width = Math.max(pct,0)+'%';
+    seg.style.background = p.color;
+    track.appendChild(seg);
+
+    const row = document.createElement('div');
+    row.className='breakdown-row';
+    row.innerHTML = `<span class="dot" style="background:${p.color}"></span>
+      <span class="name">${p.name}</span>
+      <span class="amt num">৳${fmt(p.value)}</span>
+      <span class="pct num">${pct.toFixed(0)}%</span>`;
+    list.appendChild(row);
+  });
+
+  // warning
+  const wb = $('warningBox');
+  if(warn){ wb.style.display='block'; wb.textContent = warn; }
+  else { wb.style.display='none'; }
+
+  // summary text
+  $('summaryBox').innerHTML = `
+    <div class="title">সহজ ভাষায় সামারি</div>
+    এই প্রোডাক্ট বানাতে/আনতে তোমার আসল খরচ (মার্কেটিং বাদে) <b>৳${fmt(baseCost)}</b>।
+    এটা <b>৳${fmt(sp)}</b> দামে বিক্রি করলে তুমি প্রফিটে থাকবে।<br><br>
+    👉 এখন মনে রাখার মতো একটাই নাম্বার: <b>Max CPR = ৳${fmt(maxCpr)}</b>।<br>
+    মানে Facebook Ads Manager-এ প্রতিটা সেল (Result) আনতে যদি ৳${fmt(maxCpr)}-এর বেশি খরচ হয়ে যায় — তাহলে বুঝবে তুমি লসে যাচ্ছ, ক্যাম্পেইন বন্ধ করে optimize করতে হবে।
+    আর CPR যদি এর কম থাকে, তাহলে তুমি প্রফিটে আছ। এটাই প্রতিদিন Ads Manager চেক করার সময় দেখার নিয়ম।
+  `;
+}
+
+document.querySelectorAll('input[type=number]').forEach(inp=>{
+  inp.addEventListener('input', calculate);
+});
+
+calculate();
+</script>
+
+</body>
+</html>
