@@ -83,6 +83,7 @@ export default function RootLayout({
         <html
             lang="en"
             className={`${display.variable} ${serif.variable} h-full antialiased`}
+            data-scroll-behavior="smooth"
         >
             <body className="min-h-full overflow-x-hidden bg-background text-foreground">
                 <script
