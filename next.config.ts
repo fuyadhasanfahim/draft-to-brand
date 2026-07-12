@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
                 pathname: '/**',
             },
         ],
+        // Cloudinary URLs here are version-hashed (immutable), so cache
+        // the optimized output for a year instead of the 60s default.
+        minimumCacheTTL: 31536000,
     },
     async headers() {
         return [

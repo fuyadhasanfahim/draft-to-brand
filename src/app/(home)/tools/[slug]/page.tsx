@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!tool) return {};
 
     return pageMetadata({
-        title: `${tool.title} — Free Tool`,
+        title: `${tool.title} | Free Tool`,
         description: tool.summary,
         path: `/tools/${tool.slug}`,
     });

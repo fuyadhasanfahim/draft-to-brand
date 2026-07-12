@@ -77,7 +77,7 @@ export default function ServicesPage() {
                       <service.icon size={20} stroke={1.6} />
                     </div>
                     {service.featured && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff3131]/15 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[#ff3131]">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff3131]/15 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-primary-text)]">
                         <IconStar size={12} stroke={2} />
                         Our Specialty
                       </span>

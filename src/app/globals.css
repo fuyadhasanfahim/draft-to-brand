@@ -8,11 +8,13 @@
   --color-border: rgba(40, 42, 42, 0.08);
   --color-primary: #ff3131;
   --color-primary-foreground: #ffffff;
+  --color-primary-text: #c92a2a;
   --color-dark: #282a2a;
 
-  --font-sans: var(--font-display), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-display), ui-sans-serif, system-ui;
+  --font-sans: var(--font-display), var(--font-bengali), ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display), var(--font-bengali), ui-sans-serif,
+    system-ui;
   --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }

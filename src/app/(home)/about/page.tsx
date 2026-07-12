@@ -65,7 +65,7 @@ export default function AboutPage() {
                 key={b.label}
                 className="flex flex-col gap-5 rounded-3xl border border-[color:var(--color-border)] bg-white p-7 md:p-10"
               >
-                <span className="text-xs uppercase tracking-[0.18em] text-[#ff3131]">
+                <span className="text-xs uppercase tracking-[0.18em] text-[color:var(--color-primary-text)]">
                   {b.label}
                 </span>
                 <h3 className="text-display text-2xl font-medium leading-tight md:text-3xl">

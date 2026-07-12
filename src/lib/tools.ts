@@ -14,7 +14,7 @@ export const tools: Tool[] = [
         slug: 'pricing-calculator',
         title: 'Product Pricing Calculator',
         summary:
-            'Plug in your product cost, delivery, return rate and margins — instantly get the price to sell at and the maximum ad cost-per-result that keeps you profitable.',
+            'Plug in your product cost, delivery, return rate and margins, instantly get the price to sell at and the maximum ad cost-per-result that keeps you profitable.',
         icon: IconCalculator,
         category: 'E-commerce',
     },

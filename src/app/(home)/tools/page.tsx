@@ -9,7 +9,7 @@ import { IconArrowUpRight } from '@tabler/icons-react';
 export const metadata = pageMetadata({
     title: 'Free Tools for Growing Brands',
     description:
-        'Free calculators and utilities from Draft to Brand — built for founders running e-commerce and D2C brands in Bangladesh.',
+        'Free calculators and utilities from Draft to Brand, built for founders running e-commerce and D2C brands in Bangladesh.',
     path: '/tools',
 });
 
@@ -30,7 +30,7 @@ export default function ToolsPage() {
                             Tools we built
                             <br />
                             <span className="text-serif italic font-normal text-muted">
-                                for our clients — free for you.
+                                for our clients, free for you.
                             </span>
                         </h1>
                     </Reveal>

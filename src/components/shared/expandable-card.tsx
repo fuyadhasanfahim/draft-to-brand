@@ -18,7 +18,7 @@ export function ExpandableCard({
         expanded ? "h-auto" : "h-[260px]"
       }`}
     >
-      <div className="text-[11px] uppercase tracking-[0.18em] text-[#ff3131]">
+      <div className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-primary-text)]">
         {label}
       </div>
       <p
@@ -32,7 +32,7 @@ export function ExpandableCard({
         type="button"
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
-        className="mt-auto flex items-center gap-1 self-start text-sm font-medium text-[#ff3131] transition-colors hover:text-[#c62525]"
+        className="mt-auto flex items-center gap-1 self-start text-sm font-medium text-[color:var(--color-primary-text)] transition-colors hover:text-[#a01f1f]"
       >
         {expanded ? "See less" : "See more"}
         <IconChevronDown

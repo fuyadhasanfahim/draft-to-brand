@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Inter, Instrument_Serif } from 'next/font/google';
+import { Inter, Instrument_Serif, Hind_Siliguri } from 'next/font/google';
 import './globals.css';
 import { siteConfig } from '@/lib/site';
 import { Analytics } from '@/components/shared/analytics';
@@ -20,6 +20,13 @@ const serif = Instrument_Serif({
     display: 'swap',
 });
 
+const bengali = Hind_Siliguri({
+    variable: '--font-bengali',
+    subsets: ['bengali', 'latin'],
+    weight: ['400', '500', '600', '700'],
+    display: 'swap',
+});
+
 export const metadata: Metadata = {
     title: {
         default: `${siteConfig.name} | ${siteConfig.tagline}`,
@@ -29,7 +36,6 @@ export const metadata: Metadata = {
     metadataBase: new URL(siteConfig.url),
     alternates: { canonical: '/' },
     icons: {
-        icon: siteConfig.ogImage,
         apple: siteConfig.ogImage,
     },
     openGraph: {
@@ -82,7 +88,7 @@ export default function RootLayout({
     return (
         <html
             lang="en"
-            className={`${display.variable} ${serif.variable} h-full antialiased`}
+            className={`${display.variable} ${serif.variable} ${bengali.variable} h-full antialiased`}
             data-scroll-behavior="smooth"
         >
             <body className="min-h-full overflow-x-hidden bg-background text-foreground">

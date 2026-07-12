@@ -21,11 +21,12 @@ export function Footer() {
                     <div className="md:col-span-5">
                         <div className="inline-flex w-fit items-center rounded-2xl bg-white px-5 py-3">
                             <Image
-                                src="https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
-                                width={520}
-                                height={170}
+                                src="/logo.png"
+                                width={1040}
+                                height={338}
                                 alt={siteConfig.name}
                                 className="h-10 w-auto object-contain md:h-12"
+                                loading="lazy"
                             />
                         </div>
                         <p className="mt-7 max-w-md text-2xl font-medium tracking-tight text-white/90 md:mt-8 md:text-4xl">
@@ -111,9 +112,9 @@ function FooterCol({
 }) {
     return (
         <div className="flex flex-col gap-4">
-            <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
                 {title}
-            </h4>
+            </p>
             <ul className="flex flex-col gap-3 text-[15px] text-white/80">
                 {children}
             </ul>

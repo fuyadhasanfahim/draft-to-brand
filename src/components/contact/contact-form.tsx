@@ -138,7 +138,7 @@ export function ContactForm() {
         </div>
         <input type="hidden" name="budget" value={budget} />
         {errors.budget && (
-          <span role="alert" className="text-xs text-[#ff3131]">
+          <span role="alert" className="text-xs text-[color:var(--color-primary-text)]">
             {errors.budget}
           </span>
         )}
@@ -164,7 +164,7 @@ export function ContactForm() {
           <span
             id="contact-message-error"
             role="alert"
-            className="text-xs text-[#ff3131]"
+            className="text-xs text-[color:var(--color-primary-text)]"
           >
             {errors.message}
           </span>
@@ -172,7 +172,7 @@ export function ContactForm() {
       </div>
 
       {submitError && (
-        <span role="alert" className="text-sm text-[#ff3131]">
+        <span role="alert" className="text-sm text-[color:var(--color-primary-text)]">
           {submitError}
         </span>
       )}
@@ -222,7 +222,7 @@ function Field({
         className="rounded-2xl border border-[color:var(--color-border)] bg-white px-4 py-3.5 text-[15px] outline-none transition-colors focus:border-foreground/40"
       />
       {error && (
-        <span id={errorId} role="alert" className="text-xs text-[#ff3131]">
+        <span id={errorId} role="alert" className="text-xs text-[color:var(--color-primary-text)]">
           {error}
         </span>
       )}

@@ -13,7 +13,7 @@ export function Badge({
   const tones = {
     default:
       "border-[color:var(--color-border)] bg-white/70 text-foreground",
-    accent: "border-[#ff3131]/20 bg-[#ff3131]/8 text-[#ff3131]",
+    accent: "border-[#ff3131]/20 bg-[#ff3131]/8 text-[color:var(--color-primary-text)]",
     dark: "border-white/10 bg-[#282a2a] text-white",
   } as const;
   return (

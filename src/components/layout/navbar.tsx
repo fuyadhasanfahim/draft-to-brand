@@ -25,8 +25,8 @@ export function Navbar() {
     return (
         <>
             <motion.header
-                initial={{ y: -24, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
+                initial={{ y: -24 }}
+                animate={{ y: 0 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:px-6 md:pt-5"
             >
@@ -44,9 +44,9 @@ export function Navbar() {
                         aria-label={siteConfig.name}
                     >
                         <Image
-                            src="https://res.cloudinary.com/dqfvrpai8/image/upload/q_auto/f_auto/v1781429056/logo_opnmsj.png"
-                            width={420}
-                            height={140}
+                            src="/logo.png"
+                            width={1040}
+                            height={338}
                             alt={siteConfig.name}
                             className="h-8 w-auto object-contain md:h-9"
                             priority

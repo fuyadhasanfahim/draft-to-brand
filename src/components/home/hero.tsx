@@ -167,7 +167,7 @@ function HeroCanvas() {
             <IconSparkles size={14} /> Brand · Strategy
           </div>
           <p className="text-display mt-8 text-3xl font-medium leading-[1.02] sm:text-4xl md:mt-12 md:text-5xl md:leading-[1]">
-            We don't make{" "}
+            We don&apos;t make{" "}
             <span className="text-serif italic font-normal text-white/60">
               ordinary
             </span>{" "}

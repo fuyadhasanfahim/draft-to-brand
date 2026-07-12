@@ -4,11 +4,10 @@ import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
 const variants: Variants = {
-  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
   },
 };
