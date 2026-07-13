@@ -332,50 +332,49 @@ export type Pricing = {
 export const pricing: Pricing[] = [
     {
         name: 'Starter',
-        price: '$347',
+        price: '৳12,000',
         cadence: 'per month',
         description:
-            'For founders building momentum. A focused engagement on the channels that move the needle now.',
+            'For businesses getting started. Focused management on a single channel, done right.',
         features: [
-            'Brand & messaging tune-up',
-            'Social Media Optimization',
-            'One priority channel',
-            'Up to 12 creatives per month',
-            'Monthly strategy review',
+            'Facebook Page management (1 platform)',
+            '10 posts/creatives per month',
+            "Basic Meta Ads setup & monitoring (client's budget, our management)",
+            '1 performance report per month',
+            'Direct support via WhatsApp',
         ],
         cta: 'Start with Starter',
     },
     {
         name: 'Growth',
-        price: '$847',
+        price: '৳19,000',
         cadence: 'per month',
         description:
-            'For brands scaling past $1M. Full-funnel growth across brand, content, paid and lifecycle.',
+            'For brands ready to scale. Full Meta Ads management across two channels with a dedicated account manager.',
         features: [
-            'Brand strategy + design system',
-            'Three channels, paid + organic',
-            'Up to 27 creatives per month',
-            'Monthly growth standups',
-            'Dedicated brand + growth lead',
+            '2 channels (Facebook + Instagram / Website)',
+            '20 creatives per month (posts + ad creatives)',
+            'Full Meta Ads management + Pixel/CAPI setup',
+            '1 strategy call per month',
+            'Dedicated account manager',
             'Quarterly creative refresh',
         ],
         recommended: true,
         cta: 'Choose Growth',
     },
     {
-        name: 'Scale',
-        price: '$1,547',
+        name: 'Premium',
+        price: '৳29,000',
         cadence: 'per month',
         description:
-            'For market leaders. A senior team embedded in your business, accountable to revenue.',
+            'For brands going all-in. Full-channel coverage, brand strategy, and a direct line to the founder.',
         features: [
-            'Full marketing operating system',
-            'Five channels',
-            '47 creatives per month',
-            'Embedded senior team',
-            'On-site quarterly workshops',
-            'Direct line to founders',
-            'Custom analytics + reporting',
+            '3+ channels, full coverage',
+            '35+ creatives per month',
+            'Brand strategy + design system',
+            'Advanced analytics + custom reporting',
+            'Direct line with the founder',
+            'Monthly growth review meeting',
         ],
         cta: 'Talk to Founders',
     },
@@ -385,23 +384,21 @@ export const compareRows: {
     label: string;
     values: [string, string, string];
 }[] = [
-    { label: 'Dedicated Strategist', values: ['-', '✓', 'Senior'] },
-    { label: 'Priority Channels', values: ['1', '3', '5'] },
-    { label: 'Creatives / month', values: ['12', '27', '47'] },
+    { label: 'Channels', values: ['1', '2', '3+'] },
+    { label: 'Creatives / month', values: ['10', '20', '35+'] },
     {
-        label: 'Brand System',
-        values: ['Tune-up', 'Full system', 'Operating system'],
+        label: 'Meta Ads Management',
+        values: [
+            'Basic setup & monitoring',
+            'Full management + Pixel/CAPI',
+            'Full management + Pixel/CAPI',
+        ],
     },
-    {
-        label: 'Strategy Cadence',
-        values: ['Monthly', 'Monthly', 'Weekly + Quarterly'],
-    },
-    {
-        label: 'Analytics & Reporting',
-        values: ['Standard', 'Custom', 'Custom + BI'],
-    },
-    { label: 'On-site Workshop', values: ['-', '-', 'Quarterly'] },
-    { label: "Founders' Line", values: ['-', '-', 'Direct'] },
+    { label: 'Strategy Calls', values: ['-', 'Monthly', 'Monthly review'] },
+    { label: 'Dedicated Account Manager', values: ['-', '✓', '✓'] },
+    { label: 'Performance Reporting', values: ['Monthly', 'Monthly', 'Advanced + Custom'] },
+    { label: 'Brand Strategy + Design System', values: ['-', '-', '✓'] },
+    { label: "Founder's Line", values: ['-', '-', 'Direct'] },
 ];
 
 export const faqs: { q: string; a: string }[] = [
