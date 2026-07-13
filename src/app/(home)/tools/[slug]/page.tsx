@@ -7,9 +7,11 @@ import { Reveal } from '@/components/shared/animations';
 import { tools } from '@/lib/tools';
 import { pageMetadata } from '@/lib/metadata';
 import { PricingCalculator } from '@/components/tools/pricing-calculator';
+import { BrandAuditChecklist } from '@/components/tools/brand-audit-checklist';
 
 const toolComponents: Record<string, ComponentType> = {
     'pricing-calculator': PricingCalculator,
+    'brand-audit-checklist': BrandAuditChecklist,
 };
 
 type Props = {
