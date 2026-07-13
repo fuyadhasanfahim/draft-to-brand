@@ -91,35 +91,9 @@ export default function ToolsPage() {
                                                 aria-hidden
                                                 className="pointer-events-none absolute -right-10 -bottom-10 h-56 w-56 rounded-full bg-white/10 blur-3xl transition-transform duration-500 group-hover:scale-110"
                                             />
-                                            <div className="relative flex h-full flex-col justify-between p-7 text-white md:p-10">
-                                                <div className="flex items-start justify-between">
-                                                    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-white/70 backdrop-blur">
-                                                        {tool.category}
-                                                    </span>
-                                                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition-transform group-hover:rotate-12">
-                                                        <tool.icon size={18} stroke={1.7} />
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-8">
-                                                    <p className="text-serif max-w-xs text-xl italic leading-snug text-white/85 md:text-2xl">
-                                                        {tool.preview.tagline}
-                                                    </p>
-                                                    <div className="mt-6 grid max-w-xs grid-cols-2 gap-3">
-                                                        {tool.preview.stats.map((s) => (
-                                                            <div
-                                                                key={s.label}
-                                                                className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur transition-transform duration-500 group-hover:-translate-y-0.5"
-                                                            >
-                                                                <div className="text-display text-2xl font-medium md:text-3xl">
-                                                                    {s.value}
-                                                                </div>
-                                                                <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/60">
-                                                                    {s.label}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="grid h-24 w-24 place-items-center rounded-full border border-white/15 bg-white/10 backdrop-blur transition-transform duration-500 group-hover:scale-105 md:h-28 md:w-28">
+                                                    <tool.icon size={40} stroke={1.5} className="text-white md:size-11" />
                                                 </div>
                                             </div>
                                         </div>

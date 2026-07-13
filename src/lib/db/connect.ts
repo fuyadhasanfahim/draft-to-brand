@@ -1,4 +1,11 @@
+import dns from 'node:dns';
 import mongoose from 'mongoose';
+
+// Node's resolver can fail the SRV lookup that `mongodb+srv://` URIs rely on
+// (common on Windows / some ISP routers) even though the OS resolver handles
+// it fine. Pinning to a public DNS resolver fixes it without touching system
+// network settings.
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 declare global {
     // eslint-disable-next-line no-var
