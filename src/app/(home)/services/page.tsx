@@ -93,7 +93,7 @@ export default function ServicesPage() {
                   >
                     {service.summary}
                   </p>
-                  {service.portfolioUrl && (
+                  {/* {service.portfolioUrl && (
                     <a
                       href={service.portfolioUrl}
                       target="_blank"
@@ -106,7 +106,7 @@ export default function ServicesPage() {
                         className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                       />
                     </a>
-                  )}
+                  )} */}
                 </div>
                 <div className="md:col-span-7">
                   <div
