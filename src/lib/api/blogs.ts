@@ -73,3 +73,12 @@ export async function deleteBlog(id: string): Promise<void> {
         await fetch(`/api/blogs/${id}`, { method: 'DELETE' }),
     );
 }
+
+export async function uploadImage(file: File): Promise<string> {
+    const body = new FormData();
+    body.append('file', file);
+    const data = await parse<{ url: string }>(
+        await fetch('/api/upload', { method: 'POST', body }),
+    );
+    return data.url;
+}

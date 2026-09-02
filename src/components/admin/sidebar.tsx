@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     IconArticle,
     IconPencilPlus,
     IconLogout,
     IconX,
     IconArrowUpRight,
-} from '@tabler/icons-react';
-import { cn } from '@/lib/utils';
-import { logout } from '@/lib/auth/actions';
-import { useUIStore } from '@/lib/stores/ui-store';
+} from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { logout } from "@/lib/auth/actions";
+import { useUIStore } from "@/lib/stores/ui-store";
 
 const navItems = [
-    { label: 'All posts', href: '/admin/blogs', icon: IconArticle },
-    { label: 'New post', href: '/admin/blogs/new', icon: IconPencilPlus },
+    { label: "All posts", href: "/admin/blogs", icon: IconArticle },
+    { label: "New post", href: "/admin/blogs/new", icon: IconPencilPlus },
 ];
 
 function isActive(pathname: string, href: string): boolean {
-    if (href === '/admin/blogs') {
+    if (href === "/admin/blogs") {
         return (
-            pathname === '/admin/blogs' ||
-            (pathname.startsWith('/admin/blogs/') &&
-                !pathname.startsWith('/admin/blogs/new'))
+            pathname === "/admin/blogs" ||
+            (pathname.startsWith("/admin/blogs/") &&
+                !pathname.startsWith("/admin/blogs/new"))
         );
     }
     return pathname === href;
@@ -48,8 +48,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
 
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:translate-x-0',
-                    sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+                    "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:translate-x-0",
+                    sidebarOpen ? "translate-x-0" : "-translate-x-full",
                 )}
             >
                 <div className="flex items-center justify-between px-5 pt-6">
@@ -64,7 +64,7 @@ export function Sidebar({ adminName }: { adminName: string }) {
                             width={1040}
                             height={338}
                             alt="Draft To Brand"
-                            className="h-7 w-auto object-contain"
+                            className="h-12 w-auto object-contain"
                             priority
                         />
                     </Link>
@@ -77,7 +77,6 @@ export function Sidebar({ adminName }: { adminName: string }) {
                         <IconX size={18} />
                     </button>
                 </div>
-                <p className="section-eyebrow mt-4 px-5 text-[0.7rem]">Blog admin</p>
 
                 <nav className="mt-8 flex flex-1 flex-col gap-1 px-3">
                     {navItems.map(({ label, href, icon: Icon }) => {
@@ -88,10 +87,10 @@ export function Sidebar({ adminName }: { adminName: string }) {
                                 href={href}
                                 onClick={closeSidebar}
                                 className={cn(
-                                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                                     active
-                                        ? 'bg-foreground text-background'
-                                        : 'text-muted hover:bg-foreground/5 hover:text-foreground',
+                                        ? "bg-foreground text-background"
+                                        : "text-muted hover:bg-foreground/5 hover:text-foreground",
                                 )}
                             >
                                 <Icon size={17} stroke={2} />
@@ -118,7 +117,7 @@ export function Sidebar({ adminName }: { adminName: string }) {
                             <button
                                 type="submit"
                                 aria-label="Sign out"
-                                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
+                                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:bg-red-100 hover:text-red-600 focus:bg-red-100 focus:text-red-600 active:bg-red-200 active:text-red-700 cursor-pointer"
                             >
                                 <IconLogout size={14} stroke={2} />
                                 Sign out

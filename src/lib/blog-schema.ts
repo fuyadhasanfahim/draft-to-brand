@@ -45,6 +45,20 @@ export const updateBlogSchema = z.object(fields).partial();
 
 export const statusUpdateSchema = z.object({ status: fields.status });
 
+/** Editor form shape — every field present, `status` handled by the submit button. */
+export const blogFormSchema = z.object({
+    title: fields.title,
+    slug: fields.slug,
+    excerpt: fields.excerpt,
+    coverImage: fields.coverImage,
+    content: fields.content,
+    publishedBy: fields.publishedBy,
+    seoTitle: fields.seoTitle,
+    seoDescription: fields.seoDescription,
+});
+
+export type BlogFormValues = z.infer<typeof blogFormSchema>;
+
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
 
