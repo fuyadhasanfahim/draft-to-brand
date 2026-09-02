@@ -14,14 +14,19 @@ const adsense = {
     frame: `https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com ${adTrafficQuality}`,
 };
 
+// Adsterra serves from a rotating pool of domains — this covers the common
+// ones; top up here if the browser console reports a blocked Adsterra host.
+const adsterraHosts =
+    'https://*.highperformanceformat.com https://*.profitablecpmrate.com https://*.effectivecreativeformats.com https://*.effectivegatecpm.com https://*.displaycontentnetwork.com https://*.profitabledisplaynetwork.com https://*.premiumdisplaynetwork.com https://*.topcreativeformat.com https://*.creativecdn.com';
+
 const contentSecurityPolicy = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net ${adsense.script}`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net ${adsense.script} ${adsterraHosts}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: https://res.cloudinary.com https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com ${adsense.img}`,
+    `img-src 'self' data: https://res.cloudinary.com https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com ${adsense.img} ${adsterraHosts}`,
     "font-src 'self' data:",
-    `connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net ${adsense.connect}`,
-    `frame-src ${adsense.frame}`,
+    `connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net ${adsense.connect} ${adsterraHosts}`,
+    `frame-src ${adsense.frame} ${adsterraHosts}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

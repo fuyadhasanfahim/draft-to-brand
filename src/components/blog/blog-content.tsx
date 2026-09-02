@@ -82,23 +82,40 @@ const markdownComponents: Components = {
 };
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
-/** Renders post markdown, dropping an <AdSlot/> wherever `[[ad]]` sits on its own line. */
+/**
+ * Renders post markdown, dropping an <AdSlot/> wherever a lone `[[ad]]` line
+ * sits. `[[ad:adsense]]` / `[[ad:adsterra]]` force a specific network; a plain
+ * `[[ad]]` uses the configured default.
+ */
 export function BlogContent({ content }: { content: string }) {
-  const segments = content.split(/^[ \t]*\[\[ad\]\][ \t]*$/m);
+  // A single capturing group means split() interleaves the captured network
+  // (or undefined) between the text segments.
+  const parts = content.split(
+    /^[ \t]*\[\[ad(?::(adsense|adsterra))?\]\][ \t]*$/m,
+  );
 
   return (
     <div className="text-[1.05rem]">
-      {segments.map((segment, index) => (
-        <div key={index}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={markdownComponents}
-          >
-            {segment}
-          </ReactMarkdown>
-          {index < segments.length - 1 && <AdSlot />}
-        </div>
-      ))}
+      {parts.map((part, index) => {
+        if (index % 2 === 1) return null; // odd entries are captured networks
+        const network = parts[index + 1] as
+          | "adsense"
+          | "adsterra"
+          | undefined;
+        const hasAdAfter = index + 1 < parts.length;
+
+        return (
+          <div key={index}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
+              {part}
+            </ReactMarkdown>
+            {hasAdAfter && <AdSlot network={network} />}
+          </div>
+        );
+      })}
     </div>
   );
 }

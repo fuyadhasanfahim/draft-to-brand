@@ -21,21 +21,7 @@ export function AdminProviders({ children }: { children: ReactNode }) {
     return (
         <QueryClientProvider client={client}>
             {children}
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 3500,
-                    style: {
-                        borderRadius: '12px',
-                        background: '#282a2a',
-                        color: '#ffffff',
-                        fontSize: '14px',
-                        padding: '10px 14px',
-                    },
-                    success: { iconTheme: { primary: '#ff3131', secondary: '#ffffff' } },
-                    error: { iconTheme: { primary: '#ff3131', secondary: '#ffffff' } },
-                }}
-            />
+            <Toaster position="bottom-right" />
         </QueryClientProvider>
     );
 }
