@@ -29,7 +29,8 @@ export function AdminShell({
                     <button
                         type="button"
                         onClick={openSidebar}
-                        aria-label="Open menu"
+                        aria-label="Open navigation menu"
+                        title="Open navigation menu"
                         className="text-muted"
                     >
                         <IconMenu2 size={20} />
@@ -44,7 +45,7 @@ export function AdminShell({
                     />
                 </header>
 
-                <main className="mx-auto w-full max-w-5xl px-4 py-8 md:px-10 md:py-14">
+                <main className="w-full px-4 py-8 md:px-10 md:py-14">
                     {children}
                 </main>
             </div>

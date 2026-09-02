@@ -175,6 +175,8 @@ export function BlogForm({
         actions={
           <Link
             href="/admin/blogs"
+            aria-label="Back to all posts"
+            title="Back to all posts"
             className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
           >
             <IconArrowLeft size={15} stroke={2} />
@@ -302,7 +304,7 @@ export function BlogForm({
       </details>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/85 backdrop-blur md:pl-64">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 md:px-10">
+        <div className="flex w-full items-center justify-between gap-3 px-4 py-3 md:px-10">
           <p className="text-xs text-muted">
             {isDirty ? "Unsaved changes" : "All changes saved"}
           </p>
@@ -313,6 +315,8 @@ export function BlogForm({
                   type="button"
                   disabled={busy}
                   onClick={submit("draft")}
+                  aria-label="Save as a draft (not shown on the blog)"
+                  title="Save as a draft (not shown on the blog)"
                   className="btn-secondary px-4 py-2 text-sm disabled:opacity-60"
                 >
                   {busy && pendingTarget === "draft"
@@ -323,6 +327,8 @@ export function BlogForm({
                   type="button"
                   disabled={busy}
                   onClick={submit("published")}
+                  aria-label="Publish now — make this post live on the blog"
+                  title="Publish now — make this post live on the blog"
                   className="btn-primary px-4 py-2 text-sm disabled:opacity-60"
                 >
                   {busy && pendingTarget === "published"
@@ -336,6 +342,16 @@ export function BlogForm({
                   type="button"
                   disabled={busy}
                   onClick={submit(isPublished ? "draft" : "published")}
+                  aria-label={
+                    isPublished
+                      ? "Unpublish — hide this post from the blog"
+                      : "Publish now — make this post live on the blog"
+                  }
+                  title={
+                    isPublished
+                      ? "Unpublish — hide this post from the blog"
+                      : "Publish now — make this post live on the blog"
+                  }
                   className="btn-secondary px-4 py-2 text-sm disabled:opacity-60"
                 >
                   {busy && pendingTarget !== "keep"
@@ -348,6 +364,8 @@ export function BlogForm({
                   type="button"
                   disabled={busy}
                   onClick={submit("keep")}
+                  aria-label="Save changes (keeps the current published state)"
+                  title="Save changes (keeps the current published state)"
                   className="btn-primary px-4 py-2 text-sm disabled:opacity-60"
                 >
                   {busy && pendingTarget === "keep"

@@ -61,6 +61,8 @@ export function ImageDropzone({
         <button
           type="button"
           onClick={() => onChange("")}
+          aria-label="Remove the cover image"
+          title="Remove the cover image"
           className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-foreground/80 px-2.5 py-1 text-xs font-medium text-background backdrop-blur"
         >
           <IconX size={13} stroke={2} />
@@ -73,6 +75,9 @@ export function ImageDropzone({
   return (
     <div
       {...getRootProps()}
+      role="button"
+      aria-label="Upload a cover image"
+      title="Click or drop an image to upload a cover"
       className={cn(
         "flex h-44 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-surface text-center transition-colors",
         isDragActive && "border-foreground/40 bg-foreground/5",

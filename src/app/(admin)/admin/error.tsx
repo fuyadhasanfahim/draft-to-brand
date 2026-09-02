@@ -22,6 +22,8 @@ export default function AdminError({
       <button
         type="button"
         onClick={reset}
+        aria-label="Retry — reload this section"
+        title="Retry — reload this section"
         className="btn-primary mx-auto mt-6 px-4 py-2 text-sm"
       >
         Try again

@@ -15,8 +15,18 @@ import { logout } from "@/lib/auth/actions";
 import { useUIStore } from "@/lib/stores/ui-store";
 
 const navItems = [
-    { label: "All posts", href: "/admin/blogs", icon: IconArticle },
-    { label: "New post", href: "/admin/blogs/new", icon: IconPencilPlus },
+    {
+        label: "All posts",
+        href: "/admin/blogs",
+        icon: IconArticle,
+        title: "View and manage all blog posts",
+    },
+    {
+        label: "New post",
+        href: "/admin/blogs/new",
+        icon: IconPencilPlus,
+        title: "Write a new blog post",
+    },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -40,7 +50,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
             {sidebarOpen && (
                 <button
                     type="button"
-                    aria-label="Close menu"
+                    aria-label="Close navigation menu"
+                    title="Close navigation menu"
                     onClick={closeSidebar}
                     className="fixed inset-0 z-30 bg-foreground/20 backdrop-blur-sm md:hidden"
                 />
@@ -57,7 +68,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
                         href="/admin/blogs"
                         onClick={closeSidebar}
                         className="inline-flex items-center"
-                        aria-label="Draft To Brand — blog admin"
+                        aria-label="Draft To Brand — go to blog posts"
+                        title="Draft To Brand — go to blog posts"
                     >
                         <Image
                             src="/logo.png"
@@ -71,7 +83,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
                     <button
                         type="button"
                         onClick={closeSidebar}
-                        aria-label="Close menu"
+                        aria-label="Close navigation menu"
+                        title="Close navigation menu"
                         className="text-muted md:hidden"
                     >
                         <IconX size={18} />
@@ -79,7 +92,7 @@ export function Sidebar({ adminName }: { adminName: string }) {
                 </div>
 
                 <nav className="mt-8 flex flex-1 flex-col gap-1 px-3">
-                    {navItems.map(({ label, href, icon: Icon }) => {
+                    {navItems.map(({ label, href, icon: Icon, title }) => {
                         const active = isActive(pathname, href);
                         return (
                             <Link
@@ -87,6 +100,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
                                 href={href}
                                 onClick={closeSidebar}
                                 aria-current={active ? "page" : undefined}
+                                aria-label={title}
+                                title={title}
                                 className={cn(
                                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                                     active
@@ -105,6 +120,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
                     <Link
                         href="/"
                         target="_blank"
+                        aria-label="Open the public site in a new tab"
+                        title="Open the public site in a new tab"
                         className="flex items-center gap-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground"
                     >
                         View live site
@@ -117,7 +134,8 @@ export function Sidebar({ adminName }: { adminName: string }) {
                         <form action={logout}>
                             <button
                                 type="submit"
-                                aria-label="Sign out"
+                                aria-label="Sign out of the admin dashboard"
+                                title="Sign out of the admin dashboard"
                                 className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:bg-red-100 hover:text-red-600 focus:bg-red-100 focus:text-red-600 active:bg-red-200 active:text-red-700 cursor-pointer"
                             >
                                 <IconLogout size={14} stroke={2} />

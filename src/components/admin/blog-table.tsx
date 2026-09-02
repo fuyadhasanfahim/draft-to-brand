@@ -81,6 +81,8 @@ export function BlogTable() {
         <button
           type="button"
           onClick={() => refetch()}
+          aria-label="Retry loading posts"
+          title="Retry loading posts"
           className="btn-secondary mx-auto mt-4 px-4 py-2 text-sm"
         >
           <IconRefresh size={15} stroke={2} />
@@ -97,7 +99,12 @@ export function BlogTable() {
         <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
           Create your first post to start placing ads inside articles.
         </p>
-        <Link href="/admin/blogs/new" className="btn-primary mx-auto mt-5 px-4 py-2 text-sm">
+        <Link
+          href="/admin/blogs/new"
+          aria-label="Write a new blog post"
+          title="Write a new blog post"
+          className="btn-primary mx-auto mt-5 px-4 py-2 text-sm"
+        >
           New post
         </Link>
       </Shell>
@@ -206,7 +213,8 @@ function Row({
         <div className="flex items-center justify-end gap-1">
           <Link
             href={`/admin/blogs/${blog.id}/edit`}
-            aria-label="Edit"
+            aria-label={`Edit "${blog.title}"`}
+            title={`Edit "${blog.title}"`}
             className="rounded-lg p-1.5 text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
           >
             <IconPencil size={16} stroke={2} />
@@ -215,7 +223,16 @@ function Row({
             type="button"
             onClick={onToggle}
             disabled={busy}
-            aria-label={published ? "Unpublish" : "Publish"}
+            aria-label={
+              published
+                ? `Unpublish "${blog.title}"`
+                : `Publish "${blog.title}"`
+            }
+            title={
+              published
+                ? `Unpublish "${blog.title}"`
+                : `Publish "${blog.title}"`
+            }
             className="rounded-lg p-1.5 text-muted transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-50"
           >
             {toggling ? (
@@ -230,7 +247,8 @@ function Row({
             type="button"
             onClick={onDelete}
             disabled={busy}
-            aria-label="Delete"
+            aria-label={`Delete "${blog.title}"`}
+            title={`Delete "${blog.title}"`}
             className="rounded-lg p-1.5 text-muted transition-colors hover:bg-primary/10 hover:text-[color:var(--color-primary-text)] disabled:opacity-50"
           >
             {deleting ? (

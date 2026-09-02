@@ -20,7 +20,12 @@ export default async function AdminBlogsPage() {
         title="Blog posts"
         description="Write, publish, and manage the articles that carry your ads."
         actions={
-          <Link href="/admin/blogs/new" className="btn-primary">
+          <Link
+            href="/admin/blogs/new"
+            aria-label="Write a new blog post"
+            title="Write a new blog post"
+            className="btn-primary"
+          >
             <IconPencilPlus size={16} stroke={2} />
             New post
           </Link>
