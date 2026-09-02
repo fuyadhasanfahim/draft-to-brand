@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { WhatsAppFloat } from "@/components/shared/whatsapp-float";
+import { Analytics } from "@/components/shared/analytics";
+import { PixelPageView } from "@/components/shared/pixel-pageview";
 
 export default function HomeLayout({
   children,
@@ -15,6 +18,10 @@ export default function HomeLayout({
       <main className="flex-1">{children}</main>
       <Footer />
       <WhatsAppFloat />
+      <Suspense fallback={null}>
+        <PixelPageView />
+      </Suspense>
+      <Analytics />
     </div>
   );
 }

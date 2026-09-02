@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { requireAdmin } from '@/lib/auth/dal';
-import { logout } from '@/lib/auth/actions';
 
 export const metadata: Metadata = {
     title: 'Blogs',
@@ -8,27 +7,16 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminBlogsPage() {
-    const admin = await requireAdmin();
+    await requireAdmin();
 
     return (
-        <main className="mx-auto max-w-3xl px-6 py-16">
-            <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Blogs</h1>
-                <form action={logout}>
-                    <button
-                        type="submit"
-                        className="rounded-lg border border-black/15 px-3 py-1.5 text-sm hover:bg-black/5"
-                    >
-                        Sign out
-                    </button>
-                </form>
-            </div>
-            <p className="mt-4 text-sm text-neutral-600">
-                Signed in as <strong>{admin.name}</strong> ({admin.email}).
+        <div className="mx-auto max-w-4xl">
+            <h1 className="text-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Blog posts
+            </h1>
+            <p className="mt-2 text-sm text-muted">
+                The post list and editor arrive in the next phases.
             </p>
-            <p className="mt-2 text-sm text-neutral-500">
-                The blog dashboard is built in a later phase. Auth is live.
-            </p>
-        </main>
+        </div>
     );
 }

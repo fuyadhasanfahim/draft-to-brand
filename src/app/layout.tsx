@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { Inter, Instrument_Serif, Hind_Siliguri } from 'next/font/google';
 import './globals.css';
 import { siteConfig } from '@/lib/site';
-import { Analytics } from '@/components/shared/analytics';
-import { PixelPageView } from '@/components/shared/pixel-pageview';
 
 const display = Inter({
     variable: '--font-display',
@@ -102,10 +99,6 @@ export default function RootLayout({
                     }}
                 />
                 {children}
-                <Suspense fallback={null}>
-                    <PixelPageView />
-                </Suspense>
-                <Analytics />
             </body>
         </html>
     );

@@ -14,13 +14,18 @@ export default async function LoginPage() {
     }
 
     return (
-        <main className="flex min-h-screen items-center justify-center px-4">
-            <div className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-8 shadow-sm">
-                <h1 className="text-lg font-semibold">Admin sign in</h1>
-                <p className="mt-1 mb-6 text-sm text-neutral-500">
-                    Restricted area. Authorized users only.
-                </p>
-                <LoginForm />
+        <main className="grid min-h-screen place-items-center bg-surface px-4">
+            <div className="w-full max-w-sm">
+                <div className="glass-card rounded-3xl p-8">
+                    <span className="section-eyebrow">Draft To Brand</span>
+                    <h1 className="text-display mt-4 text-xl font-medium tracking-tight">
+                        Admin sign in
+                    </h1>
+                    <p className="mt-1 mb-6 text-sm text-muted">
+                        Restricted area — authorized users only.
+                    </p>
+                    <LoginForm />
+                </div>
             </div>
         </main>
     );

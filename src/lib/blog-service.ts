@@ -2,26 +2,13 @@ import { isValidObjectId } from 'mongoose';
 import { connectDB } from '@/lib/db/connect';
 import { BlogModel } from '@/models/blog';
 import type {
+    BlogDTO,
     BlogStatus,
     CreateBlogInput,
     UpdateBlogInput,
 } from '@/lib/blog-schema';
 
-export type BlogDTO = {
-    id: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    coverImage: string;
-    content: string;
-    status: BlogStatus;
-    publishedAt: string | null;
-    publishedBy: string;
-    seoTitle: string;
-    seoDescription: string;
-    createdAt: string;
-    updatedAt: string;
-};
+export type { BlogDTO };
 
 /** Thrown when a slug collides with an existing post. */
 export class BlogSlugTakenError extends Error {

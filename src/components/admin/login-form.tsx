@@ -3,8 +3,12 @@
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@/lib/utils';
 import { loginSchema, type LoginInput } from '@/lib/auth/schema';
 import { login } from '@/lib/auth/actions';
+
+const fieldClass =
+    'w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-foreground/30';
 
 export function LoginForm() {
     const [pending, startTransition] = useTransition();
@@ -29,7 +33,7 @@ export function LoginForm() {
     });
 
     return (
-        <form onSubmit={onSubmit} noValidate className="space-y-5">
+        <form onSubmit={onSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
                 <label htmlFor="email" className="block text-sm font-medium">
                     Email
@@ -39,11 +43,14 @@ export function LoginForm() {
                     type="email"
                     autoComplete="username"
                     autoFocus
+                    aria-invalid={Boolean(errors.email)}
                     {...register('email')}
-                    className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-black/40"
+                    className={cn(fieldClass, errors.email && 'border-primary/50')}
                 />
                 {errors.email && (
-                    <p className="text-sm text-red-600">{errors.email.message}</p>
+                    <p className="text-xs text-[color:var(--color-primary-text)]">
+                        {errors.email.message}
+                    </p>
                 )}
             </div>
 
@@ -55,16 +62,19 @@ export function LoginForm() {
                     id="password"
                     type="password"
                     autoComplete="current-password"
+                    aria-invalid={Boolean(errors.password)}
                     {...register('password')}
-                    className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-black/40"
+                    className={cn(fieldClass, errors.password && 'border-primary/50')}
                 />
                 {errors.password && (
-                    <p className="text-sm text-red-600">{errors.password.message}</p>
+                    <p className="text-xs text-[color:var(--color-primary-text)]">
+                        {errors.password.message}
+                    </p>
                 )}
             </div>
 
             {errors.root && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                <p className="rounded-xl border border-primary/20 bg-primary/8 px-3 py-2 text-sm text-[color:var(--color-primary-text)]">
                     {errors.root.message}
                 </p>
             )}
@@ -72,7 +82,7 @@ export function LoginForm() {
             <button
                 type="submit"
                 disabled={pending}
-                className="w-full rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                className="btn-primary w-full disabled:opacity-60"
             >
                 {pending ? 'Signing in…' : 'Sign in'}
             </button>

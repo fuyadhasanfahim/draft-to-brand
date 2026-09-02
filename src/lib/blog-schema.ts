@@ -47,3 +47,20 @@ export const statusUpdateSchema = z.object({ status: fields.status });
 
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
+
+/** Serializable blog shape returned by the service and the API (dates as ISO strings). */
+export type BlogDTO = {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    coverImage: string;
+    content: string;
+    status: BlogStatus;
+    publishedAt: string | null;
+    publishedBy: string;
+    seoTitle: string;
+    seoDescription: string;
+    createdAt: string;
+    updatedAt: string;
+};
