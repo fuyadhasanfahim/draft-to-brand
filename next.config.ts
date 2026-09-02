@@ -2,39 +2,48 @@ import type { NextConfig } from 'next';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// Google AdSense (article ads on /blog). Grouped so Adsterra domains can be
-// added alongside later.
-const adTrafficQuality =
-    'https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google';
-
-const adsense = {
-    script: `https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://adservice.google.com ${adTrafficQuality}`,
-    img: `https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://*.g.doubleclick.net https://www.google.com ${adTrafficQuality}`,
-    connect: `https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.g.doubleclick.net ${adTrafficQuality}`,
-    frame: `https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com ${adTrafficQuality}`,
+const analyticsHosts = {
+    script: 'https://www.googletagmanager.com https://connect.facebook.net',
+    img: 'https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com',
+    connect:
+        'https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net',
 };
 
-// Adsterra serves from a rotating pool of domains — this covers the common
-// ones; top up here if the browser console reports a blocked Adsterra host.
-const adsterraHosts =
-    'https://*.highperformanceformat.com https://*.profitablecpmrate.com https://*.profitableratecpmnetwork.com https://*.effectivecreativeformats.com https://*.effectivegatecpm.com https://*.displaycontentnetwork.com https://*.profitabledisplaynetwork.com https://*.premiumdisplaynetwork.com https://*.topcreativeformat.com https://*.creativecdn.com https://*.realsrv.com https://*.magsrv.com https://*.adsterra.com https://*.adsterranet.com https://*.terraclicks.com https://*.creative-serving.com https://*.hidhide.com';
-
-const contentSecurityPolicy = [
+// Strict policy for the whole site EXCEPT /blog.
+const strictCsp = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net ${adsense.script} ${adsterraHosts}`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} ${analyticsHosts.script}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: https://res.cloudinary.com https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com ${adsense.img} ${adsterraHosts}`,
+    `img-src 'self' data: https://res.cloudinary.com ${analyticsHosts.img}`,
     "font-src 'self' data:",
-    `connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net ${adsense.connect} ${adsterraHosts}`,
-    `frame-src ${adsense.frame} ${adsterraHosts}`,
+    `connect-src 'self' ${analyticsHosts.connect}`,
+    "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'self'",
 ].join('; ');
 
-const securityHeaders = [
-    { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+// /blog runs Google AdSense + Adsterra. AdSense has a fixed host set, but
+// Adsterra pulls scripts, pixels and iframes from a large pool of throwaway
+// domains that rotate every few requests and cannot be allow-listed — so the
+// ad-related directives fall back to `https:` here. This relaxation is scoped
+// to /blog only; every other route keeps `strictCsp`.
+const blogCsp = [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' http:" : ''} https:`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https: http:",
+    "font-src 'self' data: https:",
+    `connect-src 'self' https:${isDev ? ' http:' : ''}`,
+    "frame-src 'self' https:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+].join('; ');
+
+const baseSecurityHeaders = [
     { key: 'X-Content-Type-Options', value: 'nosniff' },
     { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -45,7 +54,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-    /* config options here */
     reactCompiler: true,
     images: {
         remotePatterns: [
@@ -62,8 +70,19 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
-                source: '/:path*',
-                headers: securityHeaders,
+                source: '/blog/:path*',
+                headers: [
+                    { key: 'Content-Security-Policy', value: blogCsp },
+                    ...baseSecurityHeaders,
+                ],
+            },
+            {
+                // Everything except /blog.
+                source: '/((?!blog).*)',
+                headers: [
+                    { key: 'Content-Security-Policy', value: strictCsp },
+                    ...baseSecurityHeaders,
+                ],
             },
         ];
     },

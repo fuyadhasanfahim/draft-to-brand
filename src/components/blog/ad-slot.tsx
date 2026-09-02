@@ -37,16 +37,33 @@ function Placeholder({ label }: { label: string }) {
 
 function AdsenseUnit({ slot }: { slot?: string }) {
   const adSlot = slot ?? ADSENSE_SLOT;
+  const insRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
 
   useEffect(() => {
     if (!ADSENSE_CLIENT || !adSlot || pushed.current) return;
-    try {
-      (window.adsbygoogle = window.adsbygoogle ?? []).push({});
-      pushed.current = true;
-    } catch {
-      // script not ready / blocked
-    }
+
+    let frame = 0;
+    let tries = 0;
+    // AdSense throws "No slot size for availableWidth=0" if push() runs before
+    // the <ins> has laid out — retry until it has a width.
+    const tryPush = () => {
+      const el = insRef.current;
+      if (!el) return;
+      if (el.offsetWidth === 0 && tries < 20) {
+        tries += 1;
+        frame = requestAnimationFrame(tryPush);
+        return;
+      }
+      try {
+        (window.adsbygoogle = window.adsbygoogle ?? []).push({});
+        pushed.current = true;
+      } catch {
+        // script not ready / blocked
+      }
+    };
+    tryPush();
+    return () => cancelAnimationFrame(frame);
   }, [adSlot]);
 
   if (!ADSENSE_CLIENT || !adSlot) return <Placeholder label="Advertisement" />;
@@ -54,6 +71,7 @@ function AdsenseUnit({ slot }: { slot?: string }) {
   return (
     <div className="my-10">
       <ins
+        ref={insRef}
         className="adsbygoogle"
         style={{ display: "block", textAlign: "center" }}
         data-ad-client={ADSENSE_CLIENT}
@@ -101,8 +119,15 @@ function AdsterraUnit() {
   }
 
   return (
-    <div className="my-10 flex justify-center" ref={hostRef}>
-      {ADSTERRA_FORMAT === "native" && <div id={`container-${ADSTERRA_KEY}`} />}
+    <div
+      className={
+        ADSTERRA_FORMAT === "banner" ? "my-10 flex justify-center" : "my-10"
+      }
+      ref={hostRef}
+    >
+      {ADSTERRA_FORMAT === "native" && (
+        <div id={`container-${ADSTERRA_KEY}`} className="w-full" />
+      )}
     </div>
   );
 }
