@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -7,6 +8,7 @@ import {
     IconPencilPlus,
     IconLogout,
     IconX,
+    IconArrowUpRight,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { logout } from '@/lib/auth/actions';
@@ -46,14 +48,26 @@ export function Sidebar({ adminName }: { adminName: string }) {
 
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface px-4 py-6 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:translate-x-0',
+                    'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:translate-x-0',
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                <div className="flex items-center justify-between px-2">
-                    <span className="text-display text-lg font-medium tracking-tight">
-                        Draft&nbsp;To&nbsp;Brand
-                    </span>
+                <div className="flex items-center justify-between px-5 pt-6">
+                    <Link
+                        href="/admin/blogs"
+                        onClick={closeSidebar}
+                        className="inline-flex items-center rounded-xl bg-white px-3 py-2 ring-1 ring-border"
+                        aria-label="Draft To Brand — blog admin"
+                    >
+                        <Image
+                            src="/logo.png"
+                            width={1040}
+                            height={338}
+                            alt="Draft To Brand"
+                            className="h-6 w-auto object-contain"
+                            priority
+                        />
+                    </Link>
                     <button
                         type="button"
                         onClick={closeSidebar}
@@ -63,11 +77,9 @@ export function Sidebar({ adminName }: { adminName: string }) {
                         <IconX size={18} />
                     </button>
                 </div>
-                <p className="mt-1 px-2 text-xs tracking-wide text-muted uppercase">
-                    Blog admin
-                </p>
+                <p className="section-eyebrow mt-4 px-5 text-[0.7rem]">Blog admin</p>
 
-                <nav className="mt-8 flex flex-1 flex-col gap-1">
+                <nav className="mt-8 flex flex-1 flex-col gap-1 px-3">
                     {navItems.map(({ label, href, icon: Icon }) => {
                         const active = isActive(pathname, href);
                         return (
@@ -89,19 +101,30 @@ export function Sidebar({ adminName }: { adminName: string }) {
                     })}
                 </nav>
 
-                <div className="border-t border-border pt-4">
-                    <p className="px-3 text-sm font-medium text-foreground">
-                        {adminName}
-                    </p>
-                    <form action={logout}>
-                        <button
-                            type="submit"
-                            className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
-                        >
-                            <IconLogout size={16} stroke={2} />
-                            Sign out
-                        </button>
-                    </form>
+                <div className="mx-3 mb-3 rounded-xl border border-border bg-white/60 p-3">
+                    <Link
+                        href="/"
+                        target="_blank"
+                        className="flex items-center gap-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground"
+                    >
+                        View live site
+                        <IconArrowUpRight size={13} stroke={2} />
+                    </Link>
+                    <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                        <span className="truncate text-sm font-medium text-foreground">
+                            {adminName}
+                        </span>
+                        <form action={logout}>
+                            <button
+                                type="submit"
+                                aria-label="Sign out"
+                                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
+                            >
+                                <IconLogout size={14} stroke={2} />
+                                Sign out
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </aside>
         </>

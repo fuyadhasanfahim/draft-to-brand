@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import { IconMenu2 } from '@tabler/icons-react';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { Sidebar } from './sidebar';
@@ -15,10 +16,15 @@ export function AdminShell({
     const openSidebar = useUIStore((s) => s.openSidebar);
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="relative min-h-screen bg-background text-foreground">
+            <div
+                aria-hidden
+                className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-60"
+            />
+
             <Sidebar adminName={adminName} />
 
-            <div className="md:pl-64">
+            <div className="relative md:pl-64">
                 <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:hidden">
                     <button
                         type="button"
@@ -28,10 +34,19 @@ export function AdminShell({
                     >
                         <IconMenu2 size={20} />
                     </button>
-                    <span className="text-sm font-medium">Blog admin</span>
+                    <Image
+                        src="/logo.png"
+                        width={1040}
+                        height={338}
+                        alt="Draft To Brand"
+                        className="h-5 w-auto object-contain"
+                        priority
+                    />
                 </header>
 
-                <main className="px-4 py-8 md:px-10 md:py-12">{children}</main>
+                <main className="mx-auto w-full max-w-5xl px-4 py-8 md:px-10 md:py-14">
+                    {children}
+                </main>
             </div>
         </div>
     );
