@@ -1,10 +1,13 @@
-// Generates a bcrypt hash for the admin password.
+// Generates the ADMIN_PASSWORD_HASH value for the admin login.
 //
 // Usage:
 //   node scripts/hash-password.mjs "your-plain-password"
 //   node scripts/hash-password.mjs            # prompts for the password
 //
-// Copy the printed hash into ADMIN_PASSWORD_HASH in your .env file.
+// It prints a base64-encoded bcrypt hash. Base64 is used so the "$" characters
+// in a bcrypt hash survive .env parsing (dotenv would otherwise treat "$2b" as
+// a variable reference and blank it out). Copy the printed line into your
+// .env / .env.local file.
 
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
@@ -35,5 +38,6 @@ if (password.length < 8) {
 }
 
 const hash = await bcrypt.hash(password, ROUNDS);
+const encoded = Buffer.from(hash, 'utf8').toString('base64');
 
-console.log('\nADMIN_PASSWORD_HASH=' + JSON.stringify(hash) + '\n');
+console.log('\nADMIN_PASSWORD_HASH=' + JSON.stringify(encoded) + '\n');
