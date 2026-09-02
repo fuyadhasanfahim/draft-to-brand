@@ -91,27 +91,47 @@ export function BlogForm({
 
   const [pendingTarget, setPendingTarget] = useState<SubmitTarget | null>(null);
 
-  // Insert an ad marker at the caret in the content textarea, on its own line.
+  // Insert an ad marker at the caret in the content textarea, on its own line,
+  // without the textarea jumping to the top (setting .value resets scrollTop).
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const insertToken = (token: string) => {
     const el = contentRef.current;
     if (!el) return;
-    const value = el.value;
-    const start = el.selectionStart ?? value.length;
-    const end = el.selectionEnd ?? value.length;
-    const before = value.slice(0, start).replace(/[ \t]+$/, "");
-    const after = value.slice(end).replace(/^[ \t]+/, "");
-    const lead = before === "" ? "" : before.replace(/\n+$/, "") + "\n\n";
-    const trail = "\n\n" + after.replace(/^\n+/, "");
-    const next = lead + token + trail;
+
+    const { selectionStart: start, selectionEnd: end, value } = el;
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    const lead =
+      before === "" || before.endsWith("\n\n")
+        ? ""
+        : before.endsWith("\n")
+          ? "\n"
+          : "\n\n";
+    const trail =
+      after === "" || after.startsWith("\n\n")
+        ? ""
+        : after.startsWith("\n")
+          ? "\n"
+          : "\n\n";
+
+    const next = before + lead + token + trail + after;
+    const caret = before.length + lead.length + token.length;
+
     setValue("content", next, { shouldDirty: true, shouldValidate: true });
+
     requestAnimationFrame(() => {
-      const caret = lead.length + token.length;
-      el.focus();
+      el.focus({ preventScroll: true });
       try {
         el.setSelectionRange(caret, caret);
       } catch {
         /* ignore */
+      }
+      // Keep the insertion point roughly where it was.
+      if (next.length > 0 && el.scrollHeight > el.clientHeight) {
+        el.scrollTop = Math.max(
+          0,
+          (caret / next.length) * el.scrollHeight - el.clientHeight / 3,
+        );
       }
     });
   };

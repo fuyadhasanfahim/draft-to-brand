@@ -97,7 +97,13 @@ export function ImageDropzone({
             ? "Drop the image here"
             : "Drag an image here, or click to choose"}
       </p>
-      <p className="text-xs text-muted/70">JPEG, PNG, WebP, AVIF or GIF · up to 5 MB</p>
+      <p className="text-xs text-muted/70">
+        JPEG, PNG, WebP, AVIF or GIF · up to 5 MB
+      </p>
+      <p className="text-xs text-muted/70">
+        Best: landscape 16:9, around 1600×900 (min 1200×675). Portrait images
+        get cropped.
+      </p>
     </div>
   );
 }
