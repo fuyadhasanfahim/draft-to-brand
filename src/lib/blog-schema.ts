@@ -14,26 +14,36 @@ export const slugSchema = z
         'Use lowercase letters, numbers, and single hyphens only.',
     );
 
-const coverImageSchema = z
-    .union([z.url('Enter a valid image URL.'), z.literal('')])
-    .optional()
-    .default('');
-
-const blogFields = {
+// Field validators without defaults — shared by create and update. Defaults are
+// added only on the create schema so an update PATCH never resurrects a field
+// the caller did not send (zod `.partial()` still applies `.default()`).
+const fields = {
     title: z.string().trim().min(3, 'Title is too short.').max(160),
     slug: slugSchema,
-    excerpt: z.string().trim().max(300).optional().default(''),
-    coverImage: coverImageSchema,
+    excerpt: z.string().trim().max(300),
+    coverImage: z.union([z.url('Enter a valid image URL.'), z.literal('')]),
     content: z.string().trim().min(1, 'Write some content first.'),
-    publishedBy: z.string().trim().max(80).optional().default(''),
-    seoTitle: z.string().trim().max(70).optional().default(''),
-    seoDescription: z.string().trim().max(200).optional().default(''),
-    status: z.enum(blogStatuses).optional().default('draft'),
+    publishedBy: z.string().trim().max(80),
+    seoTitle: z.string().trim().max(70),
+    seoDescription: z.string().trim().max(200),
+    status: z.enum(blogStatuses),
 };
 
-export const createBlogSchema = z.object(blogFields);
-export const updateBlogSchema = z.object(blogFields).partial();
-export const statusUpdateSchema = z.object({ status: z.enum(blogStatuses) });
+export const createBlogSchema = z.object({
+    title: fields.title,
+    slug: fields.slug,
+    excerpt: fields.excerpt.optional().default(''),
+    coverImage: fields.coverImage.optional().default(''),
+    content: fields.content,
+    publishedBy: fields.publishedBy.optional().default(''),
+    seoTitle: fields.seoTitle.optional().default(''),
+    seoDescription: fields.seoDescription.optional().default(''),
+    status: fields.status.optional().default('draft'),
+});
+
+export const updateBlogSchema = z.object(fields).partial();
+
+export const statusUpdateSchema = z.object({ status: fields.status });
 
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
