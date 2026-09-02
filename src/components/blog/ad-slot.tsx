@@ -8,6 +8,10 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const ADSENSE_SLOT = process.env.NEXT_PUBLIC_ADSENSE_SLOT;
 const ADSTERRA_SRC = process.env.NEXT_PUBLIC_ADSTERRA_SRC;
 const ADSTERRA_KEY = process.env.NEXT_PUBLIC_ADSTERRA_KEY;
+const ADSTERRA_FORMAT =
+  process.env.NEXT_PUBLIC_ADSTERRA_FORMAT === "banner" ? "banner" : "native";
+const ADSTERRA_WIDTH = Number(process.env.NEXT_PUBLIC_ADSTERRA_WIDTH) || 300;
+const ADSTERRA_HEIGHT = Number(process.env.NEXT_PUBLIC_ADSTERRA_HEIGHT) || 250;
 const DEFAULT_NETWORK: AdNetwork =
   process.env.NEXT_PUBLIC_DEFAULT_AD_NETWORK === "adsterra"
     ? "adsterra"
@@ -16,6 +20,7 @@ const DEFAULT_NETWORK: AdNetwork =
 declare global {
   interface Window {
     adsbygoogle?: unknown[];
+    atOptions?: Record<string, unknown>;
   }
 }
 
@@ -61,21 +66,34 @@ function AdsenseUnit({ slot }: { slot?: string }) {
 }
 
 function AdsterraUnit() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
   const injected = useRef(false);
 
   useEffect(() => {
-    if (!ADSTERRA_SRC || !ADSTERRA_KEY || injected.current || !containerRef.current)
+    if (!ADSTERRA_SRC || !ADSTERRA_KEY || injected.current || !hostRef.current)
       return;
     injected.current = true;
 
-    const script = document.createElement("script");
-    script.async = true;
-    script.setAttribute("data-cfasync", "false");
-    script.src = ADSTERRA_SRC.startsWith("//")
+    const src = ADSTERRA_SRC.startsWith("//")
       ? `https:${ADSTERRA_SRC}`
       : ADSTERRA_SRC;
-    containerRef.current.appendChild(script);
+
+    // Banner/iframe units read a global `atOptions` before invoke.js runs.
+    if (ADSTERRA_FORMAT === "banner") {
+      window.atOptions = {
+        key: ADSTERRA_KEY,
+        format: "iframe",
+        height: ADSTERRA_HEIGHT,
+        width: ADSTERRA_WIDTH,
+        params: {},
+      };
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.setAttribute("data-cfasync", "false");
+    if (ADSTERRA_FORMAT === "native") script.async = true;
+    hostRef.current.appendChild(script);
   }, []);
 
   if (!ADSTERRA_SRC || !ADSTERRA_KEY) {
@@ -83,8 +101,8 @@ function AdsterraUnit() {
   }
 
   return (
-    <div className="my-10 flex justify-center" ref={containerRef}>
-      <div id={`container-${ADSTERRA_KEY}`} />
+    <div className="my-10 flex justify-center" ref={hostRef}>
+      {ADSTERRA_FORMAT === "native" && <div id={`container-${ADSTERRA_KEY}`} />}
     </div>
   );
 }

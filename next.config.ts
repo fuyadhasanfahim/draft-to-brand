@@ -17,7 +17,7 @@ const adsense = {
 // Adsterra serves from a rotating pool of domains — this covers the common
 // ones; top up here if the browser console reports a blocked Adsterra host.
 const adsterraHosts =
-    'https://*.highperformanceformat.com https://*.profitablecpmrate.com https://*.effectivecreativeformats.com https://*.effectivegatecpm.com https://*.displaycontentnetwork.com https://*.profitabledisplaynetwork.com https://*.premiumdisplaynetwork.com https://*.topcreativeformat.com https://*.creativecdn.com';
+    'https://*.highperformanceformat.com https://*.profitablecpmrate.com https://*.effectivecreativeformats.com https://*.effectivegatecpm.com https://*.displaycontentnetwork.com https://*.profitabledisplaynetwork.com https://*.premiumdisplaynetwork.com https://*.topcreativeformat.com https://*.creativecdn.com https://*.realsrv.com https://*.magsrv.com https://*.adsterra.com https://*.adsterranet.com https://*.terraclicks.com https://*.creative-serving.com https://*.hidhide.com';
 
 const contentSecurityPolicy = [
     "default-src 'self'",
