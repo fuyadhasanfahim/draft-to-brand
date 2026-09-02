@@ -91,52 +91,50 @@ export default async function BlogPostPage({ params }: Props) {
         }}
       />
 
-      <section className="relative pt-32 pb-10 md:pt-40 md:pb-14">
-        <Container>
-          <Reveal>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-            >
-              <IconArrowLeft size={15} stroke={2} />
-              All posts
-            </Link>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h1 className="text-display mt-6 max-w-4xl text-4xl font-medium leading-[1.02] sm:text-5xl md:text-6xl">
-              {post.title}
-            </h1>
-          </Reveal>
-          {post.publishedAt && (
-            <Reveal delay={0.1}>
-              <p className="mt-6 text-sm text-muted">
-                Published on{" "}
-                {format(new Date(post.publishedAt), "d MMMM yyyy")}
-                {post.publishedBy && <> · by {post.publishedBy}</>}
-              </p>
+      <Container className="pt-32 md:pt-40">
+        <div className="mx-auto max-w-3xl">
+          <section className="pb-10 md:pb-14">
+            <Reveal>
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
+              >
+                <IconArrowLeft size={15} stroke={2} />
+                All posts
+              </Link>
             </Reveal>
+            <Reveal delay={0.05}>
+              <h1 className="text-display mt-6 text-4xl font-medium leading-[1.02] sm:text-5xl">
+                {post.title}
+              </h1>
+            </Reveal>
+            {post.publishedAt && (
+              <Reveal delay={0.1}>
+                <p className="mt-6 text-sm text-muted">
+                  Published on{" "}
+                  {format(new Date(post.publishedAt), "d MMMM yyyy")}
+                  {post.publishedBy && <> · by {post.publishedBy}</>}
+                </p>
+              </Reveal>
+            )}
+          </section>
+
+          {post.coverImage && (
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                priority
+                sizes="(min-width: 768px) 768px, 100vw"
+                className="object-cover"
+              />
+            </div>
           )}
-        </Container>
-      </section>
 
-      {post.coverImage && (
-        <Container>
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl">
-            <Image
-              src={post.coverImage}
-              alt={post.title}
-              fill
-              priority
-              sizes="(min-width: 1280px) 1216px, 100vw"
-              className="object-cover"
-            />
+          <div className="mt-12 md:mt-16">
+            <BlogContent content={post.content} />
           </div>
-        </Container>
-      )}
-
-      <Container className="mt-12 md:mt-16">
-        <div className="mx-auto max-w-2xl">
-          <BlogContent content={post.content} />
         </div>
       </Container>
     </article>

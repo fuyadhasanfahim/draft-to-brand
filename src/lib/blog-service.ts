@@ -153,9 +153,10 @@ export async function setBlogStatus(
     return updateBlog(id, { status }, actorName);
 }
 
-export async function deleteBlog(id: string): Promise<boolean> {
-    if (!isValidObjectId(id)) return false;
+/** Deletes a post and returns its slug (or null if it did not exist). */
+export async function deleteBlog(id: string): Promise<string | null> {
+    if (!isValidObjectId(id)) return null;
     await connectDB();
-    const res = await BlogModel.findByIdAndDelete(id).exec();
-    return res !== null;
+    const res = await BlogModel.findByIdAndDelete(id).lean<LeanBlog>().exec();
+    return res?.slug ?? null;
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentAdmin } from '@/lib/auth/dal';
 import { createBlogSchema, blogStatuses, type BlogStatus } from '@/lib/blog-schema';
 import { createBlog, listBlogs, BlogSlugTakenError } from '@/lib/blog-service';
+import { revalidateBlog } from '@/lib/blog-revalidate';
 
 export async function GET(request: Request) {
     const admin = await getCurrentAdmin();
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
 
     try {
         const blog = await createBlog(parsed.data, admin.name);
+        revalidateBlog(blog.slug);
         return NextResponse.json({ blog }, { status: 201 });
     } catch (error) {
         if (error instanceof BlogSlugTakenError) {

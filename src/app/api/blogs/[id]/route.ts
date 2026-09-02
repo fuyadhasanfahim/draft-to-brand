@@ -7,6 +7,7 @@ import {
     updateBlog,
     BlogSlugTakenError,
 } from '@/lib/blog-service';
+import { revalidateBlog } from '@/lib/blog-revalidate';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -45,6 +46,7 @@ export async function PATCH(request: Request, { params }: Params) {
         if (!blog) {
             return NextResponse.json({ error: 'Not found.' }, { status: 404 });
         }
+        revalidateBlog(blog.slug);
         return NextResponse.json({ blog });
     } catch (error) {
         if (error instanceof BlogSlugTakenError) {
@@ -65,9 +67,10 @@ export async function DELETE(_request: Request, { params }: Params) {
     }
 
     const { id } = await params;
-    const removed = await deleteBlog(id);
-    if (!removed) {
+    const removedSlug = await deleteBlog(id);
+    if (!removedSlug) {
         return NextResponse.json({ error: 'Not found.' }, { status: 404 });
     }
+    revalidateBlog(removedSlug);
     return NextResponse.json({ ok: true });
 }
