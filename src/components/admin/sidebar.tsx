@@ -56,7 +56,7 @@ export function Sidebar({ adminName }: { adminName: string }) {
                     <Link
                         href="/admin/blogs"
                         onClick={closeSidebar}
-                        className="inline-flex items-center rounded-xl bg-white px-3 py-2 ring-1 ring-border"
+                        className="inline-flex items-center"
                         aria-label="Draft To Brand — blog admin"
                     >
                         <Image
@@ -64,7 +64,7 @@ export function Sidebar({ adminName }: { adminName: string }) {
                             width={1040}
                             height={338}
                             alt="Draft To Brand"
-                            className="h-6 w-auto object-contain"
+                            className="h-7 w-auto object-contain"
                             priority
                         />
                     </Link>
