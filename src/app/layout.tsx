@@ -32,9 +32,6 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     metadataBase: new URL(siteConfig.url),
     alternates: { canonical: '/' },
-    icons: {
-        apple: siteConfig.ogImage,
-    },
     openGraph: {
         title: `${siteConfig.name} | ${siteConfig.tagline}`,
         description: siteConfig.description,
