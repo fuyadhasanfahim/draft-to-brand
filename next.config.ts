@@ -2,14 +2,26 @@ import type { NextConfig } from 'next';
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// Google AdSense (article ads on /blog). Grouped so Adsterra domains can be
+// added alongside later.
+const adTrafficQuality =
+    'https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google';
+
+const adsense = {
+    script: `https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://adservice.google.com ${adTrafficQuality}`,
+    img: `https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://*.g.doubleclick.net https://www.google.com ${adTrafficQuality}`,
+    connect: `https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.g.doubleclick.net ${adTrafficQuality}`,
+    frame: `https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com ${adTrafficQuality}`,
+};
+
 const contentSecurityPolicy = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net ${adsense.script}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://res.cloudinary.com https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com",
+    `img-src 'self' data: https://res.cloudinary.com https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com ${adsense.img}`,
     "font-src 'self' data:",
-    "connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net",
-    "frame-src 'none'",
+    `connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://connect.facebook.net ${adsense.connect}`,
+    `frame-src ${adsense.frame}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
