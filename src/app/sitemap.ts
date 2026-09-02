@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
 import { tools } from "@/lib/tools";
+import { listBlogs } from "@/lib/blog-service";
 
-const routes = [
+const staticRoutes = [
   "",
   "/about",
   "/services",
@@ -10,16 +11,33 @@ const routes = [
   "/pricing",
   "/tools",
   ...tools.map((tool) => `/tools/${tool.slug}`),
+  "/blog",
   "/contact",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
 
-  return routes.map((route) => ({
+  const staticEntries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${siteConfig.url}${route}`,
-    lastModified,
+    lastModified: now,
     changeFrequency: "weekly",
     priority: route === "" ? 1 : 0.8,
   }));
+
+  let posts: Awaited<ReturnType<typeof listBlogs>> = [];
+  try {
+    posts = await listBlogs({ status: "published" });
+  } catch {
+    // DB unavailable at build — ship the static routes only.
+  }
+
+  const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${siteConfig.url}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt || post.publishedAt || now),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...staticEntries, ...postEntries];
 }

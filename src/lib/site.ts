@@ -22,6 +22,7 @@ export const navLinks = [
   { label: "Work", href: "/work" },
   { label: "Pricing", href: "/pricing" },
   { label: "Free Tools", href: "/tools" },
+  { label: "Blog", href: "/blog" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
