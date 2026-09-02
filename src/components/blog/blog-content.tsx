@@ -84,24 +84,22 @@ const markdownComponents: Components = {
 
 /**
  * Renders post markdown, dropping an <AdSlot/> wherever a lone `[[ad]]` line
- * sits. `[[ad:adsense]]` / `[[ad:adsterra]]` force a specific network; a plain
- * `[[ad]]` uses the configured default.
+ * sits. `[[ad:adsense]]`, `[[ad:adsterra]]` (native) or
+ * `[[ad:adsterra:300x250]]` force a specific unit; a plain `[[ad]]` uses the
+ * configured default.
  */
 export function BlogContent({ content }: { content: string }) {
-  // A single capturing group means split() interleaves the captured network
+  // The single capturing group makes split() interleave the captured token
   // (or undefined) between the text segments.
   const parts = content.split(
-    /^[ \t]*\[\[ad(?::(adsense|adsterra))?\]\][ \t]*$/m,
+    /^[ \t]*\[\[ad(?::(adsense|adsterra(?::[a-z0-9]+)?))?\]\][ \t]*$/im,
   );
 
   return (
     <div className="text-[1.05rem]">
       {parts.map((part, index) => {
-        if (index % 2 === 1) return null; // odd entries are captured networks
-        const network = parts[index + 1] as
-          | "adsense"
-          | "adsterra"
-          | undefined;
+        if (index % 2 === 1) return null; // odd entries are captured tokens
+        const token = parts[index + 1] as string | undefined;
         const hasAdAfter = index + 1 < parts.length;
 
         return (
@@ -112,7 +110,7 @@ export function BlogContent({ content }: { content: string }) {
             >
               {part}
             </ReactMarkdown>
-            {hasAdAfter && <AdSlot network={network} />}
+            {hasAdAfter && <AdSlot token={token?.toLowerCase()} />}
           </div>
         );
       })}

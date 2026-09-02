@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import { cn, slugify } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { blogFormSchema, type BlogFormValues } from "@/lib/blog-schema";
+import { AD_INSERT_OPTIONS } from "@/lib/ad-config";
 import {
   blogKeys,
   createBlog,
@@ -89,6 +90,31 @@ export function BlogForm({
   });
 
   const [pendingTarget, setPendingTarget] = useState<SubmitTarget | null>(null);
+
+  // Insert an ad marker at the caret in the content textarea, on its own line.
+  const contentRef = useRef<HTMLTextAreaElement | null>(null);
+  const insertToken = (token: string) => {
+    const el = contentRef.current;
+    if (!el) return;
+    const value = el.value;
+    const start = el.selectionStart ?? value.length;
+    const end = el.selectionEnd ?? value.length;
+    const before = value.slice(0, start).replace(/[ \t]+$/, "");
+    const after = value.slice(end).replace(/^[ \t]+/, "");
+    const lead = before === "" ? "" : before.replace(/\n+$/, "") + "\n\n";
+    const trail = "\n\n" + after.replace(/^\n+/, "");
+    const next = lead + token + trail;
+    setValue("content", next, { shouldDirty: true, shouldValidate: true });
+    requestAnimationFrame(() => {
+      const caret = lead.length + token.length;
+      el.focus();
+      try {
+        el.setSelectionRange(caret, caret);
+      } catch {
+        /* ignore */
+      }
+    });
+  };
 
   // Keep the slug in sync with the title until the user edits it themselves.
   const titleValue = useWatch({ control, name: "title" });
@@ -249,29 +275,55 @@ export function BlogForm({
         />
       </div>
 
-      <div className="glass-card flex flex-col gap-2 rounded-3xl p-6">
-        <Field
-          label="Content"
-          htmlFor="content"
-          hint={
-            <>
-              Markdown. Write <code className="font-mono">[[ad]]</code> on its own
-              line to drop an ad slot there.
-            </>
-          }
-          error={errors.content?.message}
-        >
-          <textarea
-            id="content"
-            rows={18}
-            {...register("content")}
-            className={cn(
-              inputClass,
-              "resize-y font-mono leading-relaxed",
-              errors.content && "border-primary/50",
-            )}
-          />
-        </Field>
+      <div className="glass-card flex flex-col gap-3 rounded-3xl p-6">
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Content</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 text-xs text-muted">Insert ad at cursor:</span>
+            {AD_INSERT_OPTIONS.map((opt) => (
+              <button
+                key={opt.token}
+                type="button"
+                onClick={() => insertToken(opt.token)}
+                title={opt.hint}
+                aria-label={`Insert ${opt.label} ad marker at the cursor`}
+                className="rounded-lg border border-border px-2 py-1 text-xs text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted">
+            Markdown. Each button drops a marker like{" "}
+            <code className="font-mono">[[ad:adsterra:300x250]]</code> on its own
+            line — that spot renders the ad on the live post.
+          </p>
+        </div>
+
+        {(() => {
+          const { ref: registerRef, ...contentField } = register("content");
+          return (
+            <textarea
+              id="content"
+              rows={18}
+              {...contentField}
+              ref={(el) => {
+                registerRef(el);
+                contentRef.current = el;
+              }}
+              className={cn(
+                inputClass,
+                "resize-y font-mono leading-relaxed",
+                errors.content && "border-primary/50",
+              )}
+            />
+          );
+        })()}
+        {errors.content && (
+          <p className="text-xs text-[color:var(--color-primary-text)]">
+            {errors.content.message}
+          </p>
+        )}
       </div>
 
       <details className="glass-card rounded-3xl p-6">
