@@ -21,6 +21,10 @@ export type Service = {
     capabilities: string[];
     featured?: boolean;
     portfolioUrl?: string;
+    collaboration?: {
+        partner: string;
+        url: string;
+    };
 };
 
 export const services: Service[] = [
@@ -40,6 +44,10 @@ export const services: Service[] = [
         ],
         featured: true,
         portfolioUrl: "https://fuyadhasanfahim.com/projects",
+        collaboration: {
+            partner: "Midline Seven",
+            url: "https://midlineseven.vercel.app/",
+        },
     },
     {
         slug: "brand-identity",

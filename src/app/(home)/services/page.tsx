@@ -3,7 +3,11 @@ import { Badge } from "@/components/shared/badge";
 import { services } from "@/lib/data";
 import { HomeCta } from "@/components/home/cta";
 import { Reveal } from "@/components/shared/animations";
-import { IconCheck, IconArrowUpRight, IconStar } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconArrowUpRight,
+  IconLink,
+} from "@tabler/icons-react";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
@@ -76,12 +80,6 @@ export default function ServicesPage() {
                     >
                       <service.icon size={20} stroke={1.6} />
                     </div>
-                    {service.featured && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ff3131]/15 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-primary-text)]">
-                        <IconStar size={12} stroke={2} />
-                        Our Specialty
-                      </span>
-                    )}
                   </div>
                   <h2 className="text-display text-3xl font-medium leading-tight md:text-4xl">
                     {service.title}
@@ -93,20 +91,6 @@ export default function ServicesPage() {
                   >
                     {service.summary}
                   </p>
-                  {/* {service.portfolioUrl && (
-                    <a
-                      href={service.portfolioUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-accent group w-fit"
-                    >
-                      View Portfolio
-                      <IconArrowUpRight
-                        size={18}
-                        className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      />
-                    </a>
-                  )} */}
                 </div>
                 <div className="md:col-span-7">
                   <div
@@ -143,6 +127,59 @@ export default function ServicesPage() {
                       ))}
                     </ul>
                   </div>
+                  {service.collaboration && (
+                    <a
+                      href={service.collaboration.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`group mt-6 flex items-center justify-between gap-4 rounded-2xl border px-5 py-4 transition-colors ${
+                        service.featured
+                          ? "border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.07]"
+                          : "border-[color:var(--color-border)] bg-white/60 hover:border-[#ff3131]/25 hover:bg-white"
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <span
+                          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${
+                            service.featured
+                              ? "bg-[#ff3131]/15 text-[#ff3131]"
+                              : "bg-[#ff3131]/10 text-[#ff3131]"
+                          }`}
+                        >
+                          <IconLink size={16} stroke={1.8} />
+                        </span>
+                        <span className="flex flex-col">
+                          <span
+                            className={`text-[11px] uppercase tracking-[0.14em] ${
+                              service.featured ? "text-white/40" : "text-muted"
+                            }`}
+                          >
+                            Collaboration
+                          </span>
+                          <span
+                            className={`text-sm font-medium ${
+                              service.featured ? "text-white" : "text-[color:var(--color-foreground)]"
+                            }`}
+                          >
+                            {service.collaboration.partner}
+                          </span>
+                        </span>
+                      </span>
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-1.5 text-sm font-medium ${
+                          service.featured
+                            ? "text-white/70 group-hover:text-white"
+                            : "text-muted group-hover:text-[#282a2a]"
+                        }`}
+                      >
+                        View Details
+                        <IconArrowUpRight
+                          size={16}
+                          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        />
+                      </span>
+                    </a>
+                  )}
                 </div>
               </article>
             ))}

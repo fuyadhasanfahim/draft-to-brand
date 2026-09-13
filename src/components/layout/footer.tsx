@@ -84,8 +84,24 @@ export function Footer() {
                 </div>
 
                 <div className="flex flex-col items-center justify-between gap-6 border-t border-white/10 py-8 text-sm text-white/50 md:flex-row">
-                    <span>
-                        © {year} {siteConfig.name}. All rights reserved.
+                    <span className="flex flex-col items-center gap-1 text-center md:flex-row md:gap-2 md:text-left">
+                        <span>
+                            © {year} {siteConfig.name}. All rights reserved.
+                        </span>
+                        <span className="hidden text-white/20 md:inline">
+                            /
+                        </span>
+                        <span>
+                            Made by{" "}
+                            <a
+                                href="https://midlineseven.vercel.app/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-white/50"
+                            >
+                                Midline Seven
+                            </a>
+                        </span>
                     </span>
                     <span className="text-xs uppercase tracking-[0.2em]">
                         From Draft. To Brand.
