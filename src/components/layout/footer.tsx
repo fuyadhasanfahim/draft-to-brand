@@ -94,7 +94,7 @@ export function Footer() {
                         <span>
                             Made by{" "}
                             <a
-                                href="https://midlineseven.vercel.app/"
+                                href="https://midlineseven.com/?utm_source=drafttobrand"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-white/50"
