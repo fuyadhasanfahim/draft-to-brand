@@ -44,10 +44,6 @@ export const services: Service[] = [
         ],
         featured: true,
         portfolioUrl: "https://fuyadhasanfahim.com/projects",
-        collaboration: {
-            partner: "Midline Seven",
-            url: "https://midlineseven.vercel.app/",
-        },
     },
     {
         slug: "brand-identity",
